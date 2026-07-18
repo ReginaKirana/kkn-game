@@ -1,0 +1,48 @@
+{
+  "kasus_kantin": {
+    "lokasi": "Kantin Sekolah",
+    "masalah": "Sampah makanan menumpuk di area makan",
+    "hotspots": [
+      {
+        "id": "npc_guru",
+        "x": 200,
+        "y": 300,
+        "dialog": ["Bapak lihat murid-murid kebingungan.", "Tempat sampahnya penuh."],
+        "clue": "clue_penuh"
+      },
+      {
+        "id": "npc_siswa",
+        "x": 600,
+        "y": 350,
+        "dialog": ["Aku mau buang sampah tapi tidak tahu yang mana yang organik.", "Dan tidak ada jadwal yang buang sampah keluar."],
+        "clue": "clue_jadwal"
+      }
+    ],
+    "akarMasalah": [
+      {
+        "id": "A",
+        "teks": "Jumlah tempat sampah kurang",
+        "benar": false
+      },
+      {
+        "id": "B",
+        "teks": "Jadwal angkut tidak jelas",
+        "benar": true
+      }
+    ],
+    "solusi": [
+      {
+        "id": "S1",
+        "teks": "Buat jadwal piket & angkut rutin",
+        "benar": true,
+        "fakta": "Jadwal piket yang jelas membantu sampah diangkut rutin sebelum menumpuk."
+      },
+      {
+        "id": "S2",
+        "teks": "Pasang poster edukasi",
+        "benar": false,
+        "fakta": "Poster bagus, tapi tidak menyelesaikan masalah sampah yang sudah menumpuk hari ini."
+      }
+    ]
+  }
+}
