@@ -1,0 +1,32 @@
+---
+description: Center HTML dialogs/modals over Phaser game (avoid DOMElement offset with ENVELOP)
+globs: src/game/**/*.ts
+alwaysApply: false
+---
+
+# Phaser: Center Modals on Screen
+
+Game uses `scale.mode: Phaser.Scale.ENVELOP` + `autoCenter: CENTER_BOTH`. Phaser `this.add.dom()` coordinates often look off-center on the real viewport.
+
+## Do this for name/input dialogs and full-screen overlays
+
+Use a **fixed HTML overlay on `document.body`**, not Phaser DOMElement:
+
+```ts
+const wrapper = document.createElement('div');
+wrapper.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;';
+// append panel inside wrapper, then:
+document.body.appendChild(wrapper);
+// on close: wrapper.remove()
+```
+
+Reference implementation: `CoverScene.showNameInput()` / `submitNameForm()`.
+
+## Avoid
+
+- `this.add.dom(width/2, height/2)` + absolute `left/top` offsets for “centering”
+- Assuming game-world center == browser viewport center under ENVELOP
+
+## Cleanup
+
+Always `remove()` the overlay when submitting or leaving the scene so it doesn’t stick after scene changes.

@@ -12,6 +12,9 @@ import { ResultScene } from './scenes/ResultScene';
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
   parent: 'game-container', // Default, will be overridden by initGame argument
+  dom: {
+    createContainer: true
+  },
   width: 1920,
   height: 1080,
   transparent: true,
