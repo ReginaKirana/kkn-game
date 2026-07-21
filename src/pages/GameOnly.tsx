@@ -10,7 +10,11 @@ export default function GameOnly() {
     
     // Start the game in this dedicated path
     if (gameRef.current) {
-      gameInstance = initGame(gameRef.current.id);
+      // Debugging feature: skip directly to a scene using URL parameter
+      const searchParams = new URLSearchParams(window.location.search);
+      const sceneParam = searchParams.get('scene') || undefined;
+
+      gameInstance = initGame(gameRef.current.id, sceneParam);
     }
     
     // Change tab title for the game

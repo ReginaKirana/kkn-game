@@ -33,6 +33,13 @@ export class CoverScene extends Phaser.Scene {
     // Note: Browsers may block audio until the user clicks/interacts with the screen
     this.bgMusic = this.sound.add('cover_bgm', { loop: true, volume: 0.6 });
     this.bgMusic.play();
+    
+    // Stop music if the scene is forcefully shut down (e.g., via debug scene skip)
+    this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
+      if (this.bgMusic) {
+        this.bgMusic.stop();
+      }
+    });
   }
 
   private createBackground() {

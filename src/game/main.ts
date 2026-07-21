@@ -24,9 +24,12 @@ const config: Phaser.Types.Core.GameConfig = {
   scale: {
     mode: Phaser.Scale.ENVELOP,
     autoCenter: Phaser.Scale.CENTER_BOTH
-  },
-  scene: [
-    CoverScene, // Make CoverScene the first scene to run
+  }
+};
+
+export default function initGame(parentContainerId: string, startScene?: string) {
+  let scenes = [
+    CoverScene,
     IntroScene,
     BootScene,
     MenuScene,
@@ -35,10 +38,17 @@ const config: Phaser.Types.Core.GameConfig = {
     ConclusionScene,
     SolutionScene,
     ResultScene
-  ]
-};
+  ];
 
-export default function initGame(parentContainerId: string) {
-  const gameConfig = { ...config, parent: parentContainerId };
+  // If a start scene is requested, bring it to the front of the array
+  if (startScene) {
+    const sceneIndex = scenes.findIndex(s => s.name === startScene || s.prototype.constructor.name === startScene);
+    if (sceneIndex > 0) {
+      const sceneToStart = scenes.splice(sceneIndex, 1)[0];
+      scenes.unshift(sceneToStart);
+    }
+  }
+
+  const gameConfig = { ...config, parent: parentContainerId, scene: scenes };
   return new Phaser.Game(gameConfig);
 }
