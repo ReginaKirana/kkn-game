@@ -12,8 +12,13 @@ export default function GameOnly() {
     if (gameRef.current) {
       gameInstance = initGame(gameRef.current.id);
     }
+    
+    // Change tab title for the game
+    const originalTitle = document.title;
+    document.title = 'Detektif Sampah';
 
     return () => {
+      document.title = originalTitle; // Restore original title on unmount
       if (gameInstance) {
         gameInstance.destroy(true);
       }
