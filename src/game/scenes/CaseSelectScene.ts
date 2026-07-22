@@ -1,5 +1,6 @@
 import * as Phaser from 'phaser';
-import kasusSatuBg from '../../assets/backgrounds/kasus-satu.png';
+import papanKasusBg from '../../assets/backgrounds/papan-kasus.png';
+import papanKasus2Bg from '../../assets/backgrounds/papan-kasus2.png';
 
 export class CaseSelectScene extends Phaser.Scene {
   constructor() {
@@ -7,27 +8,91 @@ export class CaseSelectScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image('kasus_satu_bg', kasusSatuBg);
+    this.load.image('papan_kasus_bg', papanKasusBg);
+    this.load.image('papan_kasus2_bg', papanKasus2Bg);
   }
 
-  create() {
+  create(data: { unlockCase2?: boolean }) {
     const { width, height } = this.cameras.main;
     
     // Background Image
-    const bg = this.add.image(width / 2, height / 2, 'kasus_satu_bg');
+    const bg = this.add.image(width / 2, height / 2, 'papan_kasus_bg').setDepth(0);
     // Cover the screen
     const scaleX = width / bg.width;
     const scaleY = height / bg.height;
     bg.setScale(Math.max(scaleX, scaleY));
 
     // Kasus 1 (Aktif)
-    this.createCaseButton(width * 0.25, height * 0.71, 'kasus_halaman', true, -3);
+    this.createCaseButton(width * 0.25, height * 0.73, 'kasus_halaman', true, -3);
     
     // Kasus 2 (Terkunci)
-    this.createCaseButton(width * 0.50, height * 0.71, 'kasus_sampah', false, 2);
+    const lockOverlay2 = this.drawLockedCaseOverlay(width * 0.50, height * 0.52, 2);
+    const btn2 = this.createCaseButton(width * 0.50, height * 0.73, 'kasus_sampah', false, 2);
 
     // Kasus 3 (Terkunci)
-    this.createCaseButton(width * 0.75, height * 0.71, 'kasus_selokan', false, -1);
+    this.drawLockedCaseOverlay(width * 0.75, height * 0.52, -1);
+    this.createCaseButton(width * 0.75, height * 0.73, 'kasus_selokan', false, -1);
+
+    if (data.unlockCase2) {
+      // Tunggu sebentar agar pemain siap melihat efeknya
+      this.time.delayedCall(800, () => {
+        const lockIcon = lockOverlay2.list[0] as Phaser.GameObjects.Text;
+        
+        // Animasi Gembok Bergoyang
+        this.tweens.add({
+          targets: lockIcon,
+          angle: { from: -15, to: 15 },
+          yoyo: true,
+          repeat: 3,
+          duration: 120,
+          onComplete: () => {
+            lockIcon.setAngle(0);
+            lockIcon.text = '🔓'; // Gembok terbuka
+            
+            // Gembok membesar dan pudar
+            this.tweens.add({
+              targets: lockIcon,
+              scale: 1.5,
+              alpha: 0,
+              duration: 500,
+              ease: 'Power2',
+              onComplete: () => {
+                lockOverlay2.destroy();
+                
+                // Transisi Background ke papan-kasus2
+                const bg2 = this.add.image(width / 2, height / 2, 'papan_kasus2_bg').setDepth(1);
+                bg2.setScale(Math.max(scaleX, scaleY));
+                bg2.setAlpha(0);
+                
+                this.tweens.add({
+                  targets: bg2,
+                  alpha: 1,
+                  duration: 800,
+                  onComplete: () => {
+                    // Ubah tombol menjadi Aktif
+                    btn2.destroy();
+                    this.createCaseButton(width * 0.50, height * 0.73, 'kasus_sampah', true, 2);
+                  }
+                });
+              }
+            });
+          }
+        });
+      });
+    }
+  }
+
+  private drawLockedCaseOverlay(x: number, y: number, angle: number) {
+    const overlay = this.add.container(x, y).setDepth(10);
+
+    // Giant Lock Emoji
+    const lockIcon = this.add.text(0, -20, '🔒', {
+      fontSize: '120px'
+    }).setOrigin(0.5);
+
+    overlay.add([lockIcon]);
+    overlay.setAngle(angle);
+    return overlay;
   }
 
   private createCaseButton(x: number, y: number, caseId: string, isActive: boolean, angle: number) {
@@ -112,5 +177,8 @@ export class CaseSelectScene extends Phaser.Scene {
         this.scene.start('InvestigationScene', { caseId: caseId });
       });
     }
+    
+    selidikiBtn.setDepth(10);
+    return selidikiBtn;
   }
 }

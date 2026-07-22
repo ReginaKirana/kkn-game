@@ -75,7 +75,7 @@ export class SolutionScene extends Phaser.Scene {
       fontSize: '32px',
       color: '#f8fafc',
       wordWrap: { width: dialogWidth - 100 },
-      lineHeight: 1.5
+      lineSpacing: 10
     });
 
     // Animasi Text Typewriter
@@ -142,9 +142,8 @@ export class SolutionScene extends Phaser.Scene {
         const hitArea = new Phaser.Geom.Rectangle(-75, -25, 150, 50);
         nextBtnContainer.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
       } else {
-        // Lanjut ke Solusi / Kuis selanjutnya
-        // Untuk sekarang diarahkan ke ResultScene (Bisa diganti jika ada kuis solusi)
-        this.scene.start('ResultScene', { caseId: this.caseId, stars: 3 });
+        // Lanjut ke Solusi / Misi Bersih-bersih
+        this.scene.start('CleanUpScene', { caseId: this.caseId });
       }
     });
 
