@@ -1,11 +1,13 @@
 import * as Phaser from 'phaser';
 import halamanKotorBg from '../../assets/backgrounds/halaman-kotor.png';
+import binKosongBg from '../../assets/backgrounds/bin-kosong.png';
 
 export class InvestigationScene extends Phaser.Scene {
   private cluesFound: number = 0;
   private totalClues: number = 4;
   private nextBtn!: Phaser.GameObjects.Container;
   private caseId!: string;
+  private binBg!: Phaser.GameObjects.Image;
 
   constructor() {
     super('InvestigationScene');
@@ -13,6 +15,7 @@ export class InvestigationScene extends Phaser.Scene {
 
   preload() {
     this.load.image('halaman_kotor_bg', halamanKotorBg);
+    this.load.image('bin_kosong_bg', binKosongBg);
   }
 
   create(data: { caseId: string }) {
@@ -37,43 +40,56 @@ export class InvestigationScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     // Clues Configuration
-    // Koordinat ini adalah perkiraan, mungkin perlu disesuaikan dengan posisi asli di gambar
     const clues = [
       {
         id: 'botol',
         x: width * 0.47, 
         y: height * 0.52,
-        text: 'Botol plastik ini dibuang di halaman,\nbukan di tempat sampah.'
+        text: 'Botol plastik ini dibuang di halaman,\nbukan di tempat sampah.',
+        hasPov: false
       },
       {
         id: 'pisang',
         x: width * 0.28, 
         y: height * 0.8,
-        text: 'Kulit pisang ini juga dibiarkan\nbegitu saja di halaman.'
+        text: 'Kulit pisang ini juga dibiarkan\nbegitu saja di halaman.',
+        hasPov: false
       },
       {
         id: 'daun',
         x: width * 0.75, 
         y: height * 0.8,
-        text: '🍃 Daun\n\nPetunjuk: Daun memang jatuh dari pohon,\ntetapi jumlahnya hanya sedikit.'
+        text: '🍃 Daun\n\nPetunjuk: Daun memang jatuh dari pohon,\ntetapi jumlahnya hanya sedikit.',
+        hasPov: false
       },
       {
         id: 'tempat_sampah',
         x: width * 0.71, 
         y: height * 0.45,
-        text: 'Tempat sampah hijau dan kuning.\nSeharusnya sampah dibuang ke sini\nsesuai dengan jenisnya!'
+        text: 'Tempat sampah hijau dan kuning.\nLoh, ternyata tempat sampahnya KOSONG!\nSeharusnya sampah dibuang ke sini!',
+        hasPov: true
       }
     ];
 
     clues.forEach(clue => {
-      this.createClueMarker(clue.x, clue.y, clue.text);
+      this.createClueMarker(clue.x, clue.y, clue.text, clue.hasPov);
     });
+
+    // POV Background for empty bin (hidden initially, high depth to cover markers)
+    this.binBg = this.add.image(width / 2, height / 2, 'bin_kosong_bg');
+    const binScaleX = width / this.binBg.width;
+    const binScaleY = height / this.binBg.height;
+    this.binBg.setScale(Math.max(binScaleX, binScaleY));
+    this.binBg.setVisible(false);
+    this.binBg.setAlpha(0);
+    this.binBg.setDepth(10); // Cover markers
+    this.binBg.setInteractive(); // Block clicks to clues while in POV
 
     // Selesai Button (Hidden until all clues found)
     this.createNextButton(width, height);
   }
 
-  private createClueMarker(x: number, y: number, text: string) {
+  private createClueMarker(x: number, y: number, text: string, hasPov: boolean) {
     const container = this.add.container(x, y);
     
     // Pulsing outer ring
@@ -128,39 +144,61 @@ export class InvestigationScene extends Phaser.Scene {
 
     container.on('pointerdown', () => {
       this.input.setDefaultCursor('default');
-      this.showDialog(text);
       
-      if (!isFound) {
-        isFound = true;
-        this.cluesFound++;
+      const onClueShown = () => {
+        this.showDialog(text, hasPov);
         
-        // Change appearance to indicate it's been found
-        bg.setFillStyle(0x86efac); // Light green
-        icon.setText('✔️');
-        ring.setVisible(false); // Stop pulsing
-        
-        if (this.cluesFound >= this.totalClues) {
-          this.nextBtn.setVisible(true);
-          this.tweens.add({
-            targets: this.nextBtn,
-            alpha: 1,
-            y: this.cameras.main.height - 100,
-            duration: 500,
-            ease: 'Back.easeOut'
-          });
+        if (!isFound) {
+          isFound = true;
+          this.cluesFound++;
+          
+          // Change appearance to indicate it's been found
+          bg.setFillStyle(0x86efac); // Light green
+          icon.setText('✔️');
+          ring.setVisible(false); // Stop pulsing
+          
+          if (this.cluesFound >= this.totalClues) {
+            this.nextBtn.setVisible(true);
+            this.tweens.add({
+              targets: this.nextBtn,
+              alpha: 1,
+              y: this.cameras.main.height - 100,
+              duration: 500,
+              ease: 'Back.easeOut'
+            });
+          }
         }
+      };
+
+      if (hasPov && this.binBg) {
+        this.binBg.setVisible(true);
+        this.tweens.add({
+          targets: this.binBg,
+          alpha: 1,
+          duration: 600,
+          onComplete: () => {
+            // Beri jeda waktu agar pemain bisa mengamati isi tempat sampah dulu
+            this.time.delayedCall(1200, () => {
+              onClueShown();
+            });
+          }
+        });
+      } else {
+        onClueShown();
       }
     });
   }
 
-  private showDialog(text: string) {
+  private showDialog(text: string, hasPov: boolean) {
     const { width, height } = this.cameras.main;
     
     // Dim background
     const overlay = this.add.rectangle(0, 0, width, height, 0x000000, 0.5).setOrigin(0, 0);
     overlay.setInteractive(); // Block clicks to things behind it
+    overlay.setDepth(20);
     
     const dialogBox = this.add.container(width / 2, height / 2);
+    dialogBox.setDepth(20);
     
     // Box
     const boxWidth = 600;
@@ -223,6 +261,18 @@ export class InvestigationScene extends Phaser.Scene {
         onComplete: () => {
           overlay.destroy();
           dialogBox.destroy();
+          
+          // Return from POV if needed
+          if (hasPov && this.binBg) {
+            this.tweens.add({
+              targets: this.binBg,
+              alpha: 0,
+              duration: 500,
+              onComplete: () => {
+                this.binBg.setVisible(false);
+              }
+            });
+          }
         }
       });
     };
