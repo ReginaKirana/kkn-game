@@ -64,8 +64,8 @@ export class InvestigationScene extends Phaser.Scene {
       },
       {
         id: 'tempat_sampah',
-        x: width * 0.71, 
-        y: height * 0.45,
+        x: width * 0.75, 
+        y: height * 0.465,
         text: 'Tempat sampah hijau dan kuning.\nLoh, ternyata tempat sampahnya KOSONG!\nSeharusnya sampah dibuang ke sini!',
         hasPov: true
       }

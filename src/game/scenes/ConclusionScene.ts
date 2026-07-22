@@ -1,4 +1,9 @@
 import * as Phaser from 'phaser';
+import halamanKotorBg from '../../assets/backgrounds/halaman-kotor.png';
+import botolImg from '../../assets/objects/botol.png';
+import pisangImg from '../../assets/objects/pisang.png';
+import daunImg from '../../assets/objects/daun.png';
+import binImg from '../../assets/objects/bin.png';
 
 export class ConclusionScene extends Phaser.Scene {
   private caseId!: string;
@@ -7,227 +12,255 @@ export class ConclusionScene extends Phaser.Scene {
     super('ConclusionScene');
   }
 
+  preload() {
+    this.load.image('halaman_kotor_bg', halamanKotorBg);
+    this.load.image('clue_botol', botolImg);
+    this.load.image('clue_pisang', pisangImg);
+    this.load.image('clue_daun', daunImg);
+    this.load.image('clue_bin', binImg);
+  }
+
   create(data: { caseId: string }) {
     this.caseId = data.caseId || 'kasus_halaman';
     const { width, height } = this.cameras.main;
 
-    // Background
-    this.add.rectangle(0, 0, width, height, 0x0f172a).setOrigin(0, 0);
+    // 1. Gambar ulang background investigasi
+    const bg = this.add.image(width / 2, height / 2, 'halaman_kotor_bg');
+    const scaleX = width / bg.width;
+    const scaleY = height / bg.height;
+    bg.setScale(Math.max(scaleX, scaleY));
 
-    // Container for the intro animation
-    const introContainer = this.add.container(width / 2, height / 2);
+    // 2. Gelapkan layar (overlay)
+    this.add.rectangle(0, 0, width, height, 0x000000, 0.7).setOrigin(0, 0);
 
-    // Magnifying glass icon
-    const magGlass = this.add.text(0, -150, '🔍', { fontSize: '100px' }).setOrigin(0.5);
-    magGlass.setAlpha(0);
-    magGlass.setScale(0.5);
-
-    // Text 1
-    const text1 = this.add.text(0, 30, 'Semua petunjuk berhasil ditemukan! 🎉', {
-      fontFamily: 'monospace',
-      fontSize: '36px',
-      color: '#4ade80', // Green
-      fontStyle: 'bold'
-    }).setOrigin(0.5);
-    text1.setAlpha(0);
-
-    // Text 2
-    const text2 = this.add.text(0, 100, 'Sekarang, coba pikirkan penyebab\nhalaman sekolah menjadi kotor.', {
-      fontFamily: 'monospace',
-      fontSize: '28px',
-      color: '#e2e8f0', // Light gray
-      align: 'center'
-    }).setOrigin(0.5);
-    text2.setAlpha(0);
-
-    // Button "Lanjutkan Analisis"
-    const btnContainer = this.add.container(0, 220);
-    const btnWidth = 350;
-    const btnHeight = 70;
-
-    const btnBg = this.add.graphics();
-    btnBg.fillStyle(0x3b82f6, 1);
-    btnBg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 35);
-    btnBg.lineStyle(4, 0xffffff, 1);
-    btnBg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 35);
-
-    const btnText = this.add.text(0, 0, 'Lanjutkan Analisis ➔', {
-      fontFamily: 'monospace',
-      fontSize: '24px',
-      color: '#ffffff',
-      fontStyle: 'bold'
-    }).setOrigin(0.5);
-
-    btnContainer.add([btnBg, btnText]);
-    btnContainer.setAlpha(0);
-
-    introContainer.add([magGlass, text1, text2, btnContainer]);
-
-    // ANIMATION SEQUENCE
-    // 1. Magnifying glass drops and bounces
-    this.tweens.add({
-      targets: magGlass,
-      y: -100,
-      alpha: 1,
-      scale: 1,
-      duration: 1000,
-      ease: 'Bounce.easeOut',
-      onComplete: () => {
-        // Pop effect
-        this.tweens.add({
-          targets: magGlass,
-          scale: 1.2,
-          duration: 150,
-          yoyo: true,
-          ease: 'Sine.easeInOut'
-        });
-
-        // 2. Text 1 fades in
-        this.tweens.add({
-          targets: text1,
-          alpha: 1,
-          y: 20,
-          duration: 500,
-          ease: 'Power2',
-          onComplete: () => {
-            // 3. Text 2 fades in
-            this.tweens.add({
-              targets: text2,
-              alpha: 1,
-              y: 90,
-              duration: 500,
-              ease: 'Power2',
-              delay: 300,
-              onComplete: () => {
-                // 4. Button fades in
-                this.tweens.add({
-                  targets: btnContainer,
-                  alpha: 1,
-                  y: 200,
-                  duration: 500,
-                  ease: 'Back.easeOut',
-                  onComplete: () => {
-                    this.enableButton(btnContainer, introContainer, btnWidth, btnHeight, btnBg);
-                  }
-                });
-              }
-            });
-          }
-        });
-      }
-    });
-  }
-
-  private enableButton(
-    btnContainer: Phaser.GameObjects.Container, 
-    introContainer: Phaser.GameObjects.Container, 
-    btnWidth: number, 
-    btnHeight: number, 
-    btnBg: Phaser.GameObjects.Graphics
-  ) {
-    const hitArea = new Phaser.Geom.Rectangle(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight);
-    btnContainer.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
-
-    btnContainer.on('pointerover', () => {
-      this.input.setDefaultCursor('pointer');
-      this.tweens.add({ targets: btnContainer, scale: 1.05, duration: 100 });
-      btnBg.clear();
-      btnBg.fillStyle(0x2563eb, 1);
-      btnBg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 35);
-      btnBg.lineStyle(4, 0xffffff, 1);
-      btnBg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 35);
-    });
-
-    btnContainer.on('pointerout', () => {
-      this.input.setDefaultCursor('default');
-      this.tweens.add({ targets: btnContainer, scale: 1, duration: 100 });
-      btnBg.clear();
-      btnBg.fillStyle(0x3b82f6, 1);
-      btnBg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 35);
-      btnBg.lineStyle(4, 0xffffff, 1);
-      btnBg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 35);
-    });
-
-    btnContainer.on('pointerdown', () => {
-      this.input.setDefaultCursor('default');
-      
-      // Transition out intro container
-      this.tweens.add({
-        targets: introContainer,
-        alpha: 0,
-        y: -50,
-        duration: 400,
-        ease: 'Power2',
-        onComplete: () => {
-          introContainer.destroy();
-          this.showQuiz();
-        }
-      });
-    });
-  }
-
-  private showQuiz() {
-    const { width, height } = this.cameras.main;
+    // 3. Buat Modal "Kertas Resume"
+    const modalContainer = this.add.container(width / 2, height / 2);
     
-    // For now, this is the placeholder quiz logic originally in the scene.
-    // It can be expanded in the next steps.
-    const quizContainer = this.add.container(width / 2, height / 2);
-    quizContainer.setAlpha(0);
+    // PERBESAR UKURAN KERTAS AGAR MUAT 2 KOLOM
+    const modalWidth = 1400;
+    const modalHeight = 850;
 
-    const bgBox = this.add.graphics();
-    bgBox.fillStyle(0xfef08a, 1);
-    bgBox.fillRect(-400, -300, 800, 600);
-    
-    const title = this.add.text(0, -200, 'Pilih Akar Masalah', { 
+    // Bayangan kertas
+    const shadow = this.add.graphics();
+    shadow.fillStyle(0x000000, 0.4);
+    shadow.fillRoundedRect(-modalWidth/2 + 15, -modalHeight/2 + 15, modalWidth, modalHeight, 20);
+
+    // Latar kertas (Warna kuning gading/kertas file)
+    const paper = this.add.graphics();
+    paper.fillStyle(0xfff8d6, 1);
+    paper.fillRoundedRect(-modalWidth/2, -modalHeight/2, modalWidth, modalHeight, 20);
+    paper.lineStyle(6, 0x333333, 1);
+    paper.strokeRoundedRect(-modalWidth/2, -modalHeight/2, modalWidth, modalHeight, 20);
+
+    // Jepitan kertas / Binder clip di atas
+    const clip = this.add.graphics();
+    clip.fillStyle(0x9ca3af, 1);
+    clip.fillRoundedRect(-60, -modalHeight/2 - 20, 120, 40, 10);
+    clip.lineStyle(4, 0x333333, 1);
+    clip.strokeRoundedRect(-60, -modalHeight/2 - 20, 120, 40, 10);
+
+    // Judul
+    const title = this.add.text(0, -modalHeight/2 + 60, '📋 LAPORAN INVESTIGASI', {
       fontFamily: 'monospace',
-      fontSize: '32px', 
+      fontSize: '48px',
+      color: '#1f2937',
+      fontStyle: '900'
+    }).setOrigin(0.5);
+
+    // Garis pemisah atas
+    const lineTop = this.add.graphics();
+    lineTop.lineStyle(3, 0x1f2937, 0.5);
+    lineTop.beginPath();
+    lineTop.moveTo(-modalWidth/2 + 50, -modalHeight/2 + 120);
+    lineTop.lineTo(modalWidth/2 - 50, -modalHeight/2 + 120);
+    lineTop.strokePath();
+
+    // Garis pemisah tengah (Vertikal)
+    const lineVert = this.add.graphics();
+    lineVert.lineStyle(3, 0x1f2937, 0.5);
+    lineVert.beginPath();
+    lineVert.moveTo(0, -modalHeight/2 + 120);
+    lineVert.lineTo(0, modalHeight/2 - 50);
+    lineVert.strokePath();
+
+    // ==========================================
+    // KOLOM KIRI (CLUE & GAMBAR)
+    // ==========================================
+    const cluesTitle = this.add.text(-modalWidth/2 + 60, -modalHeight/2 + 150, 'Bukti Ditemukan:', {
+      fontFamily: 'monospace',
+      fontSize: '32px',
       color: '#1f2937',
       fontStyle: 'bold'
+    });
+
+    const clueData = [
+      { img: 'clue_botol', text: 'Botol plastik dibuang sembarangan di halaman.' },
+      { img: 'clue_pisang', text: 'Kulit pisang dibiarkan begitu saja.' },
+      { img: 'clue_daun', text: 'Daun yang gugur dari pohon hanya sedikit.' },
+      { img: 'clue_bin', text: 'Tempat sampah hijau & kuning KOSONG!' }
+    ];
+
+    let clueY = -modalHeight/2 + 230;
+    const leftElements: Phaser.GameObjects.GameObject[] = [cluesTitle];
+
+    clueData.forEach((clue) => {
+      // Icon gambar benda
+      const img = this.add.image(-modalWidth/2 + 120, clueY, clue.img);
+      // Skalakan gambar agar pas di dalam kotak clue
+      const maxImgSize = 100;
+      const scale = Math.min(maxImgSize / img.width, maxImgSize / img.height);
+      img.setScale(scale);
+      
+      // Teks clue
+      const text = this.add.text(-modalWidth/2 + 200, clueY, clue.text, {
+        fontFamily: 'monospace',
+        fontSize: '26px',
+        color: '#4b5563',
+        wordWrap: { width: (modalWidth/2) - 250 }
+      }).setOrigin(0, 0.5);
+
+      leftElements.push(img, text);
+      clueY += 140; // Jarak antar clue (karena ada gambar, jaraknya lebih besar)
+    });
+
+    // ==========================================
+    // KOLOM KANAN (KUIS)
+    // ==========================================
+    const question = this.add.text(modalWidth/4, -modalHeight/2 + 250, 'Berdasarkan bukti di samping,\napa penyebab utama\nhalaman sekolah ini kotor?', {
+      fontFamily: 'monospace',
+      fontSize: '32px',
+      color: '#1f2937',
+      fontStyle: 'bold',
+      align: 'center',
+      wordWrap: { width: (modalWidth/2) - 100 }
     }).setOrigin(0.5);
 
-    const ansBtn = this.add.container(0, 0);
-    const ansBg = this.add.graphics();
-    ansBg.fillStyle(0x3b82f6, 1);
-    ansBg.fillRect(-250, -35, 500, 70);
-    
-    const ansText = this.add.text(0, 0, 'Jadwal Angkut Tidak Jelas', { 
+    const options = [
+      { id: 'A', text: 'Tempat sampah\nterlalu penuh', isCorrect: false },
+      { id: 'B', text: 'Angin kencang\nmenerbangkan sampah', isCorrect: false },
+      { id: 'C', text: 'Kurangnya kesadaran\nmembuang sampah pada tempatnya', isCorrect: true }
+    ];
+
+    let optionY = -modalHeight/2 + 370;
+    const optionBtns: Phaser.GameObjects.Container[] = [];
+
+    // Teks Error (muncul jika jawaban salah)
+    const errorText = this.add.text(modalWidth/4, optionY + 360, '❌ Coba perhatikan lagi petunjuk\nyang sudah kamu temukan.', {
       fontFamily: 'monospace',
-      fontSize: '22px',
+      fontSize: '24px',
+      color: '#ef4444', // Red
+      fontStyle: 'bold',
+      align: 'center'
+    }).setOrigin(0.5);
+    errorText.setAlpha(0);
+
+    options.forEach((opt) => {
+      const btn = this.createOptionButton(modalWidth/4, optionY, opt.id, opt.text, (modalWidth/2) - 120, () => {
+        this.input.setDefaultCursor('default');
+        
+        if (opt.isCorrect) {
+          // Jawaban Benar
+          this.scene.start('SolutionScene', { caseId: this.caseId });
+        } else {
+          // Jawaban Salah
+          errorText.setAlpha(1);
+          // Animasi shake ringan
+          this.tweens.add({
+            targets: errorText,
+            x: modalWidth/4 + 10,
+            duration: 50,
+            yoyo: true,
+            repeat: 3,
+            onComplete: () => {
+              errorText.setX(modalWidth/4);
+            }
+          });
+          
+          // Hilangkan setelah beberapa detik
+          this.time.delayedCall(3000, () => {
+            this.tweens.add({
+              targets: errorText,
+              alpha: 0,
+              duration: 300
+            });
+          });
+        }
+      });
+      optionBtns.push(btn);
+      optionY += 110; // Jarak antar tombol opsi
+    });
+
+    modalContainer.add([shadow, paper, clip, title, lineTop, lineVert, ...leftElements, question, ...optionBtns, errorText]);
+
+    // Efek Pop-in
+    modalContainer.setScale(0.7);
+    modalContainer.setAlpha(0);
+    this.tweens.add({
+      targets: modalContainer,
+      scale: 1,
+      alpha: 1,
+      duration: 500,
+      ease: 'Back.easeOut'
+    });
+  }
+
+  private createOptionButton(x: number, y: number, prefix: string, text: string, width: number, onClick: () => void) {
+    const container = this.add.container(x, y);
+    const height = 65;
+
+    const bg = this.add.graphics();
+    bg.fillStyle(0xffffff, 1);
+    bg.fillRoundedRect(-width/2, -height/2, width, height, 15);
+    bg.lineStyle(3, 0x333333, 1);
+    bg.strokeRoundedRect(-width/2, -height/2, width, height, 15);
+
+    const prefixBg = this.add.graphics();
+    prefixBg.fillStyle(0x3b82f6, 1);
+    prefixBg.fillRoundedRect(-width/2, -height/2, 60, height, { tl: 15, bl: 15, tr: 0, br: 0 });
+    prefixBg.lineStyle(3, 0x333333, 1);
+    prefixBg.strokeRoundedRect(-width/2, -height/2, 60, height, { tl: 15, bl: 15, tr: 0, br: 0 });
+
+    const prefixText = this.add.text(-width/2 + 30, 0, prefix, {
+      fontFamily: 'monospace',
+      fontSize: '28px',
       color: '#ffffff',
       fontStyle: 'bold'
     }).setOrigin(0.5);
 
-    ansBtn.add([ansBg, ansText]);
+    const labelText = this.add.text(-width/2 + 80, 0, text, {
+      fontFamily: 'monospace',
+      fontSize: '24px',
+      color: '#1f2937',
+      fontStyle: 'bold'
+    }).setOrigin(0, 0.5);
 
-    const hitArea = new Phaser.Geom.Rectangle(-250, -35, 500, 70);
-    ansBtn.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
+    container.add([bg, prefixBg, prefixText, labelText]);
 
-    ansBtn.on('pointerover', () => {
+    const hitArea = new Phaser.Geom.Rectangle(-width/2, -height/2, width, height);
+    container.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
+
+    container.on('pointerover', () => {
       this.input.setDefaultCursor('pointer');
-      ansBg.clear();
-      ansBg.fillStyle(0x2563eb, 1);
-      ansBg.fillRect(-250, -35, 500, 70);
+      this.tweens.add({ targets: container, scale: 1.02, duration: 100 });
+      bg.clear();
+      bg.fillStyle(0xf3f4f6, 1);
+      bg.fillRoundedRect(-width/2, -height/2, width, height, 15);
+      bg.lineStyle(3, 0x333333, 1);
+      bg.strokeRoundedRect(-width/2, -height/2, width, height, 15);
     });
 
-    ansBtn.on('pointerout', () => {
+    container.on('pointerout', () => {
       this.input.setDefaultCursor('default');
-      ansBg.clear();
-      ansBg.fillStyle(0x3b82f6, 1);
-      ansBg.fillRect(-250, -35, 500, 70);
+      this.tweens.add({ targets: container, scale: 1, duration: 100 });
+      bg.clear();
+      bg.fillStyle(0xffffff, 1);
+      bg.fillRoundedRect(-width/2, -height/2, width, height, 15);
+      bg.lineStyle(3, 0x333333, 1);
+      bg.strokeRoundedRect(-width/2, -height/2, width, height, 15);
     });
 
-    ansBtn.on('pointerdown', () => {
-      this.input.setDefaultCursor('default');
-      this.scene.start('SolutionScene', { caseId: this.caseId });
-    });
+    container.on('pointerdown', onClick);
 
-    quizContainer.add([bgBox, title, ansBtn]);
-
-    this.tweens.add({
-      targets: quizContainer,
-      alpha: 1,
-      duration: 500,
-      ease: 'Power2'
-    });
+    return container;
   }
 }
