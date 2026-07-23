@@ -9,6 +9,8 @@ import { ConclusionScene } from './scenes/ConclusionScene';
 import { SolutionScene } from './scenes/SolutionScene';
 import { ResultScene } from './scenes/ResultScene';
 import { CleanUpScene } from './scenes/CleanUpScene';
+import { Case2BriefingScene } from './scenes/Case2BriefingScene';
+import { Case2AnalysisScene } from './scenes/Case2AnalysisScene';
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -39,7 +41,9 @@ export default function initGame(parentContainerId: string, startScene?: string)
     ConclusionScene,
     SolutionScene,
     ResultScene,
-    CleanUpScene
+    CleanUpScene,
+    Case2BriefingScene,
+    Case2AnalysisScene
   ];
 
   // If a start scene is requested, bring it to the front of the array

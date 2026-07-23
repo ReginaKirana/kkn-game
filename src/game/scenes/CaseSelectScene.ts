@@ -15,6 +15,10 @@ export class CaseSelectScene extends Phaser.Scene {
   create(data: { unlockCase2?: boolean }) {
     const { width, height } = this.cameras.main;
     
+    const urlParams = new URLSearchParams(window.location.search);
+    const unlockFromUrl = urlParams.get('unlockCase2') === 'true';
+    const isUnlocking = data.unlockCase2 || unlockFromUrl;
+
     // Background Image
     const bg = this.add.image(width / 2, height / 2, 'papan_kasus_bg').setDepth(0);
     // Cover the screen
@@ -33,7 +37,7 @@ export class CaseSelectScene extends Phaser.Scene {
     this.drawLockedCaseOverlay(width * 0.75, height * 0.52, -1);
     this.createCaseButton(width * 0.75, height * 0.73, 'kasus_selokan', false, -1);
 
-    if (data.unlockCase2) {
+    if (isUnlocking) {
       // Tunggu sebentar agar pemain siap melihat efeknya
       this.time.delayedCall(800, () => {
         const lockIcon = lockOverlay2.list[0] as Phaser.GameObjects.Text;
@@ -174,7 +178,11 @@ export class CaseSelectScene extends Phaser.Scene {
 
       selidikiBtn.on('pointerdown', () => {
         this.input.setDefaultCursor('default');
-        this.scene.start('InvestigationScene', { caseId: caseId });
+        if (caseId === 'kasus_sampah') {
+          this.scene.start('Case2BriefingScene');
+        } else {
+          this.scene.start('InvestigationScene', { caseId: caseId });
+        }
       });
     }
     
