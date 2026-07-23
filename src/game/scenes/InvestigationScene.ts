@@ -66,10 +66,10 @@ export class InvestigationScene extends Phaser.Scene {
       bgKey = 'case2_investigation_bg';
       instructionText = 'Periksa Sampah yang Tercampur!';
       clues = [
-        { id: 'botol_plastik', asset: 'botol', x: width * 0.42, y: height * 0.6, text: 'Botol plastik sulit terurai dan dapat didaur ulang.', hasPov: false },
-        { id: 'kulit_pisang', asset: 'pisang', x: width * 0.5, y: height * 0.6, text: 'Kulit pisang berasal dari makhluk hidup dan mudah terurai.', hasPov: false },
-        { id: 'kaleng_bekas', asset: 'kaleng', x: width * 0.4, y: height * 0.75, text: 'Kaleng dapat didaur ulang.', hasPov: false },
-        { id: 'kertas_bekas', asset: 'kertas', x: width * 0.6, y: height * 0.75, text: 'Kertas dapat didaur ulang jika masih bersih.', hasPov: false }
+        { id: 'botol_plastik', asset: 'botol', x: width * 0.44, y: height * 0.61, text: 'Botol plastik sulit terurai dan dapat didaur ulang.', hasPov: false },
+        { id: 'kulit_pisang', asset: 'pisang', x: width * 0.5, y: height * 0.65, text: 'Kulit pisang berasal dari makhluk hidup dan mudah terurai.', hasPov: false },
+        { id: 'kaleng_bekas', asset: 'kaleng', x: width * 0.5, y: height * 0.5, text: 'Kaleng dapat didaur ulang.', hasPov: false },
+        { id: 'kertas_bekas', asset: 'kertas', x: width * 0.55, y: height * 0.72, text: 'Kertas dapat didaur ulang jika masih bersih.', hasPov: false }
       ];
     }
 
@@ -81,16 +81,16 @@ export class InvestigationScene extends Phaser.Scene {
     if (this.caseId === 'kasus_sampah') {
       // Tambahkan Tempat Sampah Oranye
       const bin = this.add.image(width * 0.5, height * 0.55, 'bin_oranye');
-      const binMaxHeight = 1100; // Jauh lebih kecil agar tidak menutupi layar
+      const binMaxHeight = 1250; // Jauh lebih kecil agar tidak menutupi layar
       bin.setScale(binMaxHeight / bin.height);
       
       // Tambahkan sampah-sampah pengecoh (bukan clue)
       const distractors = [
         { asset: 'apple', x: width * 0.45, y: height * 0.5 },
         { asset: 'daun', x: width * 0.45, y: height * 0.7 }, // Digeser dari tengah
-        { asset: 'gelas', x: width * 0.55, y: height * 0.65 },
+        { asset: 'gelas', x: width * 0.55, y: height * 0.59 },
         { asset: 'plastik', x: width * 0.5, y: height * 0.75 },
-        { asset: 'ranting', x: width * 0.55, y: height * 0.5 }
+        { asset: 'ranting', x: width * 0.55, y: height * 0.52 }
       ];
       
       distractors.forEach(d => {

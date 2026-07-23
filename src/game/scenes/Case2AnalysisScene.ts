@@ -62,6 +62,10 @@ export class Case2AnalysisScene extends Phaser.Scene {
     this.teacher = this.add.image(width * 0.25, height, 'teacher_smile').setOrigin(0.5, 1);
     this.teacher.setFlipX(true);
     
+    // Set scale immediately so it doesn't pop up giant
+    const teacherMaxHeight = height * 0.85;
+    this.teacher.setScale((teacherMaxHeight / this.teacher.height) * (this.dialogs[0].teacherScale || 1));
+    
     // Animasi masuk guru dari bawah
     this.teacher.y = height + 300;
     this.tweens.add({
@@ -127,7 +131,7 @@ export class Case2AnalysisScene extends Phaser.Scene {
   }
 
   private createOptionsUI(width: number, height: number) {
-    this.optionsContainer = this.add.container(width / 2, height / 2 - 50);
+    this.optionsContainer = this.add.container(width * 0.65, height / 2 - 50);
     this.optionsContainer.setAlpha(0);
     this.optionsContainer.setVisible(false);
 
@@ -141,19 +145,20 @@ export class Case2AnalysisScene extends Phaser.Scene {
     options.forEach((opt, index) => {
       const btnContainer = this.add.container(0, startY + (index * 100));
       
-      const btnWidth = 800;
+      const btnWidth = 700;
       const btnHeight = 80;
       
       const btnBg = this.add.graphics();
-      btnBg.fillStyle(0x1e293b, 1);
+      btnBg.fillStyle(0xffffff, 1);
       btnBg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
-      btnBg.lineStyle(3, 0x475569, 1);
+      btnBg.lineStyle(3, 0x333333, 1);
       btnBg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
 
       const btnText = this.add.text(0, 0, `${opt.id}. ${opt.text}`, {
         fontFamily: 'monospace',
         fontSize: '24px',
-        color: '#ffffff',
+        color: '#1f2937',
+        fontStyle: 'bold',
         align: 'center',
         wordWrap: { width: btnWidth - 40 }
       }).setOrigin(0.5);
@@ -167,9 +172,9 @@ export class Case2AnalysisScene extends Phaser.Scene {
         this.input.setDefaultCursor('pointer');
         this.tweens.add({ targets: btnContainer, scale: 1.05, duration: 100 });
         btnBg.clear();
-        btnBg.fillStyle(0x334155, 1);
+        btnBg.fillStyle(0xf3f4f6, 1);
         btnBg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
-        btnBg.lineStyle(3, 0x3b82f6, 1);
+        btnBg.lineStyle(3, 0x333333, 1);
         btnBg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
       });
 
@@ -177,9 +182,9 @@ export class Case2AnalysisScene extends Phaser.Scene {
         this.input.setDefaultCursor('default');
         this.tweens.add({ targets: btnContainer, scale: 1, duration: 100 });
         btnBg.clear();
-        btnBg.fillStyle(0x1e293b, 1);
+        btnBg.fillStyle(0xffffff, 1);
         btnBg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
-        btnBg.lineStyle(3, 0x475569, 1);
+        btnBg.lineStyle(3, 0x333333, 1);
         btnBg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
       });
 
@@ -209,9 +214,9 @@ export class Case2AnalysisScene extends Phaser.Scene {
             onComplete: () => {
               btnContainer.setX(0);
               btnBg.clear();
-              btnBg.fillStyle(0x1e293b, 1);
+              btnBg.fillStyle(0xffffff, 1);
               btnBg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
-              btnBg.lineStyle(3, 0x475569, 1);
+              btnBg.lineStyle(3, 0x333333, 1);
               btnBg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
             }
           });
@@ -279,8 +284,8 @@ export class Case2AnalysisScene extends Phaser.Scene {
       if (dialogData.showOptions) return;
 
       if (dialogData.isEnd) {
-        // Proceed to cleanup scene for case 2
-        this.scene.start('CleanUpScene', { caseId: 'kasus_sampah' });
+        // Proceed to sorting scene for case 2
+        this.scene.start('Case2SortScene');
       } else {
         this.currentDialogIndex++;
         if (this.currentDialogIndex < this.dialogs.length) {
