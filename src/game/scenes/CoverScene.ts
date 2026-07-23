@@ -56,6 +56,9 @@ export class CoverScene extends Phaser.Scene {
     // Multiply by 1.085 to hide the white borders that exist in the original image asset
     const scale = Math.max(scaleX, scaleY) * 1.085;
     bg.setScale(scale);
+
+    // Tambahkan overlay gelap (alpha: 0.4) agar judul dan tombol lebih menonjol
+    this.add.rectangle(0, 0, width, height, 0x000000, 0.4).setOrigin(0, 0);
   }
 
   private createTitle() {
