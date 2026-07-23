@@ -14,6 +14,7 @@ import gelasImg from '../../assets/objects/gelas.png';
 import plastikImg from '../../assets/objects/plastik.png';
 import rantingImg from '../../assets/objects/ranting.png';
 import selokanBg from '../../assets/backgrounds/selokan-tinngi.png';
+import { Case3TrashConfig } from '../config/Case3TrashConfig';
 
 export class InvestigationScene extends Phaser.Scene {
   private cluesFound: number = 0;
@@ -76,12 +77,16 @@ export class InvestigationScene extends Phaser.Scene {
     } else if (this.caseId === 'kasus_selokan') {
       bgKey = 'selokan_bg';
       instructionText = 'Periksa Sampah di Selokan!';
-      clues = [
-        { id: 'botol_plastik', asset: 'botol', x: width * 0.35, y: height * 0.65, text: 'Botol plastik ini menyumbat aliran air, bisa menyebabkan banjir!', hasPov: false },
-        { id: 'kantong_plastik', asset: 'plastik', x: width * 0.55, y: height * 0.8, text: 'Kantong plastik sulit terurai dan menumpuk di saluran air.', hasPov: false },
-        { id: 'kulit_pisang', asset: 'pisang', x: width * 0.7, y: height * 0.7, text: 'Kulit pisang memang organik, tapi membuangnya ke selokan tetap membuat kotor dan bau.', hasPov: false },
-        { id: 'kaleng_bekas', asset: 'kaleng', x: width * 0.45, y: height * 0.75, text: 'Kaleng bekas dapat menjadi sarang nyamuk jika terisi genangan air.', hasPov: false }
-      ];
+      // Map dari config ke format clues
+      clues = Case3TrashConfig.clues.map(c => ({
+        id: c.id,
+        asset: c.asset,
+        x: width * c.x,
+        y: height * c.y,
+        text: c.text,
+        maxDim: c.maxDim || 150,
+        hasPov: false
+      }));
     }
 
     const bg = this.add.image(width / 2, height / 2, bgKey);
@@ -111,17 +116,9 @@ export class InvestigationScene extends Phaser.Scene {
         img.setTint(0x4a4a4a); // Di-overlay gelap
       });
     } else if (this.caseId === 'kasus_selokan') {
-      const distractors = [
-        { asset: 'apple', x: width * 0.25, y: height * 0.85 },
-        { asset: 'daun', x: width * 0.8, y: height * 0.85 },
-        { asset: 'gelas', x: width * 0.6, y: height * 0.65 },
-        { asset: 'kertas', x: width * 0.3, y: height * 0.75 },
-        { asset: 'ranting', x: width * 0.4, y: height * 0.85 }
-      ];
-      
-      distractors.forEach(d => {
-        const img = this.add.image(d.x, d.y, d.asset);
-        const maxDim = 120;
+      Case3TrashConfig.distractors.forEach(d => {
+        const img = this.add.image(width * d.x, height * d.y, d.asset);
+        const maxDim = d.maxDim || 120;
         img.setScale(maxDim / Math.max(img.width, img.height));
         img.setTint(0x4a4a4a); // Di-overlay gelap
       });
@@ -138,7 +135,7 @@ export class InvestigationScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     clues.forEach(clue => {
-      this.createClueMarker(clue.x, clue.y, clue.text, clue.hasPov, clue.asset);
+      this.createClueMarker(clue.x, clue.y, clue.text, clue.hasPov, clue.asset, clue.maxDim);
     });
 
     // POV Background for empty bin (hidden initially, high depth to cover markers)
@@ -155,7 +152,7 @@ export class InvestigationScene extends Phaser.Scene {
     this.createNextButton(width, height);
   }
 
-  private createClueMarker(x: number, y: number, text: string, hasPov: boolean, asset?: string) {
+  private createClueMarker(x: number, y: number, text: string, hasPov: boolean, asset?: string, maxDimParam?: number) {
     const container = this.add.container(x, y);
     
     let imageSprite: Phaser.GameObjects.Image | null = null;
@@ -165,7 +162,8 @@ export class InvestigationScene extends Phaser.Scene {
     
     if (asset) {
       imageSprite = this.add.image(0, 0, asset);
-      const maxDim = 150; // Sampah clue diperbesar
+      const maxDim = maxDimParam || 150; 
+
       if (imageSprite.width > maxDim || imageSprite.height > maxDim) {
         imageSprite.setScale(maxDim / Math.max(imageSprite.width, imageSprite.height));
       }
@@ -437,9 +435,7 @@ export class InvestigationScene extends Phaser.Scene {
       } else if (this.caseId === 'kasus_sampah') {
         this.scene.start('Case2AnalysisScene');
       } else if (this.caseId === 'kasus_selokan') {
-        // Create Case3AnalysisScene soon! For now we'll route back to CaseSelectScene just to not crash
-        // We will create Case3AnalysisScene later
-        this.scene.start('CaseSelectScene');
+        this.scene.start('Case3AnalysisScene');
       } else {
         this.scene.start('ConclusionScene', { caseId: this.caseId });
       }

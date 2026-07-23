@@ -1,10 +1,21 @@
 import * as Phaser from 'phaser';
 
 import selokanBg from '../../assets/backgrounds/selokan-tinngi.png';
+import botolImg from '../../assets/objects/botol.png';
+import pisangImg from '../../assets/objects/pisang.png';
+import kalengImg from '../../assets/objects/kaleng.png';
+import plastikImg from '../../assets/objects/plastik.png';
+import appleImg from '../../assets/objects/apple.png';
+import daunImg from '../../assets/objects/daun.png';
+import gelasImg from '../../assets/objects/gelas.png';
+import kertasImg from '../../assets/objects/kertas.png';
+import rantingImg from '../../assets/objects/ranting.png';
 import thumbUpTeacher from '../../assets/characters/teachers/thumb-up.png';
 import smileTeacher from '../../assets/characters/teachers/smile.png';
 import surprisedTeacher from '../../assets/characters/teachers/suprised.png';
 import thinkingTeacher from '../../assets/characters/teachers/thinking.png';
+
+import { Case3TrashConfig } from '../config/Case3TrashConfig';
 
 export class Case3BriefingScene extends Phaser.Scene {
   private bg!: Phaser.GameObjects.Image;
@@ -47,6 +58,16 @@ export class Case3BriefingScene extends Phaser.Scene {
 
   preload() {
     this.load.image('selokan_bg', selokanBg);
+    this.load.image('botol', botolImg);
+    this.load.image('pisang', pisangImg);
+    this.load.image('kaleng', kalengImg);
+    this.load.image('plastik', plastikImg);
+    this.load.image('apple', appleImg);
+    this.load.image('daun', daunImg);
+    this.load.image('gelas', gelasImg);
+    this.load.image('kertas', kertasImg);
+    this.load.image('ranting', rantingImg);
+    
     this.load.image('teacher_thumbup', thumbUpTeacher);
     this.load.image('teacher_smile', smileTeacher);
     this.load.image('teacher_surprised', surprisedTeacher);
@@ -60,6 +81,23 @@ export class Case3BriefingScene extends Phaser.Scene {
     // Background (selokan-tinngi.png)
     this.bg = this.add.image(width / 2, height / 2, 'selokan_bg');
     this.bg.setScale(Math.max(width / this.bg.width, height / this.bg.height));
+
+    // Render Sampah di background agar terlihat saat briefing
+    Case3TrashConfig.distractors.forEach(d => {
+      const img = this.add.image(width * d.x, height * d.y, d.asset);
+      const maxDim = d.maxDim || 120;
+      img.setScale(maxDim / Math.max(img.width, img.height));
+      img.setTint(0x4a4a4a); // Di-overlay gelap
+    });
+
+    Case3TrashConfig.clues.forEach(c => {
+      const img = this.add.image(width * c.x, height * c.y, c.asset);
+      const maxDim = c.maxDim || 150;
+      if (img.width > maxDim || img.height > maxDim) {
+        img.setScale(maxDim / Math.max(img.width, img.height));
+      }
+      // Clue tidak digelapkan agar menonjol
+    });
 
     // Overlay gelap - hidden initially
     this.overlay = this.add.rectangle(0, 0, width, height, 0x000000, 0.6).setOrigin(0, 0);
@@ -77,7 +115,7 @@ export class Case3BriefingScene extends Phaser.Scene {
     this.createDialogUI(width, height);
 
     // Start Sequence
-    this.time.delayedCall(1500, () => {
+    this.time.delayedCall(3500, () => {
       this.tweens.add({
         targets: this.overlay,
         alpha: 1,
