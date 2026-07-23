@@ -222,6 +222,8 @@ export class CaseSelectScene extends Phaser.Scene {
         this.input.setDefaultCursor('default');
         if (caseId === 'kasus_sampah') {
           this.scene.start('Case2BriefingScene');
+        } else if (caseId === 'kasus_selokan') {
+          this.scene.start('Case3BriefingScene');
         } else {
           this.scene.start('InvestigationScene', { caseId: caseId });
         }
