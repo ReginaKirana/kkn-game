@@ -1,4 +1,5 @@
 import * as Phaser from 'phaser';
+import { supabase } from '../../lib/supabaseClient';
 
 import papanBg from '../../assets/backgrounds/papan-kasus3.png';
 import thumbUpTeacher from '../../assets/characters/teachers/thumb-up.png';
@@ -65,9 +66,39 @@ export class OutroScene extends Phaser.Scene {
       duration: 800,
       ease: 'Back.easeOut',
       onComplete: () => {
+        this.submitToSupabase();
         this.time.delayedCall(1000, () => this.showEndingSequence(width, height));
       }
     });
+  }
+
+  private async submitToSupabase() {
+    const playerName = localStorage.getItem('kkn-game-playerName') || 'Detektif Misterius';
+    const startTimeStr = localStorage.getItem('kkn-game-startTime');
+    
+    let timeSeconds = 0;
+    if (startTimeStr) {
+      const startTime = parseInt(startTimeStr, 10);
+      timeSeconds = Math.floor((Date.now() - startTime) / 1000);
+    }
+    
+    const score = 30; // 3 cases, 10 points each
+
+    try {
+      const { error } = await supabase
+        .from('leaderboard')
+        .insert([
+          { name: playerName, score: score, time_seconds: timeSeconds }
+        ]);
+
+      if (error) {
+        console.error('Error saving to leaderboard:', error);
+      } else {
+        console.log(`Success saving to leaderboard: ${playerName}, Score: ${score}, Time: ${timeSeconds}s`);
+      }
+    } catch (err) {
+      console.error('Failed to submit score to Supabase', err);
+    }
   }
 
   private showEndingSequence(width: number, height: number) {

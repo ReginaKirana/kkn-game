@@ -277,6 +277,7 @@ export class CoverScene extends Phaser.Scene {
 
       this.registry.set('playerName', playerName);
       localStorage.setItem('kkn-game-playerName', playerName);
+      localStorage.setItem('kkn-game-startTime', Date.now().toString());
 
       this.sound.play('click_sfx', { volume: 1, seek: 0.7 });
 
