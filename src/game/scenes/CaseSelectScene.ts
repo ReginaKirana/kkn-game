@@ -14,7 +14,7 @@ export class CaseSelectScene extends Phaser.Scene {
     this.load.image('papan_kasus3_bg', papanKasus3Bg);
   }
 
-  create(data: { unlockCase2?: boolean, unlockCase3?: boolean }) {
+  create(data: { unlockCase2?: boolean, unlockCase3?: boolean, case2Unlocked?: boolean, case3Unlocked?: boolean }) {
     const { width, height } = this.cameras.main;
     
     const urlParams = new URLSearchParams(window.location.search);
@@ -23,8 +23,8 @@ export class CaseSelectScene extends Phaser.Scene {
     
     const isUnlocking2 = data.unlockCase2 || unlock2FromUrl;
     const isUnlocking3 = data.unlockCase3 || unlock3FromUrl;
-    const isCase3Unlocked = urlParams.get('case3Unlocked') === 'true' || isUnlocking3;
-    const isCase2Unlocked = urlParams.get('case2Unlocked') === 'true' || isUnlocking2 || isCase3Unlocked;
+    const isCase3Unlocked = data.case3Unlocked || urlParams.get('case3Unlocked') === 'true' || isUnlocking3;
+    const isCase2Unlocked = data.case2Unlocked || urlParams.get('case2Unlocked') === 'true' || isUnlocking2 || isCase3Unlocked;
 
     // Background Image
     let currentBg = 'papan_kasus_bg';
