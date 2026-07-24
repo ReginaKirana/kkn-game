@@ -286,9 +286,8 @@ export class Case3AnalysisScene extends Phaser.Scene {
       if (dialogData.showOptions) return;
 
       if (dialogData.isEnd) {
-        // Proceed to next scene for case 3 (TODO)
-        // For now, route back to CaseSelectScene or the next part of case 3
-        this.scene.start('CaseSelectScene');
+        // Proceed to next scene for case 3 (Cleanup)
+        this.scene.start('Case3CleanUpScene');
       } else {
         this.currentDialogIndex++;
         if (this.currentDialogIndex < this.dialogs.length) {
