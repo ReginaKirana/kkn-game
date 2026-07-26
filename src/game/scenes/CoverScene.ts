@@ -464,11 +464,67 @@ export class CoverScene extends Phaser.Scene {
           transform: translateY(8px);
           box-shadow: 0 0 0 #3f6212, 0 0 0 rgba(0,0,0,0.2);
         }
+        
+        /* Gender Selection Styles */
+        #name-modal-overlay .gender-container {
+          display: flex;
+          gap: 20px;
+          margin-bottom: 25px;
+          width: min(450px, 80%);
+        }
+        #name-modal-overlay .gender-box {
+          flex: 1;
+          padding: 15px;
+          border: 3px solid #cbd5e1;
+          border-radius: 20px;
+          background: #f8fafc;
+          color: #64748b;
+          font-family: 'Fredoka One', sans-serif;
+          font-size: clamp(1rem, 2vw, 1.4rem);
+          text-align: center;
+          cursor: pointer;
+          transition: all 0.2s;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 10px;
+        }
+        #name-modal-overlay .gender-box .icon {
+          font-size: 2.5rem;
+        }
+        #name-modal-overlay .gender-box:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+        }
+        #name-modal-overlay .gender-box.selected[data-gender="boy"] {
+          border-color: #3b82f6;
+          background: #eff6ff;
+          color: #1d4ed8;
+          box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+        }
+        #name-modal-overlay .gender-box.selected[data-gender="girl"] {
+          border-color: #ec4899;
+          background: #fdf2f8;
+          color: #be185d;
+          box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.2);
+        }
       </style>
       <div class="name-dialog-panel" id="modal-content">
         <h2 class="name-dialog-title">Data Detektif</h2>
         <input type="text" id="playerName" class="name-dialog-input" placeholder="Nama Panggilanmu..." autocomplete="off" />
-        <input type="text" id="schoolName" class="name-dialog-input" style="margin-bottom: 30px;" placeholder="Asal Sekolah" autocomplete="off" />
+        <input type="text" id="schoolName" class="name-dialog-input" style="margin-bottom: 15px;" placeholder="Asal Sekolah" autocomplete="off" />
+        
+        <div class="gender-container" id="genderSelect">
+          <div class="gender-box selected" data-gender="boy">
+            <span class="icon">👦</span>
+            <span>Laki-laki</span>
+          </div>
+          <div class="gender-box" data-gender="girl">
+            <span class="icon">👧</span>
+            <span>Perempuan</span>
+          </div>
+        </div>
+
         <button type="button" id="submitName" class="name-dialog-btn">Mulai</button>
       </div>
     `;
@@ -490,6 +546,18 @@ export class CoverScene extends Phaser.Scene {
     wrapper.querySelector('#playerName')?.addEventListener('keydown', (event) => {
       if ((event as KeyboardEvent).key === 'Enter') submit();
     });
+    wrapper.querySelector('#schoolName')?.addEventListener('keydown', (event) => {
+      if ((event as KeyboardEvent).key === 'Enter') submit();
+    });
+
+    // Gender Selection Logic
+    const genderBoxes = wrapper.querySelectorAll('.gender-box');
+    genderBoxes.forEach(box => {
+      box.addEventListener('click', () => {
+        genderBoxes.forEach(b => b.classList.remove('selected'));
+        box.classList.add('selected');
+      });
+    });
   }
 
   private submitNameForm(wrapper: HTMLElement, blocker: Phaser.GameObjects.Rectangle) {
@@ -498,12 +566,19 @@ export class CoverScene extends Phaser.Scene {
     const modalContent = wrapper.querySelector('#modal-content') as HTMLElement;
 
     if (inputName && inputName.value.trim() !== '' && inputSchool && inputSchool.value.trim() !== '') {
-      const playerName = inputName.value.trim();
-      const schoolName = inputSchool.value.trim();
+      // Dapatkan gender yang dipilih
+      let selectedGender = 'boy'; // default
+      const selectedBox = wrapper.querySelector('.gender-box.selected');
+      if (selectedBox) {
+        selectedGender = selectedBox.getAttribute('data-gender') || 'boy';
+      }
 
-      this.registry.set('playerName', playerName);
-      localStorage.setItem('kkn-game-playerName', playerName);
-      localStorage.setItem('kkn-game-schoolName', schoolName);
+      // Simpan data di global registry
+      this.registry.set('playerName', inputName.value.trim());
+      this.registry.set('playerSchool', inputSchool.value.trim());
+      this.registry.set('playerGender', selectedGender);
+      localStorage.setItem('kkn-game-playerName', inputName.value.trim());
+      localStorage.setItem('kkn-game-schoolName', inputSchool.value.trim());
       localStorage.setItem('kkn-game-startTime', Date.now().toString());
 
       this.sound.play('click_sfx', { volume: 1, seek: 0.7 });

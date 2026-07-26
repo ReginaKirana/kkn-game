@@ -40,44 +40,40 @@ export class ConclusionScene extends Phaser.Scene {
     const modalWidth = 1400;
     const modalHeight = 850;
 
-    // Bayangan kertas
+    // Bayangan kotak
     const shadow = this.add.graphics();
-    shadow.fillStyle(0x000000, 0.4);
-    shadow.fillRoundedRect(-modalWidth/2 + 15, -modalHeight/2 + 15, modalWidth, modalHeight, 20);
+    shadow.fillStyle(0x000000, 0.5);
+    shadow.fillRoundedRect(-modalWidth/2 + 10, -modalHeight/2 + 15, modalWidth, modalHeight, 20);
 
-    // Latar kertas (Warna kuning gading/kertas file)
+    // Latar kotak (Dark Navy Gaming Style)
     const paper = this.add.graphics();
-    paper.fillStyle(0xfff8d6, 1);
+    paper.fillStyle(0x0f172a, 0.95);
     paper.fillRoundedRect(-modalWidth/2, -modalHeight/2, modalWidth, modalHeight, 20);
-    paper.lineStyle(6, 0x333333, 1);
+    paper.lineStyle(6, 0x3b82f6, 1);
     paper.strokeRoundedRect(-modalWidth/2, -modalHeight/2, modalWidth, modalHeight, 20);
 
-    // Jepitan kertas / Binder clip di atas
-    const clip = this.add.graphics();
-    clip.fillStyle(0x9ca3af, 1);
-    clip.fillRoundedRect(-60, -modalHeight/2 - 20, 120, 40, 10);
-    clip.lineStyle(4, 0x333333, 1);
-    clip.strokeRoundedRect(-60, -modalHeight/2 - 20, 120, 40, 10);
-
     // Judul
-    const title = this.add.text(0, -modalHeight/2 + 60, '📋 LAPORAN INVESTIGASI', {
-      fontFamily: 'monospace',
+    const title = this.add.text(0, -modalHeight/2 + 60, 'LAPORAN INVESTIGASI', {
+      fontFamily: 'Fredoka One, Arial, sans-serif',
       fontSize: '48px',
-      color: '#1f2937',
-      fontStyle: '900'
+      color: '#ffffff',
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 6,
+      shadow: { offsetX: 2, offsetY: 2, color: '#000000', blur: 0, fill: true }
     }).setOrigin(0.5);
 
-    // Garis pemisah atas
+    // Garis pemisah atas (Neon Blue)
     const lineTop = this.add.graphics();
-    lineTop.lineStyle(3, 0x1f2937, 0.5);
+    lineTop.lineStyle(4, 0x3b82f6, 0.8);
     lineTop.beginPath();
     lineTop.moveTo(-modalWidth/2 + 50, -modalHeight/2 + 120);
     lineTop.lineTo(modalWidth/2 - 50, -modalHeight/2 + 120);
     lineTop.strokePath();
 
-    // Garis pemisah tengah (Vertikal)
+    // Garis pemisah tengah (Vertikal, Neon Blue)
     const lineVert = this.add.graphics();
-    lineVert.lineStyle(3, 0x1f2937, 0.5);
+    lineVert.lineStyle(4, 0x3b82f6, 0.8);
     lineVert.beginPath();
     lineVert.moveTo(0, -modalHeight/2 + 120);
     lineVert.lineTo(0, modalHeight/2 - 50);
@@ -87,10 +83,12 @@ export class ConclusionScene extends Phaser.Scene {
     // KOLOM KIRI (CLUE & GAMBAR)
     // ==========================================
     const cluesTitle = this.add.text(-modalWidth/2 + 60, -modalHeight/2 + 150, 'Bukti Ditemukan:', {
-      fontFamily: 'monospace',
+      fontFamily: 'Fredoka One, Arial, sans-serif',
       fontSize: '32px',
-      color: '#1f2937',
-      fontStyle: 'bold'
+      color: '#60a5fa', // Light Blue
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 4
     });
 
     const clueData = [
@@ -100,7 +98,7 @@ export class ConclusionScene extends Phaser.Scene {
       { img: 'clue_bin', text: 'Tempat sampah hijau & kuning KOSONG!' }
     ];
 
-    let clueY = -modalHeight/2 + 230;
+    let clueY = -modalHeight/2 + 250;
     const leftElements: Phaser.GameObjects.GameObject[] = [cluesTitle];
 
     clueData.forEach((clue) => {
@@ -113,10 +111,11 @@ export class ConclusionScene extends Phaser.Scene {
       
       // Teks clue
       const text = this.add.text(-modalWidth/2 + 200, clueY, clue.text, {
-        fontFamily: 'monospace',
-        fontSize: '26px',
-        color: '#4b5563',
-        wordWrap: { width: (modalWidth/2) - 250 }
+        fontFamily: 'Fredoka One, Arial, sans-serif',
+        fontSize: '24px',
+        color: '#e2e8f0', // Light Gray
+        wordWrap: { width: (modalWidth/2) - 250 },
+        lineSpacing: 5
       }).setOrigin(0, 0.5);
 
       leftElements.push(img, text);
@@ -127,12 +126,16 @@ export class ConclusionScene extends Phaser.Scene {
     // KOLOM KANAN (KUIS)
     // ==========================================
     const question = this.add.text(modalWidth/4, -modalHeight/2 + 250, 'Berdasarkan bukti di samping,\napa penyebab utama\nhalaman sekolah ini kotor?', {
-      fontFamily: 'monospace',
+      fontFamily: 'Fredoka One, Arial, sans-serif',
       fontSize: '32px',
-      color: '#1f2937',
+      color: '#facc15', // Yellow
       fontStyle: 'bold',
       align: 'center',
-      wordWrap: { width: (modalWidth/2) - 100 }
+      wordWrap: { width: (modalWidth/2) - 100 },
+      stroke: '#000000',
+      strokeThickness: 4,
+      shadow: { offsetX: 2, offsetY: 2, color: '#000000', blur: 0, fill: true },
+      lineSpacing: 10
     }).setOrigin(0.5);
 
     const options = [
@@ -141,16 +144,18 @@ export class ConclusionScene extends Phaser.Scene {
       { id: 'C', text: 'Kurangnya kesadaran\nmembuang sampah pada tempatnya', isCorrect: true }
     ];
 
-    let optionY = -modalHeight/2 + 370;
+    let optionY = -modalHeight/2 + 380;
     const optionBtns: Phaser.GameObjects.Container[] = [];
 
     // Teks Error (muncul jika jawaban salah)
-    const errorText = this.add.text(modalWidth/4, optionY + 360, '❌ Coba perhatikan lagi petunjuk\nyang sudah kamu temukan.', {
-      fontFamily: 'monospace',
+    const errorText = this.add.text(modalWidth/4, optionY + 370, '❌ Coba perhatikan lagi petunjuk\nyang sudah kamu temukan.', {
+      fontFamily: 'Fredoka One, Arial, sans-serif',
       fontSize: '24px',
       color: '#ef4444', // Red
       fontStyle: 'bold',
-      align: 'center'
+      align: 'center',
+      stroke: '#000000',
+      strokeThickness: 3
     }).setOrigin(0.5);
     errorText.setAlpha(0);
 
@@ -190,7 +195,7 @@ export class ConclusionScene extends Phaser.Scene {
       optionY += 110; // Jarak antar tombol opsi
     });
 
-    modalContainer.add([shadow, paper, clip, title, lineTop, lineVert, ...leftElements, question, ...optionBtns, errorText]);
+    modalContainer.add([shadow, paper, title, lineTop, lineVert, ...leftElements, question, ...optionBtns, errorText]);
 
     // Efek Pop-in
     modalContainer.setScale(0.7);
@@ -206,60 +211,100 @@ export class ConclusionScene extends Phaser.Scene {
 
   private createOptionButton(x: number, y: number, prefix: string, text: string, width: number, onClick: () => void) {
     const container = this.add.container(x, y);
-    const height = 65;
+    const height = 75; // Slightly taller for gaming style
+
+    const shadow = this.add.graphics();
+    shadow.fillStyle(0x000000, 0.4);
+    shadow.fillRoundedRect(-width/2 + 4, -height/2 + 6, width, height, 15);
 
     const bg = this.add.graphics();
-    bg.fillStyle(0xffffff, 1);
+    bg.fillStyle(0x1e3a8a, 1); // Dark blue button
     bg.fillRoundedRect(-width/2, -height/2, width, height, 15);
-    bg.lineStyle(3, 0x333333, 1);
+    bg.lineStyle(4, 0xffffff, 0.2); // Inner highlight
+    bg.strokeRoundedRect(-width/2 + 2, -height/2 + 2, width - 4, height - 4, 13);
+    bg.lineStyle(3, 0x000000, 1); // Outer border
     bg.strokeRoundedRect(-width/2, -height/2, width, height, 15);
 
     const prefixBg = this.add.graphics();
-    prefixBg.fillStyle(0x3b82f6, 1);
-    prefixBg.fillRoundedRect(-width/2, -height/2, 60, height, { tl: 15, bl: 15, tr: 0, br: 0 });
-    prefixBg.lineStyle(3, 0x333333, 1);
-    prefixBg.strokeRoundedRect(-width/2, -height/2, 60, height, { tl: 15, bl: 15, tr: 0, br: 0 });
+    prefixBg.fillStyle(0x3b82f6, 1); // Neon blue prefix
+    prefixBg.fillRoundedRect(-width/2, -height/2, 70, height, { tl: 15, bl: 15, tr: 0, br: 0 });
+    prefixBg.lineStyle(3, 0x000000, 1);
+    prefixBg.strokeRoundedRect(-width/2, -height/2, 70, height, { tl: 15, bl: 15, tr: 0, br: 0 });
 
-    const prefixText = this.add.text(-width/2 + 30, 0, prefix, {
-      fontFamily: 'monospace',
-      fontSize: '28px',
+    const prefixText = this.add.text(-width/2 + 35, 0, prefix, {
+      fontFamily: 'Fredoka One, Arial, sans-serif',
+      fontSize: '32px',
       color: '#ffffff',
-      fontStyle: 'bold'
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 4,
+      shadow: { offsetX: 2, offsetY: 2, color: '#000000', blur: 0, fill: true }
     }).setOrigin(0.5);
 
-    const labelText = this.add.text(-width/2 + 80, 0, text, {
-      fontFamily: 'monospace',
-      fontSize: '24px',
-      color: '#1f2937',
-      fontStyle: 'bold'
+    const labelText = this.add.text(-width/2 + 90, 0, text, {
+      fontFamily: 'Fredoka One, Arial, sans-serif',
+      fontSize: '22px',
+      color: '#ffffff',
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 3
     }).setOrigin(0, 0.5);
 
-    container.add([bg, prefixBg, prefixText, labelText]);
+    container.add([shadow, bg, prefixBg, prefixText, labelText]);
 
     const hitArea = new Phaser.Geom.Rectangle(-width/2, -height/2, width, height);
     container.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
 
+    let isClicking = false;
+
     container.on('pointerover', () => {
+      if (isClicking) return;
       this.input.setDefaultCursor('pointer');
-      this.tweens.add({ targets: container, scale: 1.02, duration: 100 });
+      
       bg.clear();
-      bg.fillStyle(0xf3f4f6, 1);
+      bg.fillStyle(0x3b82f6, 1); // Hover brighter blue
       bg.fillRoundedRect(-width/2, -height/2, width, height, 15);
-      bg.lineStyle(3, 0x333333, 1);
+      bg.lineStyle(4, 0xffffff, 0.5);
+      bg.strokeRoundedRect(-width/2 + 2, -height/2 + 2, width - 4, height - 4, 13);
+      bg.lineStyle(3, 0x000000, 1);
       bg.strokeRoundedRect(-width/2, -height/2, width, height, 15);
+      
+      container.y -= 2;
+      shadow.y = 2;
     });
 
     container.on('pointerout', () => {
+      if (isClicking) return;
       this.input.setDefaultCursor('default');
-      this.tweens.add({ targets: container, scale: 1, duration: 100 });
+      
       bg.clear();
-      bg.fillStyle(0xffffff, 1);
+      bg.fillStyle(0x1e3a8a, 1);
       bg.fillRoundedRect(-width/2, -height/2, width, height, 15);
-      bg.lineStyle(3, 0x333333, 1);
+      bg.lineStyle(4, 0xffffff, 0.2);
+      bg.strokeRoundedRect(-width/2 + 2, -height/2 + 2, width - 4, height - 4, 13);
+      bg.lineStyle(3, 0x000000, 1);
       bg.strokeRoundedRect(-width/2, -height/2, width, height, 15);
+      
+      container.y = y;
+      shadow.y = 0;
     });
 
-    container.on('pointerdown', onClick);
+    container.on('pointerdown', () => {
+      if (isClicking) return;
+      isClicking = true;
+      this.input.setDefaultCursor('default');
+      
+      container.y = y + 4;
+      shadow.y = -4;
+
+      setTimeout(() => {
+        onClick();
+        // Reset state manually in case it doesn't change scene (wrong answer)
+        isClicking = false;
+        container.y = y;
+        shadow.y = 0;
+      }, 150);
+    });
 
     return container;
   }
