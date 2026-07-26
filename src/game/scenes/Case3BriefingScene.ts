@@ -14,6 +14,8 @@ import thumbUpTeacher from '../../assets/characters/teachers/thumb-up.png';
 import smileTeacher from '../../assets/characters/teachers/smile.png';
 import surprisedTeacher from '../../assets/characters/teachers/suprised.png';
 import thinkingTeacher from '../../assets/characters/teachers/thinking.png';
+import boyIdle from '../../assets/characters/boy/boy-idle.png';
+import girlIdle from '../../assets/characters/girl/girl-idle.png';
 
 import { Case3TrashConfig } from '../config/Case3TrashConfig';
 
@@ -21,36 +23,19 @@ export class Case3BriefingScene extends Phaser.Scene {
   private bg!: Phaser.GameObjects.Image;
   private overlay!: Phaser.GameObjects.Rectangle;
   private teacher!: Phaser.GameObjects.Image;
+  private player!: Phaser.GameObjects.Image;
   private dialogContainer!: Phaser.GameObjects.Container;
   private textObj!: Phaser.GameObjects.Text;
   private typeWriterEvent!: Phaser.Time.TimerEvent;
+  private nextBtnContainer!: Phaser.GameObjects.Container;
+  private nextBtnText!: Phaser.GameObjects.Text;
   
   private currentDialogIndex = 0;
   private isTyping = false;
-  private currentTextContent = "";
-
-  private dialogs = [
-    {
-      text: "Hebat! Kamu sudah berhasil menyelesaikan dua misi sebelumnya.",
-      teacherKey: 'teacher_thumbup',
-      teacherScale: 1.0
-    },
-    {
-      text: "Sekarang ada satu misi terakhir.",
-      teacherKey: 'teacher_smile',
-      teacherScale: 1.0
-    },
-    {
-      text: "Lihatlah selokan di samping sekolah. Ada beberapa sampah yang dibuang ke dalamnya.",
-      teacherKey: 'teacher_surprised',
-      teacherScale: 1.0
-    },
-    {
-      text: "Yuk, cari tahu mengapa hal itu tidak boleh dilakukan!",
-      teacherKey: 'teacher_thinking',
-      teacherScale: 1.0
-    }
-  ];
+  private isClicking = false;
+  
+  private teacherMaxScale = 1;
+  private playerMaxScale = 1;
 
   constructor() {
     super('Case3BriefingScene');
@@ -72,6 +57,8 @@ export class Case3BriefingScene extends Phaser.Scene {
     this.load.image('teacher_smile', smileTeacher);
     this.load.image('teacher_surprised', surprisedTeacher);
     this.load.image('teacher_thinking', thinkingTeacher);
+    this.load.image('boy_idle', boyIdle);
+    this.load.image('girl_idle', girlIdle);
   }
 
   create() {
@@ -105,12 +92,26 @@ export class Case3BriefingScene extends Phaser.Scene {
     this.overlay.setDepth(10);
 
     // Teacher
-    this.teacher = this.add.image(width * 0.25, height, 'teacher_thumbup').setOrigin(0.5, 1);
+    this.teacher = this.add.image(width * 0.2, height, 'teacher_thumbup').setOrigin(0.5, 1);
     const teacherMaxHeight = height * 0.85;
-    this.teacher.setScale(teacherMaxHeight / this.teacher.height);
+    this.teacherMaxScale = teacherMaxHeight / this.teacher.height;
+    this.teacher.setScale(this.teacherMaxScale);
     this.teacher.setFlipX(true);
     this.teacher.setAlpha(0);
     this.teacher.setDepth(20);
+    this.teacher.y = height + 300;
+
+    // Player
+    const gender = this.registry.get('playerGender') || 'boy';
+    const playerAsset = gender === 'boy' ? 'boy_idle' : 'girl_idle';
+    this.player = this.add.image(width * 0.8, height, playerAsset).setOrigin(0.5, 1);
+    const playerMaxHeight = height * 0.9;
+    this.playerMaxScale = playerMaxHeight / this.player.height;
+    this.player.setScale(this.playerMaxScale);
+    this.player.setFlipX(false);
+    this.player.setAlpha(0);
+    this.player.setDepth(20);
+    this.player.y = height + 300;
 
     this.createDialogUI(width, height);
 
@@ -121,7 +122,7 @@ export class Case3BriefingScene extends Phaser.Scene {
         alpha: 1,
         duration: 800,
         onComplete: () => {
-          this.showTeacherAndDialog();
+          this.showCharactersAndDialog();
         }
       });
     });
@@ -136,14 +137,12 @@ export class Case3BriefingScene extends Phaser.Scene {
     const dialogHeight = 220;
 
     const dialogBg = this.add.graphics();
-    dialogBg.fillStyle(0x0f172a, 0.85);
+    dialogBg.fillStyle(0x0f172a, 0.85); // Slate 900
     dialogBg.fillRoundedRect(-dialogWidth/2, -dialogHeight/2, dialogWidth, dialogHeight, 20);
-    dialogBg.lineStyle(4, 0x3b82f6, 1);
+    dialogBg.lineStyle(4, 0x3b82f6, 1); // Blue border
     dialogBg.strokeRoundedRect(-dialogWidth/2, -dialogHeight/2, dialogWidth, dialogHeight, 20);
 
     const nameBg = this.add.graphics();
-    nameBg.fillStyle(0x3b82f6, 1);
-    nameBg.fillRoundedRect(-dialogWidth/2 + 30, -dialogHeight/2 - 25, 200, 50, 10);
     const nameText = this.add.text(-dialogWidth/2 + 130, -dialogHeight/2, 'Ibu Guru', {
       fontFamily: 'monospace',
       fontSize: '28px',
@@ -159,23 +158,196 @@ export class Case3BriefingScene extends Phaser.Scene {
       lineSpacing: 10
     });
 
-    const clickArea = this.add.zone(0, 0, dialogWidth, dialogHeight)
-      .setRectangleDropZone(dialogWidth, dialogHeight)
-      .setInteractive({ useHandCursor: true });
-    
-    clickArea.on('pointerdown', () => this.handleDialogClick());
+    const playerName = this.registry.get('playerName') || 'Detektif';
 
-    this.dialogContainer.add([dialogBg, nameBg, nameText, this.textObj, clickArea]);
+    const dialogues = [
+      {
+        speaker: 'Ibu Guru',
+        text: "Hebat! Kamu sudah berhasil menyelesaikan dua misi sebelumnya.",
+        color: 0x3b82f6, // Blue
+        teacherKey: 'teacher_thumbup',
+        teacherScale: 1.0
+      },
+      {
+        speaker: playerName,
+        text: "Berarti tugas kita sudah selesai ya, Bu?",
+        color: 0x16a34a, // Green
+        teacherKey: 'teacher_smile',
+        teacherScale: 1.0
+      },
+      {
+        speaker: 'Ibu Guru',
+        text: "Belum, masih ada satu misi terakhir. Coba lihat selokan di samping sekolah itu.",
+        color: 0x3b82f6,
+        teacherKey: 'teacher_surprised',
+        teacherScale: 1.0
+      },
+      {
+        speaker: playerName,
+        text: "Wah, ada banyak sampah yang menyumbat aliran airnya!",
+        color: 0x16a34a,
+        teacherKey: 'teacher_surprised',
+        teacherScale: 1.0
+      },
+      {
+        speaker: 'Ibu Guru',
+        text: "Tepat sekali. Yuk, kita cari tahu mengapa membuang sampah di selokan sangat berbahaya!",
+        color: 0x3b82f6,
+        teacherKey: 'teacher_thinking',
+        teacherScale: 1.0
+      }
+    ];
+
+    // Tombol Lanjut (Gaming Style)
+    const btnWidth = 240; 
+    const btnHeight = 55;
+    const nextBtnY = dialogHeight/2 - 45;
+    this.nextBtnContainer = this.add.container(dialogWidth/2 - 150, nextBtnY);
+
+    const shadow = this.add.graphics();
+    shadow.fillStyle(0x000000, 0.4);
+    shadow.fillRoundedRect(-btnWidth/2 + 3, -btnHeight/2 + 4, btnWidth, btnHeight, 15);
+
+    const nextBtnBg = this.add.graphics();
+    nextBtnBg.fillStyle(0x16a34a, 1);
+    nextBtnBg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
+    nextBtnBg.lineStyle(4, 0xffffff, 0.3);
+    nextBtnBg.strokeRoundedRect(-btnWidth/2 + 2, -btnHeight/2 + 2, btnWidth - 4, btnHeight - 4, 13);
+    nextBtnBg.lineStyle(3, 0x000000, 1);
+    nextBtnBg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
+
+    this.nextBtnText = this.add.text(0, 0, 'LANJUT ➔', {
+      fontFamily: 'Fredoka One, Arial, sans-serif',
+      fontSize: '20px',
+      color: '#ffffff',
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 3,
+      shadow: { offsetX: 2, offsetY: 2, color: '#000000', blur: 0, fill: true }
+    }).setOrigin(0.5);
+
+    this.nextBtnContainer.add([shadow, nextBtnBg, this.nextBtnText]);
+    this.nextBtnContainer.setAlpha(0);
+
+    this.nextBtnContainer.on('pointerover', () => {
+      if (this.isClicking) return;
+      this.input.setDefaultCursor('pointer');
+      nextBtnBg.clear();
+      nextBtnBg.fillStyle(0x22c55e, 1);
+      nextBtnBg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
+      nextBtnBg.lineStyle(4, 0xffffff, 0.5);
+      nextBtnBg.strokeRoundedRect(-btnWidth/2 + 2, -btnHeight/2 + 2, btnWidth - 4, btnHeight - 4, 13);
+      nextBtnBg.lineStyle(3, 0x000000, 1);
+      nextBtnBg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
+      this.nextBtnContainer.y = nextBtnY - 2;
+      shadow.y = 2;
+    });
+
+    this.nextBtnContainer.on('pointerout', () => {
+      if (this.isClicking) return;
+      this.input.setDefaultCursor('default');
+      nextBtnBg.clear();
+      nextBtnBg.fillStyle(0x16a34a, 1);
+      nextBtnBg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
+      nextBtnBg.lineStyle(4, 0xffffff, 0.3);
+      nextBtnBg.strokeRoundedRect(-btnWidth/2 + 2, -btnHeight/2 + 2, btnWidth - 4, btnHeight - 4, 13);
+      nextBtnBg.lineStyle(3, 0x000000, 1);
+      nextBtnBg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
+      this.nextBtnContainer.y = nextBtnY;
+      shadow.y = 0;
+    });
+
+    this.nextBtnContainer.on('pointerdown', () => {
+      this.input.setDefaultCursor('default');
+      if (this.isTyping) {
+        if (this.typeWriterEvent) this.typeWriterEvent.remove();
+        this.textObj.text = dialogues[this.currentDialogIndex].text;
+        this.isTyping = false;
+      } else {
+        if (this.currentDialogIndex < dialogues.length - 1) {
+          this.currentDialogIndex++;
+          this.startTyping(dialogues, dialogWidth, dialogHeight, nameBg, nameText);
+          if (this.currentDialogIndex === dialogues.length - 1) {
+            this.nextBtnText.text = 'INVESTIGASI ➔';
+          }
+        } else {
+          if (this.isClicking) return;
+          this.isClicking = true;
+          this.nextBtnContainer.y = nextBtnY + 4;
+          shadow.y = -4;
+          setTimeout(() => {
+            this.scene.start('InvestigationScene', { caseId: 'kasus_selokan' });
+          }, 150);
+        }
+      }
+    });
+
+    this.dialogContainer.add([dialogBg, nameBg, nameText, this.textObj, this.nextBtnContainer]);
+
+    // Setup startTyping closure
+    this.startTyping = (dialoguesArr: any[], dWidth: number, dHeight: number, nBg: Phaser.GameObjects.Graphics, nText: Phaser.GameObjects.Text) => {
+      this.isTyping = true;
+      this.textObj.text = '';
+      const currentDialog = dialoguesArr[this.currentDialogIndex];
+      const isTeacher = currentDialog.speaker === 'Ibu Guru';
+
+      // Update teacher texture
+      this.teacher.setTexture(currentDialog.teacherKey);
+
+      nText.text = currentDialog.speaker;
+      nBg.clear();
+      nBg.fillStyle(currentDialog.color, 1);
+
+      if (isTeacher) {
+        nBg.fillRoundedRect(-dWidth/2 + 30, -dHeight/2 - 25, 200, 50, 10);
+        nText.x = -dWidth/2 + 130;
+        this.tweens.add({ targets: this.teacher, scale: this.teacherMaxScale * currentDialog.teacherScale, alpha: 1, duration: 300 });
+        this.tweens.add({ targets: this.player, scale: this.playerMaxScale * 0.9, alpha: 0.6, duration: 300 });
+      } else {
+        nBg.fillRoundedRect(dWidth/2 - 230, -dHeight/2 - 25, 200, 50, 10);
+        nText.x = dWidth/2 - 130;
+        this.tweens.add({ targets: this.player, scale: this.playerMaxScale, alpha: 1, duration: 300 });
+        this.tweens.add({ targets: this.teacher, scale: this.teacherMaxScale * 0.9, alpha: 0.6, duration: 300 });
+      }
+
+      let charIndex = 0;
+      this.typeWriterEvent = this.time.addEvent({
+        delay: 30,
+        repeat: currentDialog.text.length - 1,
+        callback: () => {
+          this.textObj.text += currentDialog.text[charIndex];
+          charIndex++;
+          if (charIndex === currentDialog.text.length) {
+            this.isTyping = false;
+          }
+        }
+      });
+    };
+
+    // Stash dialogues for startTyping closure
+    this.registry.set('c3b_dialogues', dialogues);
+    this.registry.set('c3b_dWidth', dialogWidth);
+    this.registry.set('c3b_dHeight', dialogHeight);
+    this.registry.set('c3b_nBg', nameBg);
+    this.registry.set('c3b_nText', nameText);
   }
 
-  private showTeacherAndDialog() {
-    this.teacher.y = this.cameras.main.height + 200;
-    this.teacher.setAlpha(1);
+  // To be overwritten by the closure above
+  private startTyping: any;
 
+  private showCharactersAndDialog() {
     this.tweens.add({
       targets: this.teacher,
       y: this.cameras.main.height,
       duration: 600,
+      ease: 'Back.easeOut'
+    });
+
+    this.tweens.add({
+      targets: this.player,
+      y: this.cameras.main.height,
+      duration: 600,
+      delay: 200,
       ease: 'Back.easeOut',
       onComplete: () => {
         this.dialogContainer.y += 50;
@@ -185,51 +357,23 @@ export class Case3BriefingScene extends Phaser.Scene {
           y: this.cameras.main.height - 150,
           duration: 400,
           ease: 'Power2',
-          onComplete: () => this.startTyping()
+          onComplete: () => {
+            const dialogues = this.registry.get('c3b_dialogues');
+            const dWidth = this.registry.get('c3b_dWidth');
+            const dHeight = this.registry.get('c3b_dHeight');
+            const nBg = this.registry.get('c3b_nBg');
+            const nText = this.registry.get('c3b_nText');
+            this.startTyping(dialogues, dWidth, dHeight, nBg, nText);
+            
+            // Show next btn
+            this.time.delayedCall(dialogues[0].text.length * 30 + 500, () => {
+              this.tweens.add({ targets: this.nextBtnContainer, alpha: 1, duration: 300 });
+              const hitArea = new Phaser.Geom.Rectangle(-120, -27.5, 240, 55);
+              this.nextBtnContainer.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
+            });
+          }
         });
       }
     });
-  }
-
-  private startTyping() {
-    const dialogData = this.dialogs[this.currentDialogIndex];
-    
-    // Update teacher texture based on dialog
-    this.teacher.setTexture(dialogData.teacherKey);
-    const teacherMaxHeight = this.cameras.main.height * 0.85;
-    this.teacher.setScale((teacherMaxHeight / this.teacher.height) * (dialogData.teacherScale || 1));
-
-    this.isTyping = true;
-    this.currentTextContent = dialogData.text;
-    this.textObj.text = '';
-
-    let i = 0;
-    this.typeWriterEvent = this.time.addEvent({
-      delay: 30,
-      repeat: this.currentTextContent.length - 1,
-      callback: () => {
-        this.textObj.text += this.currentTextContent[i];
-        i++;
-        if (i === this.currentTextContent.length) {
-          this.isTyping = false;
-        }
-      }
-    });
-  }
-
-  private handleDialogClick() {
-    if (this.isTyping) {
-      if (this.typeWriterEvent) this.typeWriterEvent.remove();
-      this.textObj.text = this.currentTextContent;
-      this.isTyping = false;
-    } else {
-      this.currentDialogIndex++;
-      if (this.currentDialogIndex < this.dialogs.length) {
-        this.startTyping();
-      } else {
-        // Proceed to investigation scene
-        this.scene.start('InvestigationScene', { caseId: 'kasus_selokan' });
-      }
-    }
   }
 }

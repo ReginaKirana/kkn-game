@@ -52,24 +52,8 @@ export class OutroScene extends Phaser.Scene {
     const bg = this.add.image(width / 2, height / 2, 'papan_kasus3');
     bg.setScale(Math.max(width / bg.width, height / bg.height));
 
-    // Draw third checkmark (since papan-kasus3.png might only have 2 checkmarks)
-    const checkmark = this.add.text(width * 0.72, height * 0.45, '✅', {
-      fontSize: '80px',
-      fontStyle: 'bold'
-    }).setOrigin(0.5);
-    checkmark.setAngle(-15);
-    // Animate checkmark
-    this.tweens.add({
-      targets: checkmark,
-      scale: { from: 5, to: 1 },
-      alpha: { from: 0, to: 1 },
-      duration: 800,
-      ease: 'Back.easeOut',
-      onComplete: () => {
-        this.submitToSupabase();
-        this.time.delayedCall(1000, () => this.showEndingSequence(width, height));
-      }
-    });
+    this.submitToSupabase();
+    this.time.delayedCall(1000, () => this.showEndingSequence(width, height));
   }
 
   private async submitToSupabase() {

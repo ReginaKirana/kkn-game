@@ -13,6 +13,7 @@ import teacherThumbUp from '../../assets/characters/teachers/thumb-up.png';
 
 export class Case2SortScene extends Phaser.Scene {
   private trashItemsRemaining: number = 0;
+  private bannerContainer!: Phaser.GameObjects.Container;
 
   constructor() {
     super('Case2SortScene');
@@ -38,15 +39,82 @@ export class Case2SortScene extends Phaser.Scene {
     const bg = this.add.image(width / 2, height / 2, 'game_bg');
     bg.setScale(Math.max(width / bg.width, height / bg.height));
 
-    // 2. Judul Misi
-    const instructionBg = this.add.rectangle(width / 2, 60, 600, 70, 0x000000, 0.6);
-    instructionBg.setStrokeStyle(4, 0xffffff);
-    this.add.text(width / 2, 60, 'Misi: Pilah Sampah Organik & Anorganik!', {
-      fontSize: '24px',
-      color: '#ffffff',
+    // 2. Judul Misi / Instruksi
+    this.bannerContainer = this.add.container(width / 2, 60);
+    this.bannerContainer.setDepth(50);
+    this.bannerContainer.setAlpha(0);
+    
+    const instructionBg = this.add.graphics();
+    instructionBg.fillStyle(0x0f172a, 0.9); // Slate 900
+    instructionBg.fillRoundedRect(-380, -45, 760, 90, 25);
+    instructionBg.lineStyle(4, 0x3b82f6, 1); // Blue border
+    instructionBg.strokeRoundedRect(-380, -45, 760, 90, 25);
+
+    const instructionTitle = this.add.text(0, -15, 'Misi: Pilah Sampah Organik & Anorganik!', {
+      fontFamily: 'Fredoka One, Arial, sans-serif',
+      fontSize: '28px',
+      color: '#facc15',
       fontStyle: 'bold',
-      fontFamily: 'monospace'
+      stroke: '#000000',
+      strokeThickness: 4,
+      shadow: { offsetX: 2, offsetY: 2, color: '#000000', blur: 0, fill: true }
     }).setOrigin(0.5);
+
+    const instructionSub = this.add.text(0, 15, 'Tarik (drag) sampah ke tong yang sesuai!', {
+      fontFamily: 'Nunito, sans-serif',
+      fontSize: '18px',
+      color: '#ffffff',
+      fontStyle: 'bold'
+    }).setOrigin(0.5);
+    
+    this.bannerContainer.add([instructionBg, instructionTitle, instructionSub]);
+
+    // Transisi Intro (Layar Gelap -> Teks Muncul Lembut -> Terang -> Banner Turun)
+    const introOverlay = this.add.rectangle(0, 0, width, height, 0x000000, 0.8).setOrigin(0, 0);
+    introOverlay.setDepth(100);
+
+    const introText = this.add.text(width / 2, height / 2, 'MISI DIMULAI!', {
+      fontFamily: 'Fredoka One, Arial, sans-serif',
+      fontSize: '56px',
+      color: '#facc15', // Kuning
+      fontStyle: 'bold',
+      align: 'center',
+      stroke: '#000000',
+      strokeThickness: 6,
+      shadow: { offsetX: 3, offsetY: 3, color: '#000000', blur: 0, fill: true }
+    }).setOrigin(0.5);
+    introText.setDepth(101);
+    introText.setAlpha(0);
+
+    this.tweens.add({
+      targets: introText,
+      alpha: 1,
+      y: height / 2 - 20,
+      duration: 800,
+      ease: 'Power2',
+      onComplete: () => {
+        this.time.delayedCall(800, () => {
+          this.tweens.add({
+            targets: [introText, introOverlay],
+            alpha: 0,
+            duration: 600,
+            ease: 'Power2',
+            onComplete: () => {
+              introOverlay.destroy();
+              introText.destroy();
+              this.bannerContainer.y = -50;
+              this.tweens.add({
+                targets: this.bannerContainer,
+                y: 60,
+                alpha: 1,
+                duration: 500,
+                ease: 'Back.easeOut'
+              });
+            }
+          });
+        });
+      }
+    });
 
     // 3. Tempat Sampah (Drop Zones)
     const binOrganik = this.add.image(width * 0.3, height * 0.4, 'bin_organik');
@@ -100,34 +168,28 @@ export class Case2SortScene extends Phaser.Scene {
       trash.setInteractive({ draggable: true });
       this.input.setDraggable(trash);
 
-      // --- ANIMASI HOVER ---
       trash.on('pointerover', () => {
         if (!trash.getData('isDragging')) {
           this.input.setDefaultCursor('pointer');
           this.tweens.add({ targets: trash, scale: trash.getData('baseScale') * 1.15, duration: 100 });
         }
       });
-
       trash.on('pointerout', () => {
         if (!trash.getData('isDragging')) {
           this.input.setDefaultCursor('default');
           this.tweens.add({ targets: trash, scale: trash.getData('baseScale'), duration: 100 });
         }
       });
-
-      // --- EVENT DRAG ---
       trash.on('drag', (pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
         trash.x = dragX;
         trash.y = dragY;
         this.input.setDefaultCursor('grabbing');
       });
-
       trash.on('dragstart', () => {
         trash.setData('isDragging', true);
         trash.setDepth(10);
         this.tweens.add({ targets: trash, scale: trash.getData('baseScale') * 1.3, duration: 100 });
       });
-
       trash.on('dragend', () => {
         trash.setData('isDragging', false);
         this.input.setDefaultCursor('default');
@@ -136,7 +198,6 @@ export class Case2SortScene extends Phaser.Scene {
       });
     });
 
-    // 5. Logic Drop ke Tempat Sampah
     this.input.on('drop', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Image, dropZone: Phaser.GameObjects.Zone) => {
       const itemType = gameObject.getData('type');
       const zoneType = dropZone.getData('type');
@@ -144,7 +205,6 @@ export class Case2SortScene extends Phaser.Scene {
       if (itemType === zoneType) {
         // BENAR
         gameObject.disableInteractive();
-        
         this.tweens.add({
           targets: gameObject,
           x: dropZone.x,
@@ -162,12 +222,8 @@ export class Case2SortScene extends Phaser.Scene {
           }
         });
       } else {
-        // SALAH - "Se Gaming Mungkin"
-        
-        // 1. Merah sementara
+        // SALAH
         gameObject.setTint(0xff5555);
-        
-        // 2. Muncul X mark sementara
         const xMark = this.add.text(gameObject.x, gameObject.y - 50, '❌', { fontSize: '64px' }).setOrigin(0.5);
         xMark.setDepth(20);
         
@@ -180,7 +236,6 @@ export class Case2SortScene extends Phaser.Scene {
           onComplete: () => xMark.destroy()
         });
 
-        // 3. Getar / Shake effect lalu bounce balik ke posisi awal
         this.tweens.add({
           targets: gameObject,
           x: { value: gameObject.x + (Math.random() > 0.5 ? 20 : -20), yoyo: true, repeat: 2, duration: 50 },
@@ -200,7 +255,6 @@ export class Case2SortScene extends Phaser.Scene {
       }
     });
 
-    // Jika drop meleset dari zone apapun
     this.input.on('dragend', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Image, dropped: boolean) => {
       if (!dropped) {
         this.tweens.add({
@@ -217,17 +271,25 @@ export class Case2SortScene extends Phaser.Scene {
   private showEndingSequence() {
     const { width, height } = this.cameras.main;
 
-    // Dark Overlay
-    this.add.rectangle(0, 0, width, height, 0x000000, 0.7).setOrigin(0, 0);
+    this.tweens.add({
+      targets: this.bannerContainer,
+      y: -50,
+      alpha: 0,
+      duration: 300,
+      ease: 'Power2'
+    });
 
-    // Teacher Character
+    const overlay = this.add.rectangle(0, 0, width, height, 0x000000, 0.6).setOrigin(0, 0);
+    overlay.setDepth(30);
+
     const teacher = this.add.image(width * 0.25, height, 'teacher_thumbup').setOrigin(0.5, 1);
     teacher.setFlipX(true);
     const teacherMaxHeight = height * 0.85;
     teacher.setScale(teacherMaxHeight / teacher.height);
+    teacher.setDepth(31);
     
-    // Dialog Container
     const dialogContainer = this.add.container(width / 2, height - 150);
+    dialogContainer.setDepth(32);
     const dialogWidth = width * 0.8;
     const dialogHeight = 220;
 
@@ -254,24 +316,15 @@ export class Case2SortScene extends Phaser.Scene {
       wordWrap: { width: dialogWidth - 100 },
       lineSpacing: 10
     });
+
+    const clickArea = this.add.zone(0, 0, dialogWidth, dialogHeight)
+      .setRectangleDropZone(dialogWidth, dialogHeight)
+      .setInteractive({ useHandCursor: true });
     
-    dialogContainer.add([dialogBg, nameBg, nameText, textObj]);
+    dialogContainer.add([dialogBg, nameBg, nameText, textObj, clickArea]);
     dialogContainer.setAlpha(0);
     dialogContainer.y += 50;
 
-    // Eco Point +10 Visual
-    const ecoText = this.add.text(width / 2, height / 2 - 100, '⭐ Eco Point +10', {
-      fontFamily: 'monospace',
-      fontSize: '64px',
-      color: '#fbbf24',
-      fontStyle: 'bold',
-      stroke: '#b45309',
-      strokeThickness: 8
-    }).setOrigin(0.5);
-    ecoText.setAlpha(0);
-    ecoText.setScale(0);
-
-    // Animasi muncul guru
     teacher.y = height + 300;
     this.tweens.add({
       targets: teacher,
@@ -279,7 +332,6 @@ export class Case2SortScene extends Phaser.Scene {
       duration: 600,
       ease: 'Back.easeOut',
       onComplete: () => {
-        // Muncul dialog
         this.tweens.add({
           targets: dialogContainer,
           alpha: 1,
@@ -287,49 +339,152 @@ export class Case2SortScene extends Phaser.Scene {
           duration: 400,
           ease: 'Power2',
           onComplete: () => {
-            // Typewriter effect
             const content = "Hebat! Sekarang sampah sudah dipilah dengan benar.";
             let i = 0;
-            this.time.addEvent({
+            let isTyping = true;
+            let typeWriterEvent = this.time.addEvent({
               delay: 30,
               repeat: content.length - 1,
               callback: () => {
                 textObj.text += content[i];
                 i++;
                 if (i >= content.length) {
-                  // Tampilkan Eco Points
-                  this.tweens.add({
-                    targets: ecoText,
-                    scale: 1.2,
-                    alpha: 1,
-                    duration: 500,
-                    ease: 'Back.easeOut',
-                    onComplete: () => {
-                      this.tweens.add({
-                        targets: ecoText,
-                        scale: 1,
-                        duration: 200
-                      });
-                      
-                      // Tambahkan interaksi klik untuk lanjut
-                      this.time.delayedCall(1000, () => {
-                        const clickArea = this.add.zone(0, 0, width, height)
-                          .setOrigin(0, 0)
-                          .setInteractive({ useHandCursor: true });
-                        
-                        clickArea.on('pointerdown', () => {
-                          this.input.setDefaultCursor('default');
-                          this.scene.start('CaseSelectScene', { unlockCase3: true });
-                        });
-                      });
-                    }
-                  });
+                  isTyping = false;
                 }
+              }
+            });
+
+            clickArea.on('pointerdown', () => {
+              if (isTyping) {
+                typeWriterEvent.remove();
+                textObj.text = content;
+                isTyping = false;
+              } else {
+                clickArea.disableInteractive();
+                this.tweens.add({
+                  targets: [dialogContainer, teacher],
+                  alpha: 0,
+                  duration: 300,
+                  onComplete: () => {
+                    dialogContainer.destroy();
+                    teacher.destroy();
+                    this.showFinalResult(width, height);
+                  }
+                });
               }
             });
           }
         });
       }
+    });
+  }
+
+  private showFinalResult(width: number, height: number) {
+    const resultContainer = this.add.container(width / 2, height / 2);
+    resultContainer.setDepth(40);
+
+    const bg = this.add.graphics();
+    bg.fillStyle(0x0f172a, 0.9);
+    bg.fillRoundedRect(-300, -200, 600, 400, 30);
+    bg.lineStyle(6, 0x3b82f6, 1);
+    bg.strokeRoundedRect(-300, -200, 600, 400, 30);
+
+    const title = this.add.text(0, -100, 'KASUS SELESAI!', {
+      fontFamily: 'Fredoka One, Arial, sans-serif',
+      fontSize: '48px',
+      color: '#facc15',
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 6
+    }).setOrigin(0.5);
+
+    const score = this.add.text(0, -10, 'Eco Point +10', {
+      fontFamily: 'Fredoka One, Arial, sans-serif',
+      fontSize: '38px',
+      color: '#4ade80',
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 4
+    }).setOrigin(0.5);
+
+    const btnWidth = 320;
+    const btnHeight = 65;
+    const nextBtnY = 100;
+    const nextBtnContainer = this.add.container(0, nextBtnY);
+
+    const shadow = this.add.graphics();
+    shadow.fillStyle(0x000000, 0.4);
+    shadow.fillRoundedRect(-btnWidth/2 + 3, -btnHeight/2 + 4, btnWidth, btnHeight, 20);
+
+    const nextBtnBg = this.add.graphics();
+    nextBtnBg.fillStyle(0x2563eb, 1);
+    nextBtnBg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 20);
+    nextBtnBg.lineStyle(4, 0xffffff, 0.3);
+    nextBtnBg.strokeRoundedRect(-btnWidth/2 + 2, -btnHeight/2 + 2, btnWidth - 4, btnHeight - 4, 18);
+    nextBtnBg.lineStyle(3, 0x000000, 1);
+    nextBtnBg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 20);
+
+    const nextBtnText = this.add.text(0, 0, 'LANJUT ➔', {
+      fontFamily: 'Fredoka One, Arial, sans-serif',
+      fontSize: '24px',
+      color: '#ffffff',
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 3
+    }).setOrigin(0.5);
+
+    nextBtnContainer.add([shadow, nextBtnBg, nextBtnText]);
+    const hitArea = new Phaser.Geom.Rectangle(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight);
+    nextBtnContainer.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
+
+    let isClicking = false;
+    nextBtnContainer.on('pointerover', () => {
+      if (isClicking) return;
+      this.input.setDefaultCursor('pointer');
+      nextBtnBg.clear();
+      nextBtnBg.fillStyle(0x3b82f6, 1);
+      nextBtnBg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 20);
+      nextBtnBg.lineStyle(4, 0xffffff, 0.5);
+      nextBtnBg.strokeRoundedRect(-btnWidth/2 + 2, -btnHeight/2 + 2, btnWidth - 4, btnHeight - 4, 18);
+      nextBtnBg.lineStyle(3, 0x000000, 1);
+      nextBtnBg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 20);
+      nextBtnContainer.y = nextBtnY - 2;
+      shadow.y = 2;
+    });
+
+    nextBtnContainer.on('pointerout', () => {
+      if (isClicking) return;
+      this.input.setDefaultCursor('default');
+      nextBtnBg.clear();
+      nextBtnBg.fillStyle(0x2563eb, 1);
+      nextBtnBg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 20);
+      nextBtnBg.lineStyle(4, 0xffffff, 0.3);
+      nextBtnBg.strokeRoundedRect(-btnWidth/2 + 2, -btnHeight/2 + 2, btnWidth - 4, btnHeight - 4, 18);
+      nextBtnBg.lineStyle(3, 0x000000, 1);
+      nextBtnBg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 20);
+      nextBtnContainer.y = nextBtnY;
+      shadow.y = 0;
+    });
+
+    nextBtnContainer.on('pointerdown', () => {
+      if (isClicking) return;
+      isClicking = true;
+      this.input.setDefaultCursor('default');
+      nextBtnContainer.y = nextBtnY + 4;
+      shadow.y = -4;
+      setTimeout(() => { 
+        this.registry.set('ecoPoints', (this.registry.get('ecoPoints') || 0) + 10);
+        this.scene.start('CaseSelectScene', { unlockCase3: true }); 
+      }, 150);
+    });
+
+    resultContainer.add([bg, title, score, nextBtnContainer]);
+    resultContainer.setScale(0);
+    this.tweens.add({
+      targets: resultContainer,
+      scale: 1,
+      duration: 500,
+      ease: 'Back.easeOut'
     });
   }
 }

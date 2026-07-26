@@ -6,7 +6,7 @@ export class LeaderboardScene extends Phaser.Scene {
     super('LeaderboardScene');
   }
 
-  create() {
+  create(data?: { fromHome?: boolean }) {
     const { width, height } = this.cameras.main;
 
     // Latar belakang gelap elegan
@@ -17,7 +17,7 @@ export class LeaderboardScene extends Phaser.Scene {
     const circle2 = this.add.circle(width * 0.9, height * 0.8, 400, 0x10b981, 0.1);
 
     // Judul
-    this.add.text(width / 2, 80, '🏆 PAPAN PERINGKAT 🏆', {
+    this.add.text(width / 2, 80, 'PAPAN PERINGKAT', {
       fontFamily: 'monospace',
       fontSize: '48px',
       color: '#fef08a',
@@ -54,7 +54,7 @@ export class LeaderboardScene extends Phaser.Scene {
     this.fetchLeaderboard(width, listWidth, loadingText);
 
     // Tombol Navigasi di bawah
-    this.createActionButtons(width, height);
+    this.createActionButtons(width, height, data?.fromHome);
   }
 
   private async fetchLeaderboard(width: number, listWidth: number, loadingText: Phaser.GameObjects.Text) {
@@ -134,7 +134,7 @@ export class LeaderboardScene extends Phaser.Scene {
     });
   }
 
-  private createActionButtons(width: number, height: number) {
+  private createActionButtons(width: number, height: number, fromHome?: boolean) {
     const yPos = height - 120;
     
     const createBtn = (x: number, y: number, text: string, color: number, hoverColor: number, callback: () => void) => {
@@ -210,14 +210,21 @@ export class LeaderboardScene extends Phaser.Scene {
       });
     };
 
-    // Tombol Beranda di Kiri
-    createBtn(width / 2 - 180, yPos, 'KEMBALI KE BERANDA', 0x3b82f6, 0x60a5fa, () => {
-      this.scene.start('CoverScene');
-    });
+    if (fromHome) {
+      // Tombol Beranda di Tengah
+      createBtn(width / 2, yPos, 'KEMBALI KE BERANDA', 0x3b82f6, 0x60a5fa, () => {
+        this.scene.start('CoverScene');
+      });
+    } else {
+      // Tombol Beranda di Kiri
+      createBtn(width / 2 - 180, yPos, 'KEMBALI KE BERANDA', 0x3b82f6, 0x60a5fa, () => {
+        this.scene.start('CoverScene');
+      });
 
-    // Tombol Main Lagi di Kanan
-    createBtn(width / 2 + 180, yPos, 'MAIN LAGI', 0x10b981, 0x34d399, () => {
-      this.scene.start('CaseSelectScene', { case2Unlocked: true, case3Unlocked: true });
-    });
+      // Tombol Main Lagi di Kanan
+      createBtn(width / 2 + 180, yPos, 'MAIN LAGI', 0x10b981, 0x34d399, () => {
+        this.scene.start('CaseSelectScene', { case2Unlocked: true, case3Unlocked: true });
+      });
+    }
   }
 }

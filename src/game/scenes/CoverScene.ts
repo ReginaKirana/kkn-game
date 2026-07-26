@@ -207,7 +207,7 @@ export class CoverScene extends Phaser.Scene {
     // Tombol Leaderboard (Kanan Atas, sebelah Settings)
     createIconBtn(width - 130, 50, '🏆', 0xd97706, () => {
       if (this.bgMusic) this.bgMusic.stop();
-      this.scene.start('LeaderboardScene');
+      this.scene.start('LeaderboardScene', { fromHome: true });
     });
   }
 
@@ -395,35 +395,38 @@ export class CoverScene extends Phaser.Scene {
         }
         #name-modal-overlay .name-dialog-panel {
           width: min(650px, 90vw);
-          height: min(420px, 70vh);
+          min-height: 420px;
+          height: auto;
+          padding: 40px 20px;
           box-sizing: border-box;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          background: rgba(255, 255, 255, 0.95);
+          background: #0f172a;
           border-radius: 40px;
-          border: 6px solid #84cc16;
-          box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+          border: 4px solid #3b82f6;
+          box-shadow: 0 0 30px rgba(59, 130, 246, 0.4), inset 0 0 20px rgba(59, 130, 246, 0.2);
           transform: scale(0);
           transform-origin: center center;
           transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         #name-modal-overlay .name-dialog-title {
-          color: #166534;
+          color: #4ade80;
           font-family: 'Fredoka One', 'Varela Round', 'Nunito', sans-serif;
-          font-size: clamp(1.6rem, 4vw, 2.8rem);
-          margin: 0 0 30px 0;
+          font-size: clamp(1.6rem, 4vw, 2.5rem);
+          margin: 0 0 25px 0;
           font-weight: 800;
-          letter-spacing: 1px;
+          letter-spacing: 2px;
+          text-shadow: 0 2px 10px rgba(74, 222, 128, 0.5);
         }
         #name-modal-overlay .name-dialog-input {
-          font-size: clamp(1rem, 2.5vw, 1.8rem);
+          font-size: clamp(1rem, 2.5vw, 1.4rem);
           padding: 14px 20px;
           border-radius: 20px;
-          border: 3px solid #cbd5e1;
-          background: #f8fafc;
-          color: #1e293b;
+          border: 3px solid #334155;
+          background: #1e293b;
+          color: #f8fafc;
           width: min(450px, 80%);
           text-align: center;
           margin: 0 0 15px 0;
@@ -433,36 +436,39 @@ export class CoverScene extends Phaser.Scene {
           transition: all 0.2s;
           box-sizing: border-box;
         }
+        #name-modal-overlay .name-dialog-input::placeholder {
+          color: #64748b;
+        }
         #name-modal-overlay .name-dialog-input:focus {
-          border-color: #84cc16;
-          background: #ffffff;
-          box-shadow: 0 0 0 4px rgba(132, 204, 22, 0.2);
+          border-color: #3b82f6;
+          background: #0f172a;
+          box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3);
         }
         #name-modal-overlay .name-dialog-btn {
-          font-size: clamp(1.2rem, 3vw, 2.2rem);
-          padding: 18px 60px;
+          font-size: clamp(1.2rem, 3vw, 2rem);
+          padding: 16px 60px;
           border-radius: 40px;
-          border: 4px solid #3f6212;
-          background: #84cc16;
+          border: 4px solid #047857;
+          background: #10b981;
           color: #ffffff;
           cursor: pointer;
           font-family: 'Fredoka One', 'Nunito', sans-serif;
           font-weight: 900;
-          box-shadow: 0 8px 0 #3f6212, 0 15px 20px rgba(0,0,0,0.2);
+          box-shadow: 0 8px 0 #047857, 0 15px 20px rgba(0,0,0,0.4);
           text-transform: uppercase;
           letter-spacing: 2px;
           transition: all 0.1s;
-          text-shadow: 2px 2px 0px #3f6212;
+          text-shadow: 2px 2px 0px #047857;
           margin: 0;
         }
         #name-modal-overlay .name-dialog-btn:hover {
           transform: translateY(2px);
-          box-shadow: 0 6px 0 #3f6212, 0 10px 15px rgba(0,0,0,0.2);
-          background: #a3e635;
+          box-shadow: 0 6px 0 #047857, 0 10px 15px rgba(0,0,0,0.4);
+          background: #34d399;
         }
         #name-modal-overlay .name-dialog-btn:active {
           transform: translateY(8px);
-          box-shadow: 0 0 0 #3f6212, 0 0 0 rgba(0,0,0,0.2);
+          box-shadow: 0 0 0 #047857, 0 0 0 rgba(0,0,0,0.4);
         }
         
         /* Gender Selection Styles */
@@ -475,10 +481,10 @@ export class CoverScene extends Phaser.Scene {
         #name-modal-overlay .gender-box {
           flex: 1;
           padding: 15px;
-          border: 3px solid #cbd5e1;
+          border: 3px solid #334155;
           border-radius: 20px;
-          background: #f8fafc;
-          color: #64748b;
+          background: #1e293b;
+          color: #94a3b8;
           font-family: 'Fredoka One', sans-serif;
           font-size: clamp(1rem, 2vw, 1.4rem);
           text-align: center;
@@ -494,23 +500,24 @@ export class CoverScene extends Phaser.Scene {
         }
         #name-modal-overlay .gender-box:hover {
           transform: translateY(-2px);
-          box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+          box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+          border-color: #475569;
         }
         #name-modal-overlay .gender-box.selected[data-gender="boy"] {
           border-color: #3b82f6;
-          background: #eff6ff;
-          color: #1d4ed8;
-          box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+          background: #1e3a8a;
+          color: #93c5fd;
+          box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
         }
         #name-modal-overlay .gender-box.selected[data-gender="girl"] {
           border-color: #ec4899;
-          background: #fdf2f8;
-          color: #be185d;
-          box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.2);
+          background: #831843;
+          color: #f9a8d4;
+          box-shadow: 0 0 15px rgba(236, 72, 153, 0.4);
         }
       </style>
       <div class="name-dialog-panel" id="modal-content">
-        <h2 class="name-dialog-title">Data Detektif</h2>
+        <h2 class="name-dialog-title">DATA DETEKTIF</h2>
         <input type="text" id="playerName" class="name-dialog-input" placeholder="Nama Panggilanmu..." autocomplete="off" />
         <input type="text" id="schoolName" class="name-dialog-input" style="margin-bottom: 15px;" placeholder="Asal Sekolah" autocomplete="off" />
         
@@ -525,7 +532,7 @@ export class CoverScene extends Phaser.Scene {
           </div>
         </div>
 
-        <button type="button" id="submitName" class="name-dialog-btn">Mulai</button>
+        <button type="button" id="submitName" class="name-dialog-btn">MULAI MISI</button>
       </div>
     `;
 

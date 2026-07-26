@@ -30,6 +30,7 @@ export class Case3CleanUpScene extends Phaser.Scene {
   private typeWriterEvent!: Phaser.Time.TimerEvent;
   private overlay!: Phaser.GameObjects.Rectangle;
   private bg!: Phaser.GameObjects.Image;
+  private bannerContainer!: Phaser.GameObjects.Container;
   
   private currentDialogIndex = 0;
   private isTyping = false;
@@ -58,7 +59,6 @@ export class Case3CleanUpScene extends Phaser.Scene {
     this.load.image('selokan_transisi3', selokanTransisi3);
     this.load.image('selokan_final', selokanFinal);
     this.load.image('botol', botolImg);
-    // Kita gunakan pisang.png sebagai ganti "bungkus snack" karena aset snack.png belum ada
     this.load.image('pisang', pisangImg); 
     this.load.image('kaleng', kalengImg);
     this.load.image('plastik', plastikImg);
@@ -81,25 +81,81 @@ export class Case3CleanUpScene extends Phaser.Scene {
     this.bg = this.add.image(width / 2, height / 2, 'selokan_bg');
     this.bg.setScale(Math.max(width / this.bg.width, height / this.bg.height));
 
-    // Judul Instruksi
-    const instructionText = this.add.text(width / 2, 80, 'Ayo bersihkan selokan!\nKlik pada semua sampah untuk mengambilnya.', {
-      fontFamily: 'monospace',
+    // Judul Instruksi / Banner Premium
+    this.bannerContainer = this.add.container(width / 2, 60);
+    this.bannerContainer.setDepth(50);
+    this.bannerContainer.setAlpha(0);
+    
+    const instructionBg = this.add.graphics();
+    instructionBg.fillStyle(0x0f172a, 0.9); // Slate 900
+    instructionBg.fillRoundedRect(-380, -45, 760, 90, 25);
+    instructionBg.lineStyle(4, 0x3b82f6, 1); // Blue border
+    instructionBg.strokeRoundedRect(-380, -45, 760, 90, 25);
+
+    const instructionTitle = this.add.text(0, -15, 'Misi: Bersihkan Selokan!', {
+      fontFamily: 'Fredoka One, Arial, sans-serif',
       fontSize: '28px',
-      color: '#ffffff',
+      color: '#facc15',
       fontStyle: 'bold',
-      align: 'center',
-      backgroundColor: '#00000088',
-      padding: { x: 20, y: 15 }
+      stroke: '#000000',
+      strokeThickness: 4,
+      shadow: { offsetX: 2, offsetY: 2, color: '#000000', blur: 0, fill: true }
     }).setOrigin(0.5);
 
-    // Animasi pulsing untuk instruksi
+    const instructionSub = this.add.text(0, 15, 'Klik pada semua sampah untuk mengambilnya.', {
+      fontFamily: 'Nunito, sans-serif',
+      fontSize: '18px',
+      color: '#ffffff',
+      fontStyle: 'bold'
+    }).setOrigin(0.5);
+    
+    this.bannerContainer.add([instructionBg, instructionTitle, instructionSub]);
+
+    // Transisi Intro (Layar Gelap -> Teks Muncul Lembut -> Terang -> Banner Turun)
+    const introOverlay = this.add.rectangle(0, 0, width, height, 0x000000, 0.8).setOrigin(0, 0);
+    introOverlay.setDepth(100);
+
+    const introText = this.add.text(width / 2, height / 2, 'MISI DIMULAI!', {
+      fontFamily: 'Fredoka One, Arial, sans-serif',
+      fontSize: '56px',
+      color: '#facc15',
+      fontStyle: 'bold',
+      align: 'center',
+      stroke: '#000000',
+      strokeThickness: 6,
+      shadow: { offsetX: 3, offsetY: 3, color: '#000000', blur: 0, fill: true }
+    }).setOrigin(0.5);
+    introText.setDepth(101);
+    introText.setAlpha(0);
+
     this.tweens.add({
-      targets: instructionText,
-      scale: 1.05,
-      yoyo: true,
-      repeat: -1,
+      targets: introText,
+      alpha: 1,
+      y: height / 2 - 20,
       duration: 800,
-      ease: 'Sine.easeInOut'
+      ease: 'Power2',
+      onComplete: () => {
+        this.time.delayedCall(800, () => {
+          this.tweens.add({
+            targets: [introText, introOverlay],
+            alpha: 0,
+            duration: 600,
+            ease: 'Power2',
+            onComplete: () => {
+              introOverlay.destroy();
+              introText.destroy();
+              this.bannerContainer.y = -50;
+              this.tweens.add({
+                targets: this.bannerContainer,
+                y: 60,
+                alpha: 1,
+                duration: 500,
+                ease: 'Back.easeOut'
+              });
+            }
+          });
+        });
+      }
     });
 
     // Kumpulkan semua sampah (clues + distractors) dari config
@@ -114,10 +170,8 @@ export class Case3CleanUpScene extends Phaser.Scene {
         img.setScale(maxDim / Math.max(img.width, img.height));
       }
 
-      // Pastikan TANPA OVERLAY gelap (tidak ada setTint)
       img.setInteractive({ useHandCursor: true });
 
-      // Efek Hover
       img.on('pointerover', () => {
         this.tweens.add({ targets: img, scale: img.scale * 1.15, duration: 150, ease: 'Back.easeOut' });
       });
@@ -126,12 +180,9 @@ export class Case3CleanUpScene extends Phaser.Scene {
         this.tweens.add({ targets: img, scale: maxDim / Math.max(img.width, img.height), duration: 150, ease: 'Power2' });
       });
 
-      // Efek Klik (Bersihkan Sampah)
       img.on('pointerdown', () => {
-        // Matikan interaksi agar tidak bisa diklik dua kali
         img.disableInteractive();
 
-        // Animasi menghilang (pop & shrink)
         this.tweens.add({
           targets: img,
           scale: 0,
@@ -142,7 +193,7 @@ export class Case3CleanUpScene extends Phaser.Scene {
           onComplete: () => {
             img.destroy();
             this.trashCleaned++;
-            this.checkWinCondition(width, height, instructionText);
+            this.checkWinCondition(width, height);
           }
         });
       });
@@ -204,10 +255,15 @@ export class Case3CleanUpScene extends Phaser.Scene {
     this.dialogContainer.add([dialogBg, nameBg, nameText, this.textObj, clickArea]);
   }
 
-  private checkWinCondition(width: number, height: number, instructionText: Phaser.GameObjects.Text) {
+  private checkWinCondition(width: number, height: number) {
     if (this.trashCleaned >= this.totalTrash) {
-      // Semua sampah sudah hilang
-      instructionText.destroy(); // Hapus teks instruksi awal
+      this.tweens.add({
+        targets: this.bannerContainer,
+        y: -50,
+        alpha: 0,
+        duration: 300,
+        ease: 'Power2'
+      });
 
       // Sequence transisi air selokan
       const transitionKeys = [
@@ -228,19 +284,17 @@ export class Case3CleanUpScene extends Phaser.Scene {
         const nextBg = this.add.image(width / 2, height / 2, key);
         nextBg.setScale(Math.max(width / nextBg.width, height / nextBg.height));
         nextBg.setAlpha(0);
-        nextBg.setDepth(0); // Supaya tetap di bawah elemen UI yang lain
+        nextBg.setDepth(0); 
 
         this.tweens.add({
           targets: nextBg,
           alpha: 1,
-          duration: 1000, // Durasi crossfade (sangat mulus 1 detik)
+          duration: 1000, 
           ease: 'Sine.easeInOut',
           onComplete: () => {
             this.bg.destroy();
             this.bg = nextBg;
             step++;
-            
-            // Lanjut ke transisi berikutnya tanpa jeda kaku
             playNextTransition();
           }
         });
@@ -251,11 +305,10 @@ export class Case3CleanUpScene extends Phaser.Scene {
   }
 
   private showWinText(width: number, height: number) {
-    // Munculkan teks kemenangan
     const winText = this.add.text(width / 2, height / 2, '✨ Selokan Terlihat Bersih! ✨', {
       fontFamily: 'monospace',
       fontSize: '42px',
-      color: '#fef08a', // Kuning terang
+      color: '#fef08a',
       fontStyle: 'bold',
       stroke: '#000000',
       strokeThickness: 8,
@@ -271,7 +324,6 @@ export class Case3CleanUpScene extends Phaser.Scene {
       duration: 800,
       ease: 'Elastic.easeOut',
       onComplete: () => {
-        // Setelah sejenak memamerkan kebersihan, panggil Ibu Guru
         this.time.delayedCall(2000, () => {
           winText.destroy();
           this.showEndingSequence();
@@ -281,13 +333,11 @@ export class Case3CleanUpScene extends Phaser.Scene {
   }
 
   private showEndingSequence() {
-    // Munculkan overlay gelap
     this.tweens.add({
       targets: this.overlay,
       alpha: 1,
       duration: 800,
       onComplete: () => {
-        // Munculkan Guru
         this.teacher.y = this.cameras.main.height + 200;
         this.teacher.setAlpha(1);
 
@@ -347,94 +397,126 @@ export class Case3CleanUpScene extends Phaser.Scene {
       if (this.currentDialogIndex < this.dialogs.length) {
         this.startTyping();
       } else {
-        this.showCaseCompletePopup();
+        this.tweens.add({
+          targets: [this.dialogContainer, this.teacher],
+          alpha: 0,
+          duration: 300,
+          onComplete: () => {
+            this.dialogContainer.destroy();
+            this.teacher.destroy();
+            this.showFinalResult(this.cameras.main.width, this.cameras.main.height);
+          }
+        });
       }
     }
   }
 
-  private showCaseCompletePopup() {
-    const { width, height } = this.cameras.main;
-    
-    // Sembunyikan dialog dan guru
+  private showFinalResult(width: number, height: number) {
+    const resultContainer = this.add.container(width / 2, height / 2);
+    resultContainer.setDepth(40);
+
+    const bg = this.add.graphics();
+    bg.fillStyle(0x0f172a, 0.9);
+    bg.fillRoundedRect(-300, -200, 600, 400, 30);
+    bg.lineStyle(6, 0x3b82f6, 1);
+    bg.strokeRoundedRect(-300, -200, 600, 400, 30);
+
+    const title = this.add.text(0, -100, 'KASUS SELESAI!', {
+      fontFamily: 'Fredoka One, Arial, sans-serif',
+      fontSize: '48px',
+      color: '#facc15',
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 6
+    }).setOrigin(0.5);
+
+    const score = this.add.text(0, -10, 'Eco Point +10', {
+      fontFamily: 'Fredoka One, Arial, sans-serif',
+      fontSize: '38px',
+      color: '#4ade80',
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 4
+    }).setOrigin(0.5);
+
+    const btnWidth = 320;
+    const btnHeight = 65;
+    const nextBtnY = 100;
+    const nextBtnContainer = this.add.container(0, nextBtnY);
+
+    const shadow = this.add.graphics();
+    shadow.fillStyle(0x000000, 0.4);
+    shadow.fillRoundedRect(-btnWidth/2 + 3, -btnHeight/2 + 4, btnWidth, btnHeight, 20);
+
+    const nextBtnBg = this.add.graphics();
+    nextBtnBg.fillStyle(0x2563eb, 1);
+    nextBtnBg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 20);
+    nextBtnBg.lineStyle(4, 0xffffff, 0.3);
+    nextBtnBg.strokeRoundedRect(-btnWidth/2 + 2, -btnHeight/2 + 2, btnWidth - 4, btnHeight - 4, 18);
+    nextBtnBg.lineStyle(3, 0x000000, 1);
+    nextBtnBg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 20);
+
+    const nextBtnText = this.add.text(0, 0, 'LANJUT ➔', {
+      fontFamily: 'Fredoka One, Arial, sans-serif',
+      fontSize: '24px',
+      color: '#ffffff',
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 3
+    }).setOrigin(0.5);
+
+    nextBtnContainer.add([shadow, nextBtnBg, nextBtnText]);
+    const hitArea = new Phaser.Geom.Rectangle(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight);
+    nextBtnContainer.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
+
+    let isClicking = false;
+    nextBtnContainer.on('pointerover', () => {
+      if (isClicking) return;
+      this.input.setDefaultCursor('pointer');
+      nextBtnBg.clear();
+      nextBtnBg.fillStyle(0x3b82f6, 1);
+      nextBtnBg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 20);
+      nextBtnBg.lineStyle(4, 0xffffff, 0.5);
+      nextBtnBg.strokeRoundedRect(-btnWidth/2 + 2, -btnHeight/2 + 2, btnWidth - 4, btnHeight - 4, 18);
+      nextBtnBg.lineStyle(3, 0x000000, 1);
+      nextBtnBg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 20);
+      nextBtnContainer.y = nextBtnY - 2;
+      shadow.y = 2;
+    });
+
+    nextBtnContainer.on('pointerout', () => {
+      if (isClicking) return;
+      this.input.setDefaultCursor('default');
+      nextBtnBg.clear();
+      nextBtnBg.fillStyle(0x2563eb, 1);
+      nextBtnBg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 20);
+      nextBtnBg.lineStyle(4, 0xffffff, 0.3);
+      nextBtnBg.strokeRoundedRect(-btnWidth/2 + 2, -btnHeight/2 + 2, btnWidth - 4, btnHeight - 4, 18);
+      nextBtnBg.lineStyle(3, 0x000000, 1);
+      nextBtnBg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 20);
+      nextBtnContainer.y = nextBtnY;
+      shadow.y = 0;
+    });
+
+    nextBtnContainer.on('pointerdown', () => {
+      if (isClicking) return;
+      isClicking = true;
+      this.input.setDefaultCursor('default');
+      nextBtnContainer.y = nextBtnY + 4;
+      shadow.y = -4;
+      setTimeout(() => { 
+        this.registry.set('ecoPoints', (this.registry.get('ecoPoints') || 0) + 10);
+        this.scene.start('OutroScene'); 
+      }, 150);
+    });
+
+    resultContainer.add([bg, title, score, nextBtnContainer]);
+    resultContainer.setScale(0);
     this.tweens.add({
-      targets: [this.dialogContainer, this.teacher],
-      alpha: 0,
-      duration: 300,
-      onComplete: () => {
-        const popupBg = this.add.graphics();
-        popupBg.fillStyle(0xffffff, 0.95);
-        popupBg.fillRoundedRect(width / 2 - 400, height / 2 - 250, 800, 500, 30);
-        popupBg.lineStyle(6, 0x22c55e, 1);
-        popupBg.strokeRoundedRect(width / 2 - 400, height / 2 - 250, 800, 500, 30);
-        popupBg.setDepth(50);
-
-        const title = this.add.text(width / 2, height / 2 - 120, '🎉 Kasus 3 Berhasil Diselesaikan!', {
-          fontFamily: 'monospace',
-          fontSize: '36px',
-          color: '#16a34a',
-          fontStyle: 'bold'
-        }).setOrigin(0.5).setDepth(50);
-
-        const subtitle = this.add.text(width / 2, height / 2, '⭐ +10 Eco Point', {
-          fontFamily: 'monospace',
-          fontSize: '48px',
-          color: '#eab308',
-          fontStyle: 'bold',
-          stroke: '#000000',
-          strokeThickness: 5
-        }).setOrigin(0.5).setDepth(50);
-
-        // Lanjut Button
-        const btnContainer = this.add.container(width / 2, height / 2 + 120);
-        btnContainer.setDepth(50);
-
-        const btnBg = this.add.graphics();
-        btnBg.fillStyle(0x3b82f6, 1);
-        btnBg.fillRoundedRect(-150, -40, 300, 80, 40);
-
-        const btnText = this.add.text(0, 0, 'Lanjut', {
-          fontFamily: 'monospace',
-          fontSize: '32px',
-          color: '#ffffff',
-          fontStyle: 'bold'
-        }).setOrigin(0.5);
-
-        btnContainer.add([btnBg, btnText]);
-
-        const btnHitArea = new Phaser.Geom.Rectangle(-150, -40, 300, 80);
-        btnContainer.setInteractive(btnHitArea, Phaser.Geom.Rectangle.Contains);
-        btnContainer.on('pointerover', () => {
-          this.input.setDefaultCursor('pointer');
-          this.tweens.add({ targets: btnContainer, scale: 1.05, duration: 100 });
-        });
-        btnContainer.on('pointerout', () => {
-          this.input.setDefaultCursor('default');
-          this.tweens.add({ targets: btnContainer, scale: 1, duration: 100 });
-        });
-        btnContainer.on('pointerdown', () => {
-          this.input.setDefaultCursor('default');
-          this.scene.start('OutroScene');
-        });
-
-        // Animasi masuk popup
-        const elements = [popupBg, title, subtitle, btnContainer];
-        elements.forEach((el: any) => {
-          if (el.setAlpha) {
-            el.setAlpha(0);
-            el.y += 50;
-            this.tweens.add({
-              targets: el,
-              alpha: 1,
-              y: '-=50',
-              duration: 500,
-              ease: 'Back.easeOut'
-            });
-          } else {
-            popupBg.setAlpha(0);
-            this.tweens.add({ targets: popupBg, alpha: 1, duration: 500 });
-          }
-        });
-      }
+      targets: resultContainer,
+      scale: 1,
+      duration: 500,
+      ease: 'Back.easeOut'
     });
   }
 }

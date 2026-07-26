@@ -1,117 +1,164 @@
-import { BookOpen, Leaf, Recycle, Trash2, AlertTriangle, Lightbulb } from 'lucide-react';
+import { useState } from 'react';
+import { BookOpen, Leaf, Recycle, AlertTriangle, Lightbulb } from 'lucide-react';
 
-function EduCard({ icon, title, content, colorClass }: { icon: React.ReactNode, title: string, content: React.ReactNode, colorClass: string }) {
+function FlipCard({ icon, title, frontText, backContent, bgColor, textColor }: { icon: React.ReactNode, title: string, frontText: string, backContent: React.ReactNode, bgColor: string, textColor: string }) {
+  const [isFlipped, setIsFlipped] = useState(false);
+
   return (
-    <div className="card flex flex-col items-start gap-4 h-full">
-      <div className={`p-4 rounded-2xl ${colorClass}`}>
-        {icon}
+    <div 
+      className="flip-card-container" 
+      style={{ perspective: '1000px', height: '320px', width: '100%', cursor: 'pointer' }}
+      onClick={() => setIsFlipped(!isFlipped)}
+    >
+      <div 
+        className="flip-card-inner" 
+        style={{ 
+          position: 'relative', 
+          width: '100%', 
+          height: '100%', 
+          transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)', 
+          transformStyle: 'preserve-3d',
+          transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'
+        }}
+      >
+        {/* Front */}
+        <div 
+          className="flip-card-front card" 
+          style={{ 
+            position: 'absolute', 
+            width: '100%', 
+            height: '100%', 
+            backfaceVisibility: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: 'center',
+            padding: '24px',
+            backgroundColor: bgColor,
+            color: textColor,
+            border: '4px solid rgba(255,255,255,0.5)',
+            boxShadow: '0 10px 25px rgba(0,0,0,0.1)'
+          }}
+        >
+          <div style={{ backgroundColor: 'white', padding: '16px', borderRadius: '50%', marginBottom: '16px', boxShadow: '0 4px 10px rgba(0,0,0,0.05)' }}>
+            {icon}
+          </div>
+          <h3 style={{ fontSize: '1.75rem', fontWeight: '800', marginBottom: '8px' }}>{title}</h3>
+          <p style={{ fontSize: '1.1rem', fontWeight: '600', opacity: 0.9 }}>{frontText}</p>
+          <div style={{ marginTop: 'auto', padding: '8px 16px', backgroundColor: 'rgba(255,255,255,0.3)', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 'bold' }}>
+            Klik untuk membalik ↩
+          </div>
+        </div>
+
+        {/* Back */}
+        <div 
+          className="flip-card-back card" 
+          style={{ 
+            position: 'absolute', 
+            width: '100%', 
+            height: '100%', 
+            backfaceVisibility: 'hidden',
+            transform: 'rotateY(180deg)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: 'center',
+            padding: '24px',
+            backgroundColor: '#ffffff',
+            border: `4px solid ${bgColor}`
+          }}
+        >
+          <h3 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '16px', color: textColor }}>{title}</h3>
+          <div style={{ fontSize: '1.1rem', color: '#475569', lineHeight: 1.5, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {backContent}
+          </div>
+        </div>
       </div>
-      <h3 className="text-xl font-bold">{title}</h3>
-      <div className="text-muted text-sm flex-grow w-full">{content}</div>
     </div>
   );
 }
 
 export default function Learn() {
   return (
-    <div className="flex flex-col gap-12">
-      {/* Header Section */}
-      <section className="text-center bg-primary-light rounded-3xl p-12 relative overflow-hidden">
-        <div className="absolute -top-10 -left-10 text-primary opacity-20">
-          <BookOpen size={200} />
-        </div>
-        <div className="relative z-10 flex flex-col items-center">
-          <h1 className="text-4xl md:text-5xl text-primary mb-4">Edukasi Sampah</h1>
-          <p className="text-lg text-gray-700 max-w-2xl">
-            Mari belajar mengenali sampah, cara memilah, dan langkah kecil yang bisa kita lakukan untuk menyelamatkan bumi kita tercinta!
-          </p>
-        </div>
-      </section>
-
-      {/* Main Content Grid */}
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <EduCard 
-          icon={<Trash2 size={32} />}
-          title="Apa itu Sampah?"
-          colorClass="bg-gray-100 text-gray-600"
-          content={
-            <p>
-              Sampah adalah barang atau sisa-sisa yang sudah tidak digunakan lagi oleh manusia. Jika tidak dibuang pada tempatnya, sampah bisa membuat lingkungan menjadi kotor dan sarang penyakit.
-            </p>
-          }
-        />
-
-        <EduCard 
-          icon={<Leaf size={32} />}
-          title="Jenis Sampah"
-          colorClass="bg-green-100 text-primary"
-          content={
-            <ul className="list-disc pl-5 flex flex-col gap-2">
-              <li><b>Organik:</b> Mudah membusuk (contoh: sisa makanan, kulit buah, daun kering). Bisa dijadikan pupuk kompos.</li>
-              <li><b>Anorganik:</b> Sulit hancur/membusuk (contoh: plastik, kaleng, botol kaca). Harus didaur ulang.</li>
-            </ul>
-          }
-        />
-
-        <EduCard 
-          icon={<Recycle size={32} />}
-          title="Cara Memilah"
-          colorClass="bg-blue-100 text-blue-600"
-          content={
-            <p>
-              Pisahkan tempat sampah di rumahmu menjadi dua: satu untuk organik (warna hijau) dan satu untuk anorganik (warna kuning/biru). Pastikan sampah anorganik dalam keadaan kering dan bersih sebelum dibuang!
-            </p>
-          }
-        />
-
-        <EduCard 
-          icon={<AlertTriangle size={32} />}
-          title="Dampak Sampah"
-          colorClass="bg-red-100 text-red-600"
-          content={
-            <ul className="list-disc pl-5 flex flex-col gap-2">
-              <li>Banjir karena selokan tersumbat.</li>
-              <li>Penyakit (demam berdarah, diare).</li>
-              <li>Bau tidak sedap dan merusak keindahan lingkungan.</li>
-              <li>Membahayakan hewan laut jika sampah sampai ke sungai dan laut.</li>
-            </ul>
-          }
-        />
-
-        <EduCard 
-          icon={<Recycle size={32} />}
-          title="Prinsip 3R"
-          colorClass="bg-yellow-100 text-accent"
-          content={
-            <ul className="list-disc pl-5 flex flex-col gap-2">
-              <li><b>Reduce (Kurangi):</b> Kurangi penggunaan barang sekali pakai (contoh: bawa tas belanja sendiri).</li>
-              <li><b>Reuse (Gunakan kembali):</b> Gunakan barang berulang kali (contoh: botol minum / tumbler).</li>
-              <li><b>Recycle (Daur ulang):</b> Ubah sampah jadi barang baru (contoh: kerajinan dari botol plastik).</li>
-            </ul>
-          }
-        />
-
-        <EduCard 
-          icon={<Lightbulb size={32} />}
-          title="Tips Menjaga Lingkungan"
-          colorClass="bg-purple-100 text-purple-600"
-          content={
-            <ul className="list-disc pl-5 flex flex-col gap-2">
-              <li>Selalu buang sampah pada tempatnya, di mana pun kamu berada.</li>
-              <li>Bawa botol minum dan kotak bekal sendiri dari rumah.</li>
-              <li>Ingatkan teman dan keluarga jika melihat mereka membuang sampah sembarangan.</li>
-              <li>Ikut kerja bakti membersihkan lingkungan.</li>
-            </ul>
-          }
-        />
-      </section>
-      
-      {/* Call to Action */}
-      <section className="bg-primary text-white rounded-3xl p-8 text-center mt-4">
-        <h2 className="text-3xl mb-4">Yuk, Jadi Pahlawan Lingkungan!</h2>
-        <p className="mb-6 text-green-100">
-          Semua hal besar dimulai dari langkah kecil. Mulai hari ini, mari kita jaga bumi kita agar tetap bersih dan sehat.
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '48px', width: '100%' }}>
+      <section className="text-center" style={{ backgroundColor: '#fef08a', borderRadius: '32px', padding: '48px 24px', border: '4px solid #facc15' }}>
+        <h1 style={{ fontSize: 'clamp(2.5rem, 5vw, 3.5rem)', color: '#854d0e', marginBottom: '16px', fontWeight: '900' }}>
+          Belajar Yuk! 📚
+        </h1>
+        <p style={{ fontSize: '1.25rem', color: '#713f12', maxWidth: '600px', margin: '0 auto', fontWeight: '600' }}>
+          Klik kartu di bawah ini untuk membalik dan menemukan rahasia tentang sampah!
         </p>
+      </section>
+
+      <section style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+        gap: '32px', 
+        width: '100%',
+        maxWidth: '1000px', 
+        margin: '0 auto' 
+      }}>
+        
+        <FlipCard 
+          icon={<Leaf size={48} color="#16a34a" />}
+          title="Jenis Sampah"
+          frontText="Apa bedanya Organik dan Anorganik?"
+          bgColor="#dcfce7"
+          textColor="#166534"
+          backContent={
+            <>
+              <p>🌱 <b>Organik:</b> Mudah membusuk. <br/>Contoh: Sisa makanan, daun, kulit buah.</p>
+              <p>🥤 <b>Anorganik:</b> Sulit hancur. <br/>Contoh: Plastik, kaleng, kaca.</p>
+            </>
+          }
+        />
+
+        <FlipCard 
+          icon={<AlertTriangle size={48} color="#dc2626" />}
+          title="Kenapa Dipilah?"
+          frontText="Apa yang terjadi kalau sampah dicampur?"
+          bgColor="#fee2e2"
+          textColor="#991b1b"
+          backContent={
+            <>
+              <p>🌊 Selokan bisa tersumbat dan bikin banjir!</p>
+              <p>🦠 Jadi sarang penyakit dan bau tidak sedap.</p>
+              <p>♻️ Sampah yang tercampur jadi susah didaur ulang.</p>
+            </>
+          }
+        />
+
+        <FlipCard 
+          icon={<Recycle size={48} color="#0284c7" />}
+          title="Mengenal 3R"
+          frontText="Jurus andalan Pahlawan Bumi!"
+          bgColor="#e0f2fe"
+          textColor="#075985"
+          backContent={
+            <>
+              <p><b>Reduce:</b> Bawa botol minum sendiri.</p>
+              <p><b>Reuse:</b> Pakai kertas di kedua sisinya.</p>
+              <p><b>Recycle:</b> Buat mainan dari kardus bekas.</p>
+            </>
+          }
+        />
+
+        <FlipCard 
+          icon={<Lightbulb size={48} color="#9333ea" />}
+          title="Fakta Unik!"
+          frontText="Tahukah kamu tentang fakta mengejutkan ini?"
+          bgColor="#f3e8ff"
+          textColor="#6b21a8"
+          backContent={
+            <>
+              <p>😱 Botol plastik butuh <b>450 tahun</b> untuk hancur di tanah!</p>
+              <p>🌍 1 ton kertas yang didaur ulang bisa menyelamatkan 17 pohon!</p>
+            </>
+          }
+        />
+
       </section>
     </div>
   );
