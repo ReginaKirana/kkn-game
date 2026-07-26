@@ -1,7 +1,32 @@
 import { Link } from 'react-router-dom';
-import { Gamepad2, BookOpen, Trophy, Leaf, ArrowRight } from 'lucide-react';
+import { Gamepad2, BookOpen, Trophy, Leaf, ArrowRight, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabaseClient';
 
 export default function Home() {
+  const [leaderboardData, setLeaderboardData] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchLeaderboard() {
+      try {
+        const { data, error } = await supabase
+          .from('leaderboard')
+          .select('name, school_name, score')
+          .order('score', { ascending: false })
+          .limit(5); // Ambil Top 5
+        
+        if (error) throw error;
+        setLeaderboardData(data || []);
+      } catch (err) {
+        console.error('Error fetching leaderboard:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchLeaderboard();
+  }, []);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '64px', paddingBottom: '64px' }}>
       
@@ -126,21 +151,37 @@ export default function Home() {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {[
-              { name: 'Budi (SDN 1)', score: '12.450', color: '#f59e0b', bg: '#fef3c7' },
-              { name: 'Siti (SDN 2)', score: '10.200', color: '#4b5563', bg: '#f3f4f6' },
-              { name: 'Andi (SDN 1)', score: '9.850', color: '#b45309', bg: '#ffedd5' },
-            ].map((player, idx) => (
-              <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 24px', backgroundColor: '#f8fafc', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                  <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: player.bg, color: player.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1.1rem' }}>
-                    {idx + 1}
-                  </div>
-                  <div style={{ fontWeight: 'bold', color: '#334155', fontSize: '1.1rem' }}>{player.name}</div>
-                </div>
-                <div style={{ fontWeight: '900', color: '#16a34a', fontSize: '1.25rem' }}>{player.score}</div>
+            {isLoading ? (
+              <div style={{ display: 'flex', justifyContent: 'center', padding: '20px' }}>
+                <Loader2 className="animate-spin" size={32} color="#16a34a" />
               </div>
-            ))}
+            ) : leaderboardData.length > 0 ? (
+              leaderboardData.map((player, idx) => {
+                let color = '#64748b';
+                let bg = '#f1f5f9';
+                if (idx === 0) { color = '#f59e0b'; bg = '#fef3c7'; }
+                else if (idx === 1) { color = '#4b5563'; bg = '#f3f4f6'; }
+                else if (idx === 2) { color = '#b45309'; bg = '#ffedd5'; }
+                
+                const school = player.school_name ? `(${player.school_name})` : '';
+
+                return (
+                  <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 24px', backgroundColor: '#f8fafc', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                      <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: bg, color: color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1.1rem' }}>
+                        {idx + 1}
+                      </div>
+                      <div style={{ fontWeight: 'bold', color: '#334155', fontSize: '1.1rem' }}>{player.name} {school}</div>
+                    </div>
+                    <div style={{ fontWeight: '900', color: '#16a34a', fontSize: '1.25rem' }}>{player.score.toLocaleString('id-ID')}</div>
+                  </div>
+                );
+              })
+            ) : (
+              <div style={{ textAlign: 'center', color: '#ef4444', padding: '20px', fontWeight: 'bold' }}>
+                Belum ada data detektif.
+              </div>
+            )}
           </div>
         </div>
       </section>
