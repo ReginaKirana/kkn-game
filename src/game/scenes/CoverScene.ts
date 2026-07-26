@@ -40,6 +40,8 @@ export class CoverScene extends Phaser.Scene {
         this.bgMusic.stop();
       }
     });
+
+    this.createSettingsAndLeaderboardButtons();
   }
 
   private createBackground() {
@@ -147,6 +149,227 @@ export class CoverScene extends Phaser.Scene {
     });
   }
 
+  private createSettingsAndLeaderboardButtons() {
+    const { width, height } = this.cameras.main;
+
+    const createIconBtn = (x: number, y: number, text: string, color: number, callback: () => void) => {
+      const btn = this.add.container(x, y);
+      const size = 60;
+      
+      const shadow = this.add.graphics();
+      shadow.fillStyle(0x000000, 0.3);
+      shadow.fillCircle(0, 4, size / 2);
+
+      const bg = this.add.graphics();
+      bg.fillStyle(color, 1);
+      bg.fillCircle(0, 0, size / 2);
+      bg.lineStyle(3, 0xffffff, 1);
+      bg.strokeCircle(0, 0, size / 2);
+
+      const txt = this.add.text(0, 0, text, {
+        fontSize: '32px'
+      }).setOrigin(0.5);
+
+      btn.add([shadow, bg, txt]);
+
+      const hitArea = new Phaser.Geom.Circle(0, 0, size / 2);
+      btn.setInteractive(hitArea, Phaser.Geom.Circle.Contains);
+      btn.setDepth(100);
+
+      btn.on('pointerover', () => {
+        this.input.setDefaultCursor('pointer');
+        this.tweens.add({ targets: btn, scale: 1.1, duration: 100 });
+      });
+
+      btn.on('pointerout', () => {
+        this.input.setDefaultCursor('default');
+        this.tweens.add({ targets: btn, scale: 1, duration: 100 });
+      });
+
+      btn.on('pointerdown', () => {
+        this.input.setDefaultCursor('default');
+        this.sound.play('click_sfx', { volume: 0.5, seek: 0.7 });
+        this.tweens.add({
+          targets: btn,
+          scale: 0.9,
+          duration: 100,
+          yoyo: true,
+          onComplete: callback
+        });
+      });
+    };
+
+    // Tombol Settings (Kanan Atas)
+    createIconBtn(width - 50, 50, '⚙️', 0x475569, () => {
+      this.showSettingsModal();
+    });
+
+    // Tombol Leaderboard (Kanan Atas, sebelah Settings)
+    createIconBtn(width - 130, 50, '🏆', 0xd97706, () => {
+      if (this.bgMusic) this.bgMusic.stop();
+      this.scene.start('LeaderboardScene');
+    });
+  }
+
+  private showSettingsModal() {
+    const { width, height } = this.cameras.main;
+    const blocker = this.add.rectangle(0, 0, width, height, 0x000000, 0.01).setOrigin(0, 0);
+    blocker.setInteractive();
+    blocker.setDepth(999);
+
+    const wrapper = document.createElement('div');
+    wrapper.id = 'settings-modal-overlay';
+    wrapper.innerHTML = `
+      <style>
+        #settings-modal-overlay {
+          position: fixed;
+          inset: 0;
+          z-index: 10000;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba(0, 0, 0, 0.7);
+          opacity: 0;
+          transition: opacity 0.3s ease;
+          pointer-events: auto;
+        }
+        #settings-modal-overlay .settings-panel {
+          width: min(500px, 90vw);
+          padding: 40px;
+          box-sizing: border-box;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          background: #0f172a;
+          border-radius: 30px;
+          border: 4px solid #3b82f6;
+          box-shadow: 0 0 30px rgba(59, 130, 246, 0.5), inset 0 0 20px rgba(0,0,0,0.8);
+          transform: scale(0);
+          transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        #settings-modal-overlay h2 {
+          color: #60a5fa;
+          font-family: 'Fredoka One', 'Nunito', monospace;
+          font-size: clamp(1.8rem, 3vw, 2.5rem);
+          margin: 0 0 30px 0;
+          text-transform: uppercase;
+          letter-spacing: 2px;
+          text-shadow: 0 0 10px rgba(96,165,250,0.5);
+        }
+        #settings-modal-overlay .slider-container {
+          width: 100%;
+          margin-bottom: 40px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+        #settings-modal-overlay label {
+          color: #f8fafc;
+          font-family: 'Nunito', sans-serif;
+          font-size: 1.2rem;
+          margin-bottom: 15px;
+          font-weight: bold;
+        }
+        /* Custom Neon Range Slider */
+        #settings-modal-overlay input[type=range] {
+          -webkit-appearance: none;
+          width: 100%;
+          background: transparent;
+        }
+        #settings-modal-overlay input[type=range]:focus {
+          outline: none;
+        }
+        #settings-modal-overlay input[type=range]::-webkit-slider-runnable-track {
+          width: 100%;
+          height: 12px;
+          cursor: pointer;
+          background: #1e293b;
+          border-radius: 10px;
+          border: 2px solid #334155;
+        }
+        #settings-modal-overlay input[type=range]::-webkit-slider-thumb {
+          height: 30px;
+          width: 30px;
+          border-radius: 50%;
+          background: #22c55e;
+          cursor: pointer;
+          -webkit-appearance: none;
+          margin-top: -11px;
+          box-shadow: 0 0 15px #22c55e;
+          border: 3px solid #ffffff;
+        }
+        #settings-modal-overlay .close-btn {
+          font-size: 1.2rem;
+          padding: 12px 40px;
+          border-radius: 30px;
+          border: 3px solid #b91c1c;
+          background: #ef4444;
+          color: white;
+          cursor: pointer;
+          font-family: 'Fredoka One', monospace;
+          box-shadow: 0 6px 0 #991b1b;
+          transition: all 0.1s;
+        }
+        #settings-modal-overlay .close-btn:hover {
+          transform: translateY(2px);
+          box-shadow: 0 4px 0 #991b1b;
+          background: #f87171;
+        }
+        #settings-modal-overlay .close-btn:active {
+          transform: translateY(6px);
+          box-shadow: 0 0 0 #991b1b;
+        }
+      </style>
+      <div class="settings-panel" id="settings-panel">
+        <h2>PENGATURAN</h2>
+        <div class="slider-container">
+          <label>Volume Game (<span id="vol-val">100</span>%)</label>
+          <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="${this.sound.volume}">
+        </div>
+        <button type="button" class="close-btn" id="closeSettings">TUTUP</button>
+      </div>
+    `;
+
+    document.body.appendChild(wrapper);
+
+    // Trigger animations
+    requestAnimationFrame(() => {
+      wrapper.style.opacity = '1';
+      const panel = document.getElementById('settings-panel');
+      if (panel) panel.style.transform = 'scale(1)';
+    });
+
+    const slider = document.getElementById('volumeSlider') as HTMLInputElement;
+    const volVal = document.getElementById('vol-val');
+    
+    // Initial value
+    if (volVal) volVal.innerText = Math.round(this.sound.volume * 100).toString();
+
+    slider?.addEventListener('input', (e) => {
+      const val = parseFloat((e.target as HTMLInputElement).value);
+      this.sound.volume = val;
+      if (volVal) {
+        volVal.innerText = Math.round(val * 100).toString();
+      }
+    });
+
+    const closeBtn = document.getElementById('closeSettings');
+    const closeSequence = () => {
+      wrapper.style.opacity = '0';
+      const panel = document.getElementById('settings-panel');
+      if (panel) panel.style.transform = 'scale(0)';
+      
+      setTimeout(() => {
+        if (wrapper.parentNode) {
+          wrapper.parentNode.removeChild(wrapper);
+        }
+        blocker.destroy();
+      }, 300);
+    };
+
+    closeBtn?.addEventListener('click', closeSequence);
+  }
+
   private showNameInput() {
     // Block Phaser clicks while the HTML modal is open
     const { width, height } = this.cameras.main;
@@ -245,7 +468,7 @@ export class CoverScene extends Phaser.Scene {
       <div class="name-dialog-panel" id="modal-content">
         <h2 class="name-dialog-title">Data Detektif</h2>
         <input type="text" id="playerName" class="name-dialog-input" placeholder="Nama Panggilanmu..." autocomplete="off" />
-        <input type="text" id="schoolName" class="name-dialog-input" style="margin-bottom: 30px;" placeholder="Asal Sekolah (Cth: SDN 1)..." autocomplete="off" />
+        <input type="text" id="schoolName" class="name-dialog-input" style="margin-bottom: 30px;" placeholder="Asal Sekolah" autocomplete="off" />
         <button type="button" id="submitName" class="name-dialog-btn">Mulai</button>
       </div>
     `;

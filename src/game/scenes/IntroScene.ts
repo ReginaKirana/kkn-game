@@ -14,13 +14,13 @@ export class IntroScene extends Phaser.Scene {
     "Semua petunjuk sudah tersedia di papan investigasi. Ayo pilih kasus pertamamu!"
   ];
   private currentDialogIndex: number = 0;
-  
+
   private textObj!: Phaser.GameObjects.Text;
   private nextBtn!: Phaser.GameObjects.Text;
   private actionBtn!: Phaser.GameObjects.Container;
   private typewriterEvent: Phaser.Time.TimerEvent | null = null;
   private isTyping: boolean = false;
-  
+
   private typingSound!: Phaser.Sound.BaseSound;
   private bgMusic!: Phaser.Sound.BaseSound;
   private teacherObj!: Phaser.GameObjects.Image;
@@ -40,17 +40,17 @@ export class IntroScene extends Phaser.Scene {
 
   create() {
     const { width, height } = this.cameras.main;
-    
+
     // Background
     const bg = this.add.image(width / 2, height / 2, 'intro_bg');
     const scaleX = width / bg.width;
     const scaleY = height / bg.height;
     bg.setScale(Math.max(scaleX, scaleY));
-    
+
     // Overlay gelap
     const overlay = this.add.rectangle(0, 0, width, height, 0x000000, 0.6).setOrigin(0, 0);
     overlay.setDepth(10);
-    
+
     // Teacher
     this.teacherObj = this.add.image(width * 0.25, height, 'teacher_smile').setOrigin(0.5, 1);
     const teacherMaxHeight = height * 0.85;
@@ -59,7 +59,7 @@ export class IntroScene extends Phaser.Scene {
     this.teacherObj.setDepth(20);
 
     this.typingSound = this.sound.add('typing_sfx', { loop: true, volume: 1.5 });
-    
+
     this.bgMusic = this.sound.add('intro_bgm', { loop: true, volume: 3 });
     this.bgMusic.play();
 
@@ -71,7 +71,7 @@ export class IntroScene extends Phaser.Scene {
     });
 
     this.setupDialogUI(width, height);
-    
+
     // Start first dialog
     this.currentDialogIndex = 0;
     this.showDialog();
@@ -86,21 +86,21 @@ export class IntroScene extends Phaser.Scene {
 
     const dialogBg = this.add.graphics();
     dialogBg.fillStyle(0x0f172a, 0.85);
-    dialogBg.fillRoundedRect(-dialogWidth/2, -dialogHeight/2, dialogWidth, dialogHeight, 20);
+    dialogBg.fillRoundedRect(-dialogWidth / 2, -dialogHeight / 2, dialogWidth, dialogHeight, 20);
     dialogBg.lineStyle(4, 0x3b82f6, 1);
-    dialogBg.strokeRoundedRect(-dialogWidth/2, -dialogHeight/2, dialogWidth, dialogHeight, 20);
+    dialogBg.strokeRoundedRect(-dialogWidth / 2, -dialogHeight / 2, dialogWidth, dialogHeight, 20);
 
     const nameBg = this.add.graphics();
     nameBg.fillStyle(0x3b82f6, 1);
-    nameBg.fillRoundedRect(-dialogWidth/2 + 30, -dialogHeight/2 - 25, 200, 50, 10);
-    const nameText = this.add.text(-dialogWidth/2 + 130, -dialogHeight/2, 'Ibu Guru', {
+    nameBg.fillRoundedRect(-dialogWidth / 2 + 30, -dialogHeight / 2 - 25, 200, 50, 10);
+    const nameText = this.add.text(-dialogWidth / 2 + 130, -dialogHeight / 2, 'Ibu Guru', {
       fontFamily: 'monospace',
       fontSize: '28px',
       color: '#ffffff',
       fontStyle: 'bold'
     }).setOrigin(0.5);
 
-    this.textObj = this.add.text(-dialogWidth/2 + 50, -dialogHeight/2 + 40, '', {
+    this.textObj = this.add.text(-dialogWidth / 2 + 50, -dialogHeight / 2 + 40, '', {
       fontFamily: 'monospace',
       fontSize: '32px',
       color: '#f8fafc',
@@ -111,7 +111,7 @@ export class IntroScene extends Phaser.Scene {
     container.add([dialogBg, nameBg, nameText, this.textObj]);
 
     // Next Button (Hidden initially)
-    this.nextBtn = this.add.text(dialogWidth/2 - 30, dialogHeight/2 - 20, 'Lanjut ➔', {
+    this.nextBtn = this.add.text(dialogWidth / 2 - 30, dialogHeight / 2 - 20, 'Lanjut ➔', {
       fontFamily: 'monospace',
       fontSize: '26px',
       color: '#4ade80',
@@ -131,31 +131,41 @@ export class IntroScene extends Phaser.Scene {
     container.add(this.nextBtn);
 
     // Separate Action Button (Styled with Code)
-    const btnWidth = 480;
+    const btnWidth = 420;
     const btnHeight = 70;
     const btnAbsoluteX = width / 2;
-    const btnAbsoluteY = height / 2 - 100; // Positioned in center, above dialog
+    const btnAbsoluteY = height / 2 - 80; // Positioned in center, nicely above the dialog
 
     this.actionBtn = this.add.container(btnAbsoluteX, btnAbsoluteY);
-    
-    // Shadow
+    this.actionBtn.setDepth(100); // Pastikan berada di atas overlay dan dialog
+
+    // Shadow (Drop shadow gaming style)
     const shadow = this.add.graphics();
-    shadow.fillStyle(0x000000, 0.2);
-    shadow.fillRoundedRect(-btnWidth/2 + 5, -btnHeight/2 + 5, btnWidth, btnHeight, 35);
-    
-    // Background
+    shadow.fillStyle(0x000000, 0.4);
+    shadow.fillRoundedRect(-btnWidth / 2 + 4, -btnHeight / 2 + 6, btnWidth, btnHeight, 20);
+
+    // Main background
     const bg = this.add.graphics();
     bg.fillStyle(0x16a34a, 1);
-    bg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 35);
-    bg.lineStyle(4, 0xffffff, 1);
-    bg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 35);
-    
+    bg.fillRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 20);
+
+    // Inner stroke for depth
+    bg.lineStyle(4, 0xffffff, 0.3);
+    bg.strokeRoundedRect(-btnWidth / 2 + 2, -btnHeight / 2 + 2, btnWidth - 4, btnHeight - 4, 18);
+
+    // Outer border
+    bg.lineStyle(3, 0x000000, 1);
+    bg.strokeRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 20);
+
     // Text
-    const btnText = this.add.text(0, 0, '🔍 Buka Papan Investigasi', {
-      fontFamily: 'monospace',
-      fontSize: '28px',
+    const btnText = this.add.text(0, 0, 'BUKA PAPAN INVESTIGASI ➔', {
+      fontFamily: 'Fredoka One, Arial, sans-serif',
+      fontSize: '24px',
       color: '#ffffff',
-      fontStyle: 'bold'
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 4,
+      shadow: { offsetX: 2, offsetY: 2, color: '#000000', blur: 0, fill: true }
     }).setOrigin(0.5);
 
     this.actionBtn.add([shadow, bg, btnText]);
@@ -163,51 +173,62 @@ export class IntroScene extends Phaser.Scene {
     this.actionBtn.setAlpha(0);
 
     // Make Container Interactive
-    const hitArea = new Phaser.Geom.Rectangle(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight);
+    const hitArea = new Phaser.Geom.Rectangle(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight);
     this.actionBtn.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
-    // Use the native cursor manually for container if needed, or rely on input plugin
     this.input.setDefaultCursor('default');
-    this.actionBtn.on('pointerover', () => this.input.setDefaultCursor('pointer'));
-    this.actionBtn.on('pointerout', () => this.input.setDefaultCursor('default'));
 
-    this.actionBtn.on('pointerdown', () => {
-      this.input.setDefaultCursor('default'); // Reset cursor on leave
-      // Transition to the next scene
-      this.cameras.main.fadeOut(500, 0, 0, 0);
-      
-      if (this.bgMusic) {
-        this.tweens.add({
-          targets: this.bgMusic,
-          volume: 0,
-          duration: 500
-        });
-      }
-
-      this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
-        if (this.typingSound) this.typingSound.stop();
-        if (this.bgMusic) this.bgMusic.stop();
-        this.scene.start('CaseSelectScene');
-      });
-    });
+    let targetY = btnAbsoluteY;
 
     // Hover Effects
     this.actionBtn.on('pointerover', () => {
+      this.input.setDefaultCursor('pointer');
       bg.clear();
-      bg.fillStyle(0x15803d, 1);
-      bg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 35);
-      bg.lineStyle(4, 0xffffff, 1);
-      bg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 35);
-      this.actionBtn.y += 2;
-      shadow.y -= 2; // Keep shadow in place to simulate pressing
+      bg.fillStyle(0x22c55e, 1); // Lighter green on hover
+      bg.fillRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 20);
+      bg.lineStyle(4, 0xffffff, 0.5);
+      bg.strokeRoundedRect(-btnWidth / 2 + 2, -btnHeight / 2 + 2, btnWidth - 4, btnHeight - 4, 18);
+      bg.lineStyle(3, 0x000000, 1);
+      bg.strokeRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 20);
+      this.actionBtn.y = targetY - 2;
+      shadow.y = 2; // Keep shadow grounded
     });
+
     this.actionBtn.on('pointerout', () => {
+      this.input.setDefaultCursor('default');
       bg.clear();
       bg.fillStyle(0x16a34a, 1);
-      bg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 35);
-      bg.lineStyle(4, 0xffffff, 1);
-      bg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 35);
-      this.actionBtn.y -= 2;
-      shadow.y += 2;
+      bg.fillRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 20);
+      bg.lineStyle(4, 0xffffff, 0.3);
+      bg.strokeRoundedRect(-btnWidth / 2 + 2, -btnHeight / 2 + 2, btnWidth - 4, btnHeight - 4, 18);
+      bg.lineStyle(3, 0x000000, 1);
+      bg.strokeRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 20);
+      this.actionBtn.y = targetY;
+      shadow.y = 0;
+    });
+
+    this.actionBtn.on('pointerdown', () => {
+      this.input.setDefaultCursor('default'); // Reset cursor on leave
+      this.actionBtn.y = targetY + 4;
+      shadow.y = -4;
+
+      setTimeout(() => {
+        // Transition to the next scene
+        this.cameras.main.fadeOut(500, 0, 0, 0);
+
+        if (this.bgMusic) {
+          this.tweens.add({
+            targets: this.bgMusic,
+            volume: 0,
+            duration: 500
+          });
+        }
+
+        this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+          if (this.typingSound) this.typingSound.stop();
+          if (this.bgMusic) this.bgMusic.stop();
+          this.scene.start('CaseSelectScene');
+        });
+      }, 150);
     });
 
     // Pop-in animation for bubble
@@ -230,7 +251,7 @@ export class IntroScene extends Phaser.Scene {
     this.nextBtn.setVisible(false);
     this.actionBtn.setVisible(false);
     this.isTyping = true;
-    
+
     // Update teacher expression
     if (this.currentDialogIndex === 1) {
       this.teacherObj.setTexture('teacher_sad');
@@ -239,7 +260,7 @@ export class IntroScene extends Phaser.Scene {
     } else {
       this.teacherObj.setTexture('teacher_smile');
     }
-    
+
     // Scale dynamically to match Case3
     const teacherMaxHeight = this.cameras.main.height * 0.85;
     this.teacherObj.setScale(teacherMaxHeight / this.teacherObj.height);
@@ -247,7 +268,7 @@ export class IntroScene extends Phaser.Scene {
     if (this.typewriterEvent) {
       this.typewriterEvent.destroy();
     }
-    
+
     // Play typing sound
     if (!this.typingSound.isPlaying) {
       this.typingSound.play();
@@ -266,7 +287,7 @@ export class IntroScene extends Phaser.Scene {
     this.time.delayedCall(text.length * 40, () => {
       this.isTyping = false;
       this.typingSound.stop(); // Stop typing sound when text finishes
-      
+
       if (this.currentDialogIndex === this.dialogues.length - 1) {
         this.actionBtn.setVisible(true);
         // Fade in button

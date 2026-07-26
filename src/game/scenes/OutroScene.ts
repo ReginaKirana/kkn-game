@@ -287,44 +287,79 @@ export class OutroScene extends Phaser.Scene {
   private createActionButtons(width: number, height: number) {
     const startY = height / 2 + 180;
     
-    const createBtn = (y: number, text: string, color: number, callback: () => void) => {
+    const createBtn = (y: number, text: string, color: number, hoverColor: number, callback: () => void) => {
       const btn = this.add.container(width / 2, y);
       
-      const btnWidth = 350;
+      const btnWidth = 420;
       const btnHeight = 70;
       
+      // Shadow (Drop shadow gaming style)
+      const shadow = this.add.graphics();
+      shadow.fillStyle(0x000000, 0.4);
+      shadow.fillRoundedRect(-btnWidth/2 + 4, -btnHeight/2 + 6, btnWidth, btnHeight, 20);
+
+      // Main background
       const bg = this.add.graphics();
       bg.fillStyle(color, 1);
-      bg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 35);
-      bg.lineStyle(4, 0xffffff, 0.5);
-      bg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 35);
+      bg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 20);
+      
+      // Inner stroke for depth
+      bg.lineStyle(4, 0xffffff, 0.3);
+      bg.strokeRoundedRect(-btnWidth/2 + 2, -btnHeight/2 + 2, btnWidth - 4, btnHeight - 4, 18);
+      
+      // Outer border
+      bg.lineStyle(3, 0x000000, 1);
+      bg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 20);
 
       const txt = this.add.text(0, 0, text, {
-        fontFamily: 'monospace',
-        fontSize: '28px',
+        fontFamily: 'Fredoka One, Arial, sans-serif',
+        fontSize: '26px',
         color: '#ffffff',
-        fontStyle: 'bold'
+        fontStyle: 'bold',
+        stroke: '#000000',
+        strokeThickness: 4,
+        shadow: { offsetX: 2, offsetY: 2, color: '#000000', blur: 0, fill: true }
       }).setOrigin(0.5);
 
-      btn.add([bg, txt]);
+      btn.add([shadow, bg, txt]);
       btn.setAlpha(0);
 
       const hitArea = new Phaser.Geom.Rectangle(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight);
       btn.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
 
+      let targetY = y;
+
       btn.on('pointerover', () => {
         this.input.setDefaultCursor('pointer');
-        this.tweens.add({ targets: btn, scale: 1.05, duration: 100 });
+        bg.clear();
+        bg.fillStyle(hoverColor, 1);
+        bg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 20);
+        bg.lineStyle(4, 0xffffff, 0.5);
+        bg.strokeRoundedRect(-btnWidth/2 + 2, -btnHeight/2 + 2, btnWidth - 4, btnHeight - 4, 18);
+        bg.lineStyle(3, 0x000000, 1);
+        bg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 20);
+        btn.y = targetY - 2;
+        shadow.y = 2; // Keep shadow grounded
       });
 
       btn.on('pointerout', () => {
         this.input.setDefaultCursor('default');
-        this.tweens.add({ targets: btn, scale: 1, duration: 100 });
+        bg.clear();
+        bg.fillStyle(color, 1);
+        bg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 20);
+        bg.lineStyle(4, 0xffffff, 0.3);
+        bg.strokeRoundedRect(-btnWidth/2 + 2, -btnHeight/2 + 2, btnWidth - 4, btnHeight - 4, 18);
+        bg.lineStyle(3, 0x000000, 1);
+        bg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 20);
+        btn.y = targetY;
+        shadow.y = 0;
       });
 
       btn.on('pointerdown', () => {
         this.input.setDefaultCursor('default');
-        callback();
+        btn.y = targetY + 4;
+        shadow.y = -4;
+        setTimeout(() => callback(), 150);
       });
 
       this.tweens.add({
@@ -332,11 +367,14 @@ export class OutroScene extends Phaser.Scene {
         alpha: 1,
         y: '-=20',
         duration: 500,
-        ease: 'Back.easeOut'
+        ease: 'Back.easeOut',
+        onComplete: () => {
+          targetY = btn.y; // Update targetY after animation
+        }
       });
     };
 
-    createBtn(startY, 'Lihat Papan Peringkat ➔', 0xf59e0b, () => {
+    createBtn(startY, 'LIHAT PAPAN PERINGKAT ➔', 0xd97706, 0xf59e0b, () => {
       this.scene.start('LeaderboardScene');
     });
   }

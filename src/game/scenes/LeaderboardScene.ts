@@ -137,53 +137,86 @@ export class LeaderboardScene extends Phaser.Scene {
   private createActionButtons(width: number, height: number) {
     const yPos = height - 120;
     
-    const createBtn = (x: number, text: string, color: number, callback: () => void) => {
-      const btn = this.add.container(x, yPos);
+    const createBtn = (x: number, y: number, text: string, color: number, hoverColor: number, callback: () => void) => {
+      const btn = this.add.container(x, y);
       
-      const btnWidth = 350;
-      const btnHeight = 70;
+      const btnWidth = 320;
+      const btnHeight = 65;
       
+      // Shadow (Drop shadow gaming style)
+      const shadow = this.add.graphics();
+      shadow.fillStyle(0x000000, 0.4);
+      shadow.fillRoundedRect(-btnWidth/2 + 4, -btnHeight/2 + 6, btnWidth, btnHeight, 20);
+
+      // Main background
       const bg = this.add.graphics();
       bg.fillStyle(color, 1);
-      bg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 35);
-      bg.lineStyle(4, 0xffffff, 0.5);
-      bg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 35);
+      bg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 20);
+      
+      // Inner stroke for depth
+      bg.lineStyle(4, 0xffffff, 0.3);
+      bg.strokeRoundedRect(-btnWidth/2 + 2, -btnHeight/2 + 2, btnWidth - 4, btnHeight - 4, 18);
+      
+      // Outer border
+      bg.lineStyle(3, 0x000000, 1);
+      bg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 20);
 
       const txt = this.add.text(0, 0, text, {
-        fontFamily: 'monospace',
-        fontSize: '28px',
+        fontFamily: 'Fredoka One, Arial, sans-serif',
+        fontSize: '24px',
         color: '#ffffff',
-        fontStyle: 'bold'
+        fontStyle: 'bold',
+        stroke: '#000000',
+        strokeThickness: 4,
+        shadow: { offsetX: 2, offsetY: 2, color: '#000000', blur: 0, fill: true }
       }).setOrigin(0.5);
 
-      btn.add([bg, txt]);
+      btn.add([shadow, bg, txt]);
 
       const hitArea = new Phaser.Geom.Rectangle(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight);
       btn.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
 
       btn.on('pointerover', () => {
         this.input.setDefaultCursor('pointer');
-        this.tweens.add({ targets: btn, scale: 1.05, duration: 100 });
+        bg.clear();
+        bg.fillStyle(hoverColor, 1);
+        bg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 20);
+        bg.lineStyle(4, 0xffffff, 0.5);
+        bg.strokeRoundedRect(-btnWidth/2 + 2, -btnHeight/2 + 2, btnWidth - 4, btnHeight - 4, 18);
+        bg.lineStyle(3, 0x000000, 1);
+        bg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 20);
+        btn.y = y - 2;
+        shadow.y = 2; // Keep shadow grounded
       });
 
       btn.on('pointerout', () => {
         this.input.setDefaultCursor('default');
-        this.tweens.add({ targets: btn, scale: 1, duration: 100 });
+        bg.clear();
+        bg.fillStyle(color, 1);
+        bg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 20);
+        bg.lineStyle(4, 0xffffff, 0.3);
+        bg.strokeRoundedRect(-btnWidth/2 + 2, -btnHeight/2 + 2, btnWidth - 4, btnHeight - 4, 18);
+        bg.lineStyle(3, 0x000000, 1);
+        bg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 20);
+        btn.y = y;
+        shadow.y = 0;
       });
 
       btn.on('pointerdown', () => {
         this.input.setDefaultCursor('default');
-        callback();
+        btn.y = y + 4;
+        shadow.y = -4;
+        setTimeout(() => callback(), 150);
       });
     };
 
     // Tombol Beranda di Kiri
-    createBtn(width / 2 - 200, '🏠 Kembali ke Beranda', 0x3b82f6, () => {
+    createBtn(width / 2 - 180, yPos, 'KEMBALI KE BERANDA', 0x3b82f6, 0x60a5fa, () => {
       this.scene.start('CoverScene');
     });
 
     // Tombol Main Lagi di Kanan
-    createBtn(width / 2 + 200, '🔄 Main Lagi', 0x10b981, () => {
+    createBtn(width / 2 + 180, yPos, 'MAIN LAGI', 0x10b981, 0x34d399, () => {
       this.scene.start('CaseSelectScene', { case2Unlocked: true, case3Unlocked: true });
     });
   }
