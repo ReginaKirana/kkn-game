@@ -47,15 +47,16 @@ export class IntroScene extends Phaser.Scene {
     const scaleY = height / bg.height;
     bg.setScale(Math.max(scaleX, scaleY));
     
-    // Teacher
-    this.teacherObj = this.add.image(width * 0.2, height * 0.65, 'teacher_smile');
-    this.teacherObj.setFlipX(true);
+    // Overlay gelap
+    const overlay = this.add.rectangle(0, 0, width, height, 0x000000, 0.6).setOrigin(0, 0);
+    overlay.setDepth(10);
     
-    // Speech Bubble Setup
-    const bubbleWidth = width * 0.5;
-    const bubbleHeight = 200; // Increased slightly to fit buttons
-    const bubbleX = width * 0.33;
-    const bubbleY = height * 0.13;
+    // Teacher
+    this.teacherObj = this.add.image(width * 0.25, height, 'teacher_smile').setOrigin(0.5, 1);
+    const teacherMaxHeight = height * 0.85;
+    this.teacherObj.setScale(teacherMaxHeight / this.teacherObj.height);
+    this.teacherObj.setFlipX(true);
+    this.teacherObj.setDepth(20);
 
     this.typingSound = this.sound.add('typing_sfx', { loop: true, volume: 1.5 });
     
@@ -69,70 +70,51 @@ export class IntroScene extends Phaser.Scene {
       }
     });
 
-    this.setupSpeechBubble(bubbleX, bubbleY, bubbleWidth, bubbleHeight);
+    this.setupDialogUI(width, height);
     
     // Start first dialog
     this.currentDialogIndex = 0;
     this.showDialog();
   }
 
-  private setupSpeechBubble(x: number, y: number, width: number, height: number) {
-    const container = this.add.container(x, y);
+  private setupDialogUI(width: number, height: number) {
+    const container = this.add.container(width / 2, height - 150);
+    container.setDepth(30);
 
-    const bubble = this.add.graphics({ x: 0, y: 0 });
-    const radius = 20;
+    const dialogWidth = width * 0.8;
+    const dialogHeight = 220;
 
-    bubble.lineStyle(7, 0x000000, 1);
-    bubble.fillStyle(0xffffff, 1);
-    bubble.beginPath();
-    bubble.moveTo(radius, 0);
-    bubble.lineTo(width - radius, 0);
-    bubble.arc(width - radius, radius, radius, Phaser.Math.DegToRad(270), Phaser.Math.DegToRad(360), false);
-    bubble.lineTo(width, height - radius);
-    bubble.arc(width - radius, height - radius, radius, Phaser.Math.DegToRad(0), Phaser.Math.DegToRad(90), false);
-    
-    const tailRightX = width * 0.15;
-    const tailTipX = width * 0.1;
-    const tailTipY = height + 40;
-    const tailLeftX = width * 0.1;
+    const dialogBg = this.add.graphics();
+    dialogBg.fillStyle(0x0f172a, 0.85);
+    dialogBg.fillRoundedRect(-dialogWidth/2, -dialogHeight/2, dialogWidth, dialogHeight, 20);
+    dialogBg.lineStyle(4, 0x3b82f6, 1);
+    dialogBg.strokeRoundedRect(-dialogWidth/2, -dialogHeight/2, dialogWidth, dialogHeight, 20);
 
-    bubble.lineTo(tailRightX, height);
-    bubble.lineTo(tailTipX, tailTipY);
-    bubble.lineTo(tailLeftX, height);
-    bubble.lineTo(radius, height);
-    bubble.arc(radius, height - radius, radius, Phaser.Math.DegToRad(90), Phaser.Math.DegToRad(180), false);
-    bubble.lineTo(0, radius);
-    bubble.arc(radius, radius, radius, Phaser.Math.DegToRad(180), Phaser.Math.DegToRad(270), false);
-    
-    bubble.closePath();
-    bubble.fillPath();
-    bubble.strokePath();
+    const nameBg = this.add.graphics();
+    nameBg.fillStyle(0x3b82f6, 1);
+    nameBg.fillRoundedRect(-dialogWidth/2 + 30, -dialogHeight/2 - 25, 200, 50, 10);
+    const nameText = this.add.text(-dialogWidth/2 + 130, -dialogHeight/2, 'Ibu Guru', {
+      fontFamily: 'monospace',
+      fontSize: '28px',
+      color: '#ffffff',
+      fontStyle: 'bold'
+    }).setOrigin(0.5);
 
-    container.add(bubble);
+    this.textObj = this.add.text(-dialogWidth/2 + 50, -dialogHeight/2 + 40, '', {
+      fontFamily: 'monospace',
+      fontSize: '32px',
+      color: '#f8fafc',
+      wordWrap: { width: dialogWidth - 100 },
+      lineSpacing: 10
+    });
 
-    const bubblePadding = 20;
-    const textStyle = { 
-      fontFamily: 'monospace', 
-      fontSize: '30px', 
-      color: '#000000', 
-      align: 'center',
-      wordWrap: { width: width - (bubblePadding * 2) }
-    };
-
-    this.textObj = this.add.text(
-      width / 2, 
-      40, 
-      '', 
-      textStyle
-    ).setOrigin(0.5, 0);
-    
-    container.add(this.textObj);
+    container.add([dialogBg, nameBg, nameText, this.textObj]);
 
     // Next Button (Hidden initially)
-    this.nextBtn = this.add.text(width - 30, height - 20, 'Next ➜', {
+    this.nextBtn = this.add.text(dialogWidth/2 - 30, dialogHeight/2 - 20, 'Lanjut ➔', {
       fontFamily: 'monospace',
       fontSize: '26px',
-      color: '#2563eb',
+      color: '#4ade80',
       fontStyle: 'bold'
     }).setOrigin(1, 1).setInteractive({ useHandCursor: true }).setVisible(false);
 
@@ -143,16 +125,16 @@ export class IntroScene extends Phaser.Scene {
       }
     });
 
-    this.nextBtn.on('pointerover', () => this.nextBtn.setColor('#1d4ed8'));
-    this.nextBtn.on('pointerout', () => this.nextBtn.setColor('#2563eb'));
+    this.nextBtn.on('pointerover', () => this.nextBtn.setColor('#22c55e'));
+    this.nextBtn.on('pointerout', () => this.nextBtn.setColor('#4ade80'));
 
     container.add(this.nextBtn);
 
     // Separate Action Button (Styled with Code)
     const btnWidth = 480;
     const btnHeight = 70;
-    const btnAbsoluteX = x + width / 2;
-    const btnAbsoluteY = y + height + 100; // Positioned below the bubble entirely
+    const btnAbsoluteX = width / 2;
+    const btnAbsoluteY = height / 2 - 100; // Positioned in center, above dialog
 
     this.actionBtn = this.add.container(btnAbsoluteX, btnAbsoluteY);
     
@@ -252,14 +234,15 @@ export class IntroScene extends Phaser.Scene {
     // Update teacher expression
     if (this.currentDialogIndex === 1) {
       this.teacherObj.setTexture('teacher_sad');
-      this.teacherObj.setScale(0.85); // Ganti angka 1.0 ini untuk mengatur ukuran ekspresi Sedih (sad)
     } else if (this.currentDialogIndex === 2) {
       this.teacherObj.setTexture('teacher_surprised');
-      this.teacherObj.setScale(0.85); // Ganti angka 1.0 ini untuk mengatur ukuran ekspresi Terkejut (surprised)
     } else {
       this.teacherObj.setTexture('teacher_smile');
-      this.teacherObj.setScale(1.0); // Ganti angka 1.0 ini untuk mengatur ukuran ekspresi Senyum (smile)
     }
+    
+    // Scale dynamically to match Case3
+    const teacherMaxHeight = this.cameras.main.height * 0.85;
+    this.teacherObj.setScale(teacherMaxHeight / this.teacherObj.height);
 
     if (this.typewriterEvent) {
       this.typewriterEvent.destroy();

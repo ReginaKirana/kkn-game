@@ -195,15 +195,15 @@ export class CoverScene extends Phaser.Scene {
           letter-spacing: 1px;
         }
         #name-modal-overlay .name-dialog-input {
-          font-size: clamp(1.2rem, 3vw, 2.2rem);
-          padding: 16px 24px;
+          font-size: clamp(1rem, 2.5vw, 1.8rem);
+          padding: 14px 20px;
           border-radius: 20px;
           border: 3px solid #cbd5e1;
           background: #f8fafc;
           color: #1e293b;
           width: min(450px, 80%);
           text-align: center;
-          margin: 0 0 35px 0;
+          margin: 0 0 15px 0;
           outline: none;
           font-family: 'Nunito', 'Inter', sans-serif;
           font-weight: bold;
@@ -243,8 +243,9 @@ export class CoverScene extends Phaser.Scene {
         }
       </style>
       <div class="name-dialog-panel" id="modal-content">
-        <h2 class="name-dialog-title">Siapa Namamu?</h2>
-        <input type="text" id="playerName" class="name-dialog-input" placeholder="Ketik namamu..." autocomplete="off" />
+        <h2 class="name-dialog-title">Data Detektif</h2>
+        <input type="text" id="playerName" class="name-dialog-input" placeholder="Nama Panggilanmu..." autocomplete="off" />
+        <input type="text" id="schoolName" class="name-dialog-input" style="margin-bottom: 30px;" placeholder="Asal Sekolah (Cth: SDN 1)..." autocomplete="off" />
         <button type="button" id="submitName" class="name-dialog-btn">Mulai</button>
       </div>
     `;
@@ -269,14 +270,17 @@ export class CoverScene extends Phaser.Scene {
   }
 
   private submitNameForm(wrapper: HTMLElement, blocker: Phaser.GameObjects.Rectangle) {
-    const input = wrapper.querySelector('#playerName') as HTMLInputElement;
+    const inputName = wrapper.querySelector('#playerName') as HTMLInputElement;
+    const inputSchool = wrapper.querySelector('#schoolName') as HTMLInputElement;
     const modalContent = wrapper.querySelector('#modal-content') as HTMLElement;
 
-    if (input && input.value.trim() !== '') {
-      const playerName = input.value.trim();
+    if (inputName && inputName.value.trim() !== '' && inputSchool && inputSchool.value.trim() !== '') {
+      const playerName = inputName.value.trim();
+      const schoolName = inputSchool.value.trim();
 
       this.registry.set('playerName', playerName);
       localStorage.setItem('kkn-game-playerName', playerName);
+      localStorage.setItem('kkn-game-schoolName', schoolName);
       localStorage.setItem('kkn-game-startTime', Date.now().toString());
 
       this.sound.play('click_sfx', { volume: 1, seek: 0.7 });

@@ -74,6 +74,7 @@ export class OutroScene extends Phaser.Scene {
 
   private async submitToSupabase() {
     const playerName = localStorage.getItem('kkn-game-playerName') || 'Detektif Misterius';
+    const schoolName = localStorage.getItem('kkn-game-schoolName') || 'Sekolah Rahasia';
     const startTimeStr = localStorage.getItem('kkn-game-startTime');
     
     let timeSeconds = 0;
@@ -82,19 +83,28 @@ export class OutroScene extends Phaser.Scene {
       timeSeconds = Math.floor((Date.now() - startTime) / 1000);
     }
     
-    const score = 30; // 3 cases, 10 points each
+    // Sistem Skor Dinamis (Berdasarkan Waktu)
+    // Base score: 15.000, dikurangi 10 poin per detik. Minimal skor 1000.
+    const baseScore = 15000;
+    let score = baseScore - (timeSeconds * 10);
+    if (score < 1000) score = 1000;
 
     try {
       const { error } = await supabase
         .from('leaderboard')
         .insert([
-          { name: playerName, score: score, time_seconds: timeSeconds }
+          { 
+            name: playerName, 
+            school_name: schoolName, // Tambahan kolom baru untuk database
+            score: score, 
+            time_seconds: timeSeconds 
+          }
         ]);
 
       if (error) {
         console.error('Error saving to leaderboard:', error);
       } else {
-        console.log(`Success saving to leaderboard: ${playerName}, Score: ${score}, Time: ${timeSeconds}s`);
+        console.log(`Success saving to leaderboard: ${playerName} (${schoolName}), Score: ${score}, Time: ${timeSeconds}s`);
       }
     } catch (err) {
       console.error('Failed to submit score to Supabase', err);
@@ -326,14 +336,8 @@ export class OutroScene extends Phaser.Scene {
       });
     };
 
-    createBtn(startY, '🏠 Kembali ke Beranda', 0x3b82f6, () => {
-      this.scene.start('CoverScene');
-    });
-
-    createBtn(startY + 100, '🔄 Main Lagi', 0x10b981, () => {
-      // Kita langsung arahkan ke Papan Kasus dengan status semua kasus terbuka
-      // Jadi pemain bebas mau latihan case 1, 2, atau 3
-      this.scene.start('CaseSelectScene', { case2Unlocked: true, case3Unlocked: true });
+    createBtn(startY, 'Lihat Papan Peringkat ➔', 0xf59e0b, () => {
+      this.scene.start('LeaderboardScene');
     });
   }
 }

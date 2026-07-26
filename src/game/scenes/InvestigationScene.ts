@@ -89,6 +89,8 @@ export class InvestigationScene extends Phaser.Scene {
       }));
     }
 
+    this.totalClues = clues.length;
+
     const bg = this.add.image(width / 2, height / 2, bgKey);
     const scaleX = width / bg.width;
     const scaleY = height / bg.height;
@@ -431,7 +433,7 @@ export class InvestigationScene extends Phaser.Scene {
     this.nextBtn.on('pointerdown', () => {
       // Proceed to next scene depending on case
       if (this.caseId === 'kasus_halaman') {
-        this.scene.start('Case1AnalysisScene');
+        this.scene.start('ConclusionScene', { caseId: this.caseId });
       } else if (this.caseId === 'kasus_sampah') {
         this.scene.start('Case2AnalysisScene');
       } else if (this.caseId === 'kasus_selokan') {
