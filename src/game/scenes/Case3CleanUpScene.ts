@@ -305,27 +305,42 @@ export class Case3CleanUpScene extends Phaser.Scene {
   }
 
   private showWinText(width: number, height: number) {
-    const winText = this.add.text(width / 2, height / 2, '✨ Selokan Terlihat Bersih! ✨', {
-      fontFamily: 'monospace',
-      fontSize: '42px',
-      color: '#fef08a',
+    const container = this.add.container(width / 2, height / 2);
+    container.setDepth(100);
+
+    const bannerWidth = 550;
+    const bannerHeight = 100;
+
+    // Background Panel
+    const bg = this.add.graphics();
+    bg.fillStyle(0x0f172a, 0.95);
+    bg.fillRoundedRect(-bannerWidth/2, -bannerHeight/2, bannerWidth, bannerHeight, 20);
+    bg.lineStyle(4, 0x3b82f6, 1);
+    bg.strokeRoundedRect(-bannerWidth/2, -bannerHeight/2, bannerWidth, bannerHeight, 20);
+
+    const winText = this.add.text(0, 0, 'SELOKAN TERLIHAT BERSIH!', {
+      fontFamily: 'Fredoka One, Arial, sans-serif',
+      fontSize: '32px',
+      color: '#4ade80',
       fontStyle: 'bold',
       stroke: '#000000',
-      strokeThickness: 8,
-      align: 'center'
+      strokeThickness: 4,
+      shadow: { offsetX: 2, offsetY: 2, color: '#000000', blur: 0, fill: true }
     }).setOrigin(0.5);
-    winText.setAlpha(0);
-    winText.setScale(0.5);
+
+    container.add([bg, winText]);
+    container.setAlpha(0);
+    container.setScale(0.5);
 
     this.tweens.add({
-      targets: winText,
+      targets: container,
       alpha: 1,
       scale: 1,
       duration: 800,
       ease: 'Elastic.easeOut',
       onComplete: () => {
         this.time.delayedCall(2000, () => {
-          winText.destroy();
+          container.destroy();
           this.showEndingSequence();
         });
       }
@@ -336,17 +351,18 @@ export class Case3CleanUpScene extends Phaser.Scene {
     this.tweens.add({
       targets: this.overlay,
       alpha: 1,
-      duration: 800,
-      onComplete: () => {
-        this.teacher.y = this.cameras.main.height + 200;
-        this.teacher.setAlpha(1);
+      duration: 800
+    });
+    
+    this.teacher.y = this.cameras.main.height + 200;
+    this.teacher.setAlpha(1);
 
-        this.tweens.add({
-          targets: this.teacher,
-          y: this.cameras.main.height,
-          duration: 600,
-          ease: 'Back.easeOut',
-          onComplete: () => {
+    this.tweens.add({
+      targets: this.teacher,
+      y: this.cameras.main.height,
+      duration: 600,
+      ease: 'Back.easeOut',
+      onComplete: () => {
             this.dialogContainer.y += 50;
             this.tweens.add({
               targets: this.dialogContainer,
@@ -358,8 +374,6 @@ export class Case3CleanUpScene extends Phaser.Scene {
             });
           }
         });
-      }
-    });
   }
 
   private startTyping() {

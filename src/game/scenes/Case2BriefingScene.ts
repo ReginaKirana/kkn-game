@@ -87,11 +87,9 @@ export class Case2BriefingScene extends Phaser.Scene {
       this.tweens.add({
         targets: this.overlay,
         alpha: 1,
-        duration: 800,
-        onComplete: () => {
-          this.showCharactersAndDialog();
-        }
+        duration: 800
       });
+      this.showCharactersAndDialog();
     });
   }
 

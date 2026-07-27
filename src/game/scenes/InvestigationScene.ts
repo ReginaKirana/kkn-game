@@ -70,10 +70,10 @@ export class InvestigationScene extends Phaser.Scene {
       bgKey = 'case2_investigation_bg';
       instructionText = 'Periksa Sampah yang Tercampur!';
       clues = [
-        { id: 'botol_plastik', asset: 'botol', x: width * 0.44, y: height * 0.61, text: 'Botol plastik sulit terurai dan dapat didaur ulang.', hasPov: false },
-        { id: 'kulit_pisang', asset: 'pisang', x: width * 0.5, y: height * 0.65, text: 'Kulit pisang berasal dari makhluk hidup dan mudah terurai.', hasPov: false },
-        { id: 'kaleng_bekas', asset: 'kaleng', x: width * 0.5, y: height * 0.5, text: 'Kaleng dapat didaur ulang.', hasPov: false },
-        { id: 'kertas_bekas', asset: 'kertas', x: width * 0.55, y: height * 0.72, text: 'Kertas dapat didaur ulang jika masih bersih.', hasPov: false }
+        { id: 'botol_plastik', asset: 'botol', x: width * 0.44, y: height * 0.61, text: 'Botol plastik sangat sulit terurai secara alami. Ini termasuk sampah Anorganik.', hasPov: false },
+        { id: 'kulit_pisang', asset: 'pisang', x: width * 0.5, y: height * 0.65, text: 'Kulit pisang adalah sisa makhluk hidup dan mudah membusuk. Ini termasuk sampah Organik.', hasPov: false },
+        { id: 'kaleng_bekas', asset: 'kaleng', x: width * 0.5, y: height * 0.5, text: 'Kaleng terbuat dari logam yang tidak bisa membusuk. Ini termasuk sampah Anorganik.', hasPov: false },
+        { id: 'kertas_bekas', asset: 'kertas', x: width * 0.55, y: height * 0.72, text: 'Kertas bekas harus dipisahkan agar bisa didaur ulang. Ini termasuk sampah Anorganik.', hasPov: false }
       ];
     } else if (this.caseId === 'kasus_selokan') {
       bgKey = 'selokan_bg';

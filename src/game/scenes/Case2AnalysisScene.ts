@@ -72,7 +72,9 @@ export class Case2AnalysisScene extends Phaser.Scene {
     bg.setScale(Math.max(width / bg.width, height / bg.height));
 
     // Dark Overlay
-    this.add.rectangle(0, 0, width, height, 0x000000, 0.7).setOrigin(0, 0);
+    const overlay = this.add.rectangle(0, 0, width, height, 0x000000, 0.7).setOrigin(0, 0);
+    overlay.setAlpha(0);
+    this.tweens.add({ targets: overlay, alpha: 0.7, duration: 600 });
 
     // Teacher Character
     this.teacher = this.add.image(width * 0.2, height, 'teacher_smile').setOrigin(0.5, 1);

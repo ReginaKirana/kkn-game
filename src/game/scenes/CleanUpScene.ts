@@ -276,6 +276,8 @@ export class CleanUpScene extends Phaser.Scene {
   private showTeacherConclusion(width: number, height: number) {
     const overlay = this.add.rectangle(0, 0, width, height, 0x000000, 0.6).setOrigin(0, 0);
     overlay.setDepth(30);
+    overlay.setAlpha(0);
+    this.tweens.add({ targets: overlay, alpha: 0.6, duration: 600 });
 
     const teacher = this.add.image(width * 0.25, height, 'teacher_thumbup').setOrigin(0.5, 1);
     const teacherMaxHeight = height * 0.85;
