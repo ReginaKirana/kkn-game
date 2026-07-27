@@ -65,18 +65,19 @@ export class Case2BriefingScene extends Phaser.Scene {
     this.teacher.setScale(this.teacherMaxScale);
     this.teacher.setFlipX(true);
     this.teacher.setDepth(20);
-    this.teacher.y = height + 300;
+    this.teacher.setAlpha(0);
 
     // Player
     const gender = this.registry.get('playerGender') || 'boy';
     const playerAsset = gender === 'boy' ? 'boy_idle' : 'girl_idle';
     this.player = this.add.image(width * 0.8, height, playerAsset).setOrigin(0.5, 1);
-    const playerMaxHeight = height * 0.9;
+    const playerMaxHeight = height * 0.97;
     this.playerMaxScale = playerMaxHeight / this.player.height;
-    this.player.setScale(this.playerMaxScale);
+    this.player.setScale(this.playerMaxScale * 0.9); // Zoomed out
     this.player.setFlipX(false);
     this.player.setDepth(20);
-    this.player.y = height + 300;
+    this.player.setAlpha(0);
+    this.player.y = height + 150;
 
     this.createDialogUI(width, height);
 
@@ -137,7 +138,7 @@ export class Case2BriefingScene extends Phaser.Scene {
         speaker: playerName,
         text: "Tetapi… semua sampah yang terkumpul ini masih tercampur ya, Bu?",
         color: 0x16a34a, // Green
-        teacherKey: 'teacher_surprised',
+        teacherKey: 'teacher_thumbup', // Jangan berubah sebelum ngomong
         teacherScale: 1.0
       },
       {
@@ -145,7 +146,7 @@ export class Case2BriefingScene extends Phaser.Scene {
         text: "Benar sekali. Menurutmu, apakah semua sampah ini boleh dibuang ke tempat yang sama?",
         color: 0x3b82f6,
         teacherKey: 'teacher_thinking',
-        teacherScale: 1.0
+        teacherScale: 0.85 // Dikecilin ukurannya
       }
     ];
 
@@ -245,6 +246,14 @@ export class Case2BriefingScene extends Phaser.Scene {
       // Update teacher texture
       this.teacher.setTexture(currentDialog.teacherKey);
 
+      // Update player texture
+      const gender = this.registry.get('playerGender') || 'boy';
+      if (currentDialog.playerKey) {
+        this.player.setTexture(currentDialog.playerKey[gender]);
+      } else {
+        this.player.setTexture(gender === 'boy' ? 'boy_idle' : 'girl_idle');
+      }
+
       nText.text = currentDialog.speaker;
       nBg.clear();
       nBg.fillStyle(currentDialog.color, 1);
@@ -289,17 +298,17 @@ export class Case2BriefingScene extends Phaser.Scene {
   private showCharactersAndDialog() {
     this.tweens.add({
       targets: this.teacher,
-      y: this.cameras.main.height,
+      alpha: 1,
       duration: 600,
-      ease: 'Back.easeOut'
+      ease: 'Power2'
     });
 
     this.tweens.add({
       targets: this.player,
-      y: this.cameras.main.height,
+      alpha: 0.6,
       duration: 600,
       delay: 200,
-      ease: 'Back.easeOut',
+      ease: 'Power2',
       onComplete: () => {
         this.dialogContainer.y += 50;
         this.tweens.add({

@@ -29,23 +29,26 @@ export class Case2AnalysisScene extends Phaser.Scene {
       speaker: 'Ibu Guru',
       text: "Sekarang semua petunjuk sudah ditemukan.",
       color: 0x3b82f6,
-      teacherKey: 'teacher_smile',
-      teacherScale: 0.85
+      teacherKey: 'teacher_smile'
     },
     {
       speaker: 'Ibu Guru',
       text: "Menurutmu, mengapa sampah perlu dipilah?",
       color: 0x3b82f6,
       teacherKey: 'teacher_surprised',
-      teacherScale: 0.85,
       showOptions: true
+    },
+    {
+      speaker: 'Detektif',
+      text: "Agar dapat diolah kembali sesuai jenisnya!",
+      color: 0x16a34a,
+      teacherKey: 'teacher_surprised'
     },
     {
       speaker: 'Ibu Guru',
       text: "Benar! Sampah perlu dipilah agar dapat diolah sesuai jenisnya.",
       color: 0x3b82f6,
       teacherKey: 'teacher_thumbup',
-      teacherScale: 1.0,
       isEnd: true
     }
   ];
@@ -79,30 +82,35 @@ export class Case2AnalysisScene extends Phaser.Scene {
     // Teacher Character
     this.teacher = this.add.image(width * 0.2, height, 'teacher_smile').setOrigin(0.5, 1);
     this.teacher.setFlipX(true);
-    const teacherMaxHeight = height * 0.85;
+    const teacherMaxHeight = height * 0.82;
     this.teacherMaxScale = teacherMaxHeight / this.teacher.height;
-    this.teacher.setScale(this.teacherMaxScale * (this.dialogs[0].teacherScale || 1));
-    this.teacher.y = height + 300;
+    this.teacher.setScale(this.teacherMaxScale);
+    this.teacher.y = height;
+    this.teacher.setAlpha(0);
+
+    // Dynamic Player Name
+    const playerName = this.registry.get('playerName') || 'Detektif';
+    this.dialogs[2].speaker = playerName;
 
     // Player Character
     const gender = this.registry.get('playerGender') || 'boy';
     const playerAsset = gender === 'boy' ? 'boy_idle' : 'girl_idle';
     this.player = this.add.image(width * 0.8, height, playerAsset).setOrigin(0.5, 1);
-    const playerMaxHeight = height * 0.9;
+    const playerMaxHeight = height * 0.97;
     this.playerMaxScale = playerMaxHeight / this.player.height;
     this.player.setScale(this.playerMaxScale * 0.9); // Starts listening
     this.player.setFlipX(false);
-    this.player.setAlpha(0.6); // Listening state
-    this.player.y = height + 300;
+    this.player.setAlpha(0); // Starts transparent for fade in
+    this.player.y = height + 150;
 
     // Animasi masuk karakter
-    this.tweens.add({ targets: this.teacher, y: height, duration: 600, ease: 'Back.easeOut' });
+    this.tweens.add({ targets: this.teacher, alpha: 1, duration: 600, ease: 'Power2' });
     this.tweens.add({
       targets: this.player,
-      y: height,
+      alpha: 0.6,
       duration: 600,
       delay: 200,
-      ease: 'Back.easeOut',
+      ease: 'Power2',
       onComplete: () => {
         this.dialogContainer.y += 50;
         this.tweens.add({
@@ -141,6 +149,9 @@ export class Case2AnalysisScene extends Phaser.Scene {
     dialogBg.strokeRoundedRect(-dialogWidth/2, -dialogHeight/2, dialogWidth, dialogHeight, 20);
 
     const nameBg = this.add.graphics();
+    nameBg.fillStyle(0x3b82f6, 1);
+    nameBg.fillRoundedRect(-dialogWidth/2 + 30, -dialogHeight/2 - 25, 200, 50, 10);
+    
     const nameText = this.add.text(-dialogWidth/2 + 130, -dialogHeight/2, 'Ibu Guru', {
       fontFamily: 'monospace',
       fontSize: '28px',
@@ -258,6 +269,28 @@ export class Case2AnalysisScene extends Phaser.Scene {
 
       this.teacher.setTexture(currentDialog.teacherKey);
 
+      // Dinamis menghitung ulang base scale agar ukurannya konsisten
+      const teacherMaxHeight = this.cameras.main.height * 0.82;
+      this.teacherMaxScale = teacherMaxHeight / this.teacher.height;
+      
+      // Mencegah jumping/pop: Set scale sesuai state visual saat ini sebelum tween berjalan!
+      const isTeacherDimmed = this.teacher.alpha < 1;
+      this.teacher.setScale(this.teacherMaxScale * (isTeacherDimmed ? 0.9 : 1));
+
+      // Update player texture
+      const gender = this.registry.get('playerGender') || 'boy';
+      if (currentDialog.playerKey) {
+        this.player.setTexture(currentDialog.playerKey[gender]);
+      } else {
+        this.player.setTexture(gender === 'boy' ? 'boy_idle' : 'girl_idle');
+      }
+      
+      // Update player base scale sama dengan cara di atas
+      const playerMaxHeight = this.cameras.main.height * 0.97;
+      this.playerMaxScale = playerMaxHeight / this.player.height;
+      const isPlayerDimmed = this.player.alpha < 1;
+      this.player.setScale(this.playerMaxScale * (isPlayerDimmed ? 0.9 : 1));
+
       nText.text = currentDialog.speaker;
       nBg.clear();
       nBg.fillStyle(currentDialog.color, 1);
@@ -265,7 +298,7 @@ export class Case2AnalysisScene extends Phaser.Scene {
       if (isTeacher) {
         nBg.fillRoundedRect(-dWidth/2 + 30, -dHeight/2 - 25, 200, 50, 10);
         nText.x = -dWidth/2 + 130;
-        this.tweens.add({ targets: this.teacher, scale: this.teacherMaxScale * currentDialog.teacherScale, alpha: 1, duration: 300 });
+        this.tweens.add({ targets: this.teacher, scale: this.teacherMaxScale, alpha: 1, duration: 300 });
         this.tweens.add({ targets: this.player, scale: this.playerMaxScale * 0.9, alpha: 0.6, duration: 300 });
       } else {
         nBg.fillRoundedRect(dWidth/2 - 230, -dHeight/2 - 25, 200, 50, 10);

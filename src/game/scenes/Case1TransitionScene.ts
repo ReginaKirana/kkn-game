@@ -1,8 +1,22 @@
 import * as Phaser from 'phaser';
 
+import case1GameBg from '../../assets/backgrounds/case1-game.png';
+import halamanKotor from '../../assets/backgrounds/halaman-kotor.png';
+import halamanKotor2Bg from '../../assets/backgrounds/Halaman-kotor2.png';
+import halamanBg from '../../assets/backgrounds/halaman.png';
+import teacherThumbUp from '../../assets/characters/teachers/thumb-up.png';
+
 export class Case1TransitionScene extends Phaser.Scene {
   constructor() {
     super('Case1TransitionScene');
+  }
+
+  preload() {
+    this.load.image('game_bg', case1GameBg);
+    this.load.image('halaman_kotor_bg', halamanKotor);
+    this.load.image('halaman_kotor2_bg', halamanKotor2Bg);
+    this.load.image('halaman_bersih', halamanBg);
+    this.load.image('teacher_thumbup', teacherThumbUp);
   }
 
   create(data: { caseId?: string }) {

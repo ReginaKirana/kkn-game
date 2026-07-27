@@ -34,6 +34,8 @@ export class Case2SortScene extends Phaser.Scene {
 
   create() {
     const { width, height } = this.cameras.main;
+    let binOrganik: Phaser.GameObjects.Image;
+    const createdTrash: Phaser.GameObjects.Image[] = [];
 
     // 1. Background
     const bg = this.add.image(width / 2, height / 2, 'game_bg');
@@ -101,14 +103,18 @@ export class Case2SortScene extends Phaser.Scene {
             ease: 'Power2',
             onComplete: () => {
               introOverlay.destroy();
-              introText.destroy();
               this.bannerContainer.y = -50;
               this.tweens.add({
                 targets: this.bannerContainer,
                 y: 60,
                 alpha: 1,
                 duration: 500,
-                ease: 'Back.easeOut'
+                ease: 'Back.easeOut',
+                onComplete: () => {
+                  if (createdTrash.length > 2) {
+                    this.showTutorial(width, height, binOrganik, createdTrash[2]);
+                  }
+                }
               });
             }
           });
@@ -117,7 +123,7 @@ export class Case2SortScene extends Phaser.Scene {
     });
 
     // 3. Tempat Sampah (Drop Zones)
-    const binOrganik = this.add.image(width * 0.3, height * 0.4, 'bin_organik');
+    binOrganik = this.add.image(width * 0.3, height * 0.4, 'bin_organik');
     binOrganik.setScale(0.7);
     const dropZoneOrganik = this.add.zone(binOrganik.x, binOrganik.y, binOrganik.displayWidth * 0.8, binOrganik.displayHeight * 0.8)
       .setRectangleDropZone(binOrganik.displayWidth * 0.8, binOrganik.displayHeight * 0.8);
@@ -153,6 +159,7 @@ export class Case2SortScene extends Phaser.Scene {
     trashItems.forEach((item, index) => {
       const pos = positions[index];
       const trash = this.add.image(pos.x, pos.y, item.key);
+      createdTrash.push(trash);
       
       const maxDim = 160;
       if (trash.width > maxDim || trash.height > maxDim) {
@@ -487,4 +494,214 @@ export class Case2SortScene extends Phaser.Scene {
       ease: 'Back.easeOut'
     });
   }
+
+  private showTutorial(width: number, height: number, bin: Phaser.GameObjects.Image, targetTrash: Phaser.GameObjects.Image) {
+    const overlay = this.add.rectangle(0, 0, width, height, 0x000000, 0.7).setOrigin(0, 0);
+    overlay.setDepth(140);
+    overlay.setAlpha(0);
+    overlay.setInteractive(); // Blokir interaksi game selama tutorial
+
+    // Bawa bin dan 1 sampah ke atas overlay agar menyala/fokus
+    bin.setDepth(141);
+    targetTrash.setDepth(141);
+
+    // 1. Munculkan karakter player di KIRI bawah
+    const gender = this.registry.get('playerGender') || 'boy';
+    const playerAsset = gender === 'boy' ? 'boy_idle' : 'girl_idle';
+    const player = this.add.image(width * 0.2, height + 150, playerAsset).setOrigin(0.5, 1);
+    const playerMaxHeight = height * 0.97;
+    const playerMaxScale = playerMaxHeight / player.height;
+    player.setScale(playerMaxScale);
+    player.setFlipX(true);
+    player.setAlpha(0);
+    player.setDepth(150);
+
+    // 2. Kotak Dialog
+    const dialogContainer = this.add.container(width / 2, height - 150);
+    dialogContainer.setDepth(150);
+    dialogContainer.setAlpha(0);
+
+    const dialogWidth = width * 0.8;
+    const dialogHeight = 220;
+
+    const dialogBg = this.add.graphics();
+    dialogBg.fillStyle(0x0f172a, 0.85); // Slate 900
+    dialogBg.fillRoundedRect(-dialogWidth / 2, -dialogHeight / 2, dialogWidth, dialogHeight, 20);
+    dialogBg.lineStyle(4, 0x3b82f6, 1); // Blue border
+    dialogBg.strokeRoundedRect(-dialogWidth / 2, -dialogHeight / 2, dialogWidth, dialogHeight, 20);
+
+    // Name Tag
+    const nameBg = this.add.graphics();
+    nameBg.fillStyle(0x16a34a, 1);
+    nameBg.fillRoundedRect(-dialogWidth / 2 + 30, -dialogHeight / 2 - 25, 200, 50, 10);
+    
+    const playerName = this.registry.get('playerName') || 'Detektif';
+    const nameText = this.add.text(-dialogWidth / 2 + 130, -dialogHeight / 2, playerName, {
+      fontFamily: 'monospace',
+      fontSize: '28px',
+      color: '#ffffff',
+      fontStyle: 'bold'
+    }).setOrigin(0.5);
+
+    const fullText = "Ayo kita mulai memilah sampahnya!\nTarik sampah Organik (sisa makanan/daun) ke tong HIJAU,\ndan Anorganik (plastik/kaleng) ke tong KUNING!";
+    const dialogText = this.add.text(-dialogWidth / 2 + 50, -dialogHeight / 2 + 40, "", {
+      fontFamily: 'monospace',
+      fontSize: '32px',
+      color: '#f8fafc',
+      wordWrap: { width: dialogWidth - 100 },
+      lineSpacing: 10
+    });
+
+    let currentTextCharIndex = 0;
+    this.time.addEvent({
+      delay: 30,
+      repeat: fullText.length - 1,
+      callback: () => {
+        dialogText.text += fullText[currentTextCharIndex];
+        currentTextCharIndex++;
+      }
+    });
+
+    dialogContainer.add([dialogBg, nameBg, nameText, dialogText]);
+
+    // 3. Tombol Mulai Misi
+    const btnWidth = 240; 
+    const btnHeight = 55;
+    const nextBtnY = dialogHeight / 2 - 45;
+    const nextBtnContainer = this.add.container(dialogWidth / 2 - 150, nextBtnY);
+
+    const shadow = this.add.graphics();
+    shadow.fillStyle(0x000000, 0.4);
+    shadow.fillRoundedRect(-btnWidth / 2 + 3, -btnHeight / 2 + 4, btnWidth, btnHeight, 15);
+
+    const nextBtnBg = this.add.graphics();
+    nextBtnBg.fillStyle(0x22c55e, 1);
+    nextBtnBg.fillRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
+    nextBtnBg.lineStyle(4, 0xffffff, 0.3);
+    nextBtnBg.strokeRoundedRect(-btnWidth / 2 + 2, -btnHeight / 2 + 2, btnWidth - 4, btnHeight - 4, 13);
+    nextBtnBg.lineStyle(3, 0x000000, 1);
+    nextBtnBg.strokeRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
+
+    const nextBtnText = this.add.text(0, 0, 'MULAI ➔', {
+      fontFamily: 'Fredoka One, Arial, sans-serif',
+      fontSize: '24px',
+      color: '#ffffff',
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 4,
+      shadow: { offsetX: 2, offsetY: 2, color: '#000000', blur: 0, fill: true }
+    }).setOrigin(0.5);
+
+    nextBtnContainer.add([shadow, nextBtnBg, nextBtnText]);
+    nextBtnContainer.setAlpha(0);
+    dialogContainer.add(nextBtnContainer);
+
+    this.time.delayedCall(fullText.length * 30 + 500, () => {
+      this.tweens.add({ targets: nextBtnContainer, alpha: 1, duration: 300 });
+      const hitArea = new Phaser.Geom.Rectangle(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight);
+      nextBtnContainer.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
+      
+      nextBtnContainer.on('pointerover', () => {
+        this.input.setDefaultCursor('pointer');
+        nextBtnBg.clear();
+        nextBtnBg.fillStyle(0x16a34a, 1);
+        nextBtnBg.fillRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
+        nextBtnBg.lineStyle(4, 0xffffff, 0.5);
+        nextBtnBg.strokeRoundedRect(-btnWidth / 2 + 2, -btnHeight / 2 + 2, btnWidth - 4, btnHeight - 4, 13);
+        nextBtnBg.lineStyle(3, 0x000000, 1);
+        nextBtnBg.strokeRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
+        nextBtnContainer.y = nextBtnY - 2;
+        shadow.y = 2;
+      });
+
+      nextBtnContainer.on('pointerout', () => {
+        this.input.setDefaultCursor('default');
+        nextBtnBg.clear();
+        nextBtnBg.fillStyle(0x22c55e, 1);
+        nextBtnBg.fillRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
+        nextBtnBg.lineStyle(4, 0xffffff, 0.3);
+        nextBtnBg.strokeRoundedRect(-btnWidth / 2 + 2, -btnHeight / 2 + 2, btnWidth - 4, btnHeight - 4, 13);
+        nextBtnBg.lineStyle(3, 0x000000, 1);
+        nextBtnBg.strokeRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
+        nextBtnContainer.y = nextBtnY;
+        shadow.y = 0;
+      });
+
+      nextBtnContainer.on('pointerdown', () => {
+        this.input.setDefaultCursor('default');
+        isTutorialActive = false;
+        
+        this.tweens.add({
+          targets: [overlay, player, dialogContainer, cursor],
+          alpha: 0,
+          duration: 400,
+          onComplete: () => {
+            player.destroy();
+            dialogContainer.destroy();
+            cursor.destroy();
+            overlay.destroy();
+            bin.setDepth(0);
+            targetTrash.setDepth(0);
+          }
+        });
+      });
+    });
+
+    this.tweens.add({ targets: [overlay, player, dialogContainer], alpha: 1, duration: 500 });
+
+    // 4. Animasi Kursor
+    const cursor = this.add.circle(targetTrash.x, targetTrash.y, 25, 0xffffff, 0.7);
+    cursor.setStrokeStyle(4, 0x3b82f6, 1);
+    cursor.setDepth(200);
+    cursor.setAlpha(0);
+
+    let isTutorialActive = true;
+
+    const animateCursor = () => {
+      if (!isTutorialActive) return;
+
+      cursor.setPosition(targetTrash.x, targetTrash.y);
+      cursor.setScale(1);
+
+      this.tweens.add({
+        targets: cursor,
+        alpha: 1,
+        duration: 300,
+        onComplete: () => {
+          if (!isTutorialActive) return;
+          this.tweens.add({
+            targets: cursor,
+            scale: 0.7,
+            duration: 200,
+            onComplete: () => {
+              if (!isTutorialActive) return;
+              this.tweens.add({
+                targets: cursor,
+                x: bin.x,
+                y: bin.y - 50,
+                duration: 1200,
+                ease: 'Sine.easeInOut',
+                onComplete: () => {
+                  if (!isTutorialActive) return;
+                  this.tweens.add({
+                    targets: cursor,
+                    alpha: 0,
+                    scale: 1,
+                    duration: 300,
+                    onComplete: () => {
+                      if (!isTutorialActive) return;
+                      this.time.delayedCall(300, animateCursor);
+                    }
+                  });
+                }
+              });
+            }
+          });
+        }
+      });
+    };
+
+    animateCursor();
+  }
 }
+
