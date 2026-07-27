@@ -214,11 +214,11 @@ export class Case2SortScene extends Phaser.Scene {
         gameObject.disableInteractive();
         
         // Add Eco Points
-        let currentEp = this.registry.get('ecoPoints') || 100;
-        this.registry.set('ecoPoints', currentEp + 10);
+        let currentEp = this.registry.get('ecoPoints') || 1000;
+        this.registry.set('ecoPoints', currentEp + 100);
 
-        // Floating +10 EP text
-        const bonusText = this.add.text(gameObject.x, gameObject.y - 40, '+10 EP', { 
+        // Floating +100 EP text
+        const bonusText = this.add.text(gameObject.x, gameObject.y - 40, '+100 EP', { 
           fontSize: '32px', color: '#4ade80', fontStyle: 'bold', stroke: '#000000', strokeThickness: 4 
         }).setOrigin(0.5).setDepth(20);
 
@@ -254,12 +254,12 @@ export class Case2SortScene extends Phaser.Scene {
         xMark.setDepth(20);
         
         // Deduct Eco Points (Penalty)
-        let currentEp = this.registry.get('ecoPoints') || 100;
-        currentEp = Math.max(0, currentEp - 10);
+        let currentEp = this.registry.get('ecoPoints') || 1000;
+        currentEp = Math.max(0, currentEp - 100);
         this.registry.set('ecoPoints', currentEp);
 
         // Show floating penalty text
-        const penaltyText = this.add.text(gameObject.x, gameObject.y - 100, '-10 EP', { 
+        const penaltyText = this.add.text(gameObject.x, gameObject.y - 100, '-100 EP', { 
           fontSize: '32px', color: '#ef4444', fontStyle: 'bold', stroke: '#000000', strokeThickness: 4 
         }).setOrigin(0.5).setDepth(20);
 
