@@ -234,13 +234,26 @@ export class Case2SortScene extends Phaser.Scene {
         const xMark = this.add.text(gameObject.x, gameObject.y - 50, '❌', { fontSize: '64px' }).setOrigin(0.5);
         xMark.setDepth(20);
         
+        // Deduct Eco Points (Penalty)
+        let currentEp = this.registry.get('ecoPoints') || 100;
+        currentEp = Math.max(0, currentEp - 10);
+        this.registry.set('ecoPoints', currentEp);
+
+        // Show floating penalty text
+        const penaltyText = this.add.text(gameObject.x, gameObject.y - 100, '-10 EP', { 
+          fontSize: '32px', color: '#ef4444', fontStyle: 'bold', stroke: '#000000', strokeThickness: 4 
+        }).setOrigin(0.5).setDepth(20);
+
         this.tweens.add({
-          targets: xMark,
-          y: xMark.y - 30,
+          targets: [xMark, penaltyText],
+          y: '-=30',
           alpha: 0,
-          duration: 1000,
+          duration: 1200,
           ease: 'Power2',
-          onComplete: () => xMark.destroy()
+          onComplete: () => {
+            xMark.destroy();
+            penaltyText.destroy();
+          }
         });
 
         this.tweens.add({

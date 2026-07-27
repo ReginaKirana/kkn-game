@@ -67,11 +67,9 @@ export class OutroScene extends Phaser.Scene {
       timeSeconds = Math.floor((Date.now() - startTime) / 1000);
     }
     
-    // Sistem Skor Dinamis (Berdasarkan Waktu)
-    // Base score: 15.000, dikurangi 10 poin per detik. Minimal skor 1000.
-    const baseScore = 15000;
-    let score = baseScore - (timeSeconds * 10);
-    if (score < 1000) score = 1000;
+    // Sistem Skor: Menggunakan Eco Points yang dikumpulkan selama permainan
+    // Default 100 jika bermain dari pertengahan tanpa melalui awal
+    const score = this.registry.get('ecoPoints') || 100;
 
     try {
       const { error } = await supabase
@@ -266,6 +264,24 @@ export class OutroScene extends Phaser.Scene {
           angle: 360,
           duration: 1000,
           ease: 'Back.easeOut'
+        });
+
+        const scoreText = this.add.text(width / 2, height / 2 + 100, `Total Eco Points: ${this.registry.get('ecoPoints') || 100}`, {
+          fontFamily: 'Fredoka One, Arial, sans-serif',
+          fontSize: '48px',
+          color: '#4ade80',
+          fontStyle: 'bold',
+          stroke: '#000000',
+          strokeThickness: 6,
+          shadow: { offsetX: 3, offsetY: 3, color: '#000000', blur: 0, fill: true }
+        }).setOrigin(0.5).setAlpha(0);
+
+        this.tweens.add({
+          targets: scoreText,
+          alpha: 1,
+          duration: 800,
+          delay: 700,
+          ease: 'Power2'
         });
 
         this.tweens.add({

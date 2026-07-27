@@ -17,6 +17,7 @@ import { Case2SortScene } from './scenes/Case2SortScene';
 import { Case3BriefingScene } from './scenes/Case3BriefingScene';
 import { Case3AnalysisScene } from './scenes/Case3AnalysisScene';
 import { Case3CleanUpScene } from './scenes/Case3CleanUpScene';
+import { Case3TransitionScene } from './scenes/Case3TransitionScene';
 import { OutroScene } from './scenes/OutroScene';
 import { LeaderboardScene } from './scenes/LeaderboardScene';
 
@@ -58,6 +59,7 @@ export default function initGame(parentContainerId: string, startScene?: string)
     Case3BriefingScene,
     Case3AnalysisScene,
     Case3CleanUpScene,
+    Case3TransitionScene,
     OutroScene,
     LeaderboardScene
   ];

@@ -41,6 +41,9 @@ export class CaseSelectScene extends Phaser.Scene {
 
     // Kasus 1 (Selalu Aktif)
     this.createCaseButton(width * 0.25, height * 0.73, 'kasus_halaman', true, -3);
+
+    // Tombol Kembali (Kiri Atas)
+    this.createBackButton();
     
     // Kasus 2
     let lockOverlay2: Phaser.GameObjects.Container | null = null;
@@ -234,5 +237,66 @@ export class CaseSelectScene extends Phaser.Scene {
     
     selidikiBtn.setDepth(10);
     return selidikiBtn;
+  }
+
+  private createBackButton() {
+    const btnRadius = 35;
+    const x = 70;
+    const y = 70;
+    const backBtn = this.add.container(x, y);
+
+    // Button Shadow
+    const shadow = this.add.graphics();
+    shadow.fillStyle(0x000000, 0.4);
+    shadow.fillCircle(3, 4, btnRadius);
+
+    // Background Kayu (Sienna / SaddleBrown)
+    const btnBg = this.add.graphics();
+    btnBg.fillStyle(0x8B4513, 1);
+    btnBg.fillCircle(0, 0, btnRadius);
+    btnBg.lineStyle(4, 0x5C4033, 1); // Darker wood border
+    btnBg.strokeCircle(0, 0, btnRadius);
+
+    // Icon (Arrow or Home) -> Menggunakan simbol Panah Kiri
+    const icon = this.add.text(0, 0, '🏠', {
+      fontSize: '32px'
+    }).setOrigin(0.5);
+
+    backBtn.add([shadow, btnBg, icon]);
+    backBtn.setDepth(100);
+
+    const hitArea = new Phaser.Geom.Circle(0, 0, btnRadius);
+    backBtn.setInteractive(hitArea, Phaser.Geom.Circle.Contains);
+
+    backBtn.on('pointerover', () => {
+      this.input.setDefaultCursor('pointer');
+      backBtn.y = y - 2;
+      shadow.y = 2;
+      btnBg.clear();
+      btnBg.fillStyle(0xA0522D, 1); // Lighter wood on hover
+      btnBg.fillCircle(0, 0, btnRadius);
+      btnBg.lineStyle(4, 0x5C4033, 1);
+      btnBg.strokeCircle(0, 0, btnRadius);
+    });
+
+    backBtn.on('pointerout', () => {
+      this.input.setDefaultCursor('default');
+      backBtn.y = y;
+      shadow.y = 0;
+      btnBg.clear();
+      btnBg.fillStyle(0x8B4513, 1); // Normal wood
+      btnBg.fillCircle(0, 0, btnRadius);
+      btnBg.lineStyle(4, 0x5C4033, 1);
+      btnBg.strokeCircle(0, 0, btnRadius);
+    });
+
+    backBtn.on('pointerdown', () => {
+      this.input.setDefaultCursor('default');
+      backBtn.y = y + 4;
+      shadow.y = -4;
+      setTimeout(() => {
+        this.scene.start('CoverScene');
+      }, 150);
+    });
   }
 }

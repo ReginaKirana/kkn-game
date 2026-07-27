@@ -17,7 +17,7 @@ export class LeaderboardScene extends Phaser.Scene {
     const circle2 = this.add.circle(width * 0.9, height * 0.8, 400, 0x10b981, 0.1);
 
     // Judul
-    this.add.text(width / 2, 80, 'PAPAN PERINGKAT', {
+    this.add.text(width / 2, 80, 'PAPAN DETEKTIF HEBAT', {
       fontFamily: 'monospace',
       fontSize: '48px',
       color: '#fef08a',
@@ -26,7 +26,7 @@ export class LeaderboardScene extends Phaser.Scene {
       strokeThickness: 6
     }).setOrigin(0.5);
 
-    this.add.text(width / 2, 140, 'Siapa detektif sampah terbaik minggu ini?', {
+    this.add.text(width / 2, 140, 'Daftar detektif sampah terbaik minggu ini', {
       fontFamily: 'monospace',
       fontSize: '28px',
       color: '#cbd5e1',
@@ -107,10 +107,11 @@ export class LeaderboardScene extends Phaser.Scene {
       rowBg.fillStyle(bgRowColor, index % 2 === 0 ? 0.6 : 0.3);
       rowBg.fillRoundedRect(width/2 - listWidth/2 + 20, y - 25, listWidth - 40, 50, 10);
 
-      // Peringkat
-      this.add.text(width/2 - listWidth/2 + 50, y, `#${index + 1}`, {
+      // Icon/Medal (No number ranking)
+      const medalIcon = index < 3 ? (index === 0 ? '🏆' : index === 1 ? '🥈' : '🥉') : '🏅';
+      this.add.text(width/2 - listWidth/2 + 50, y, medalIcon, {
         fontFamily: 'monospace',
-        fontSize: '28px',
+        fontSize: '32px',
         color: rankColor,
         fontStyle: 'bold'
       }).setOrigin(0, 0.5);
@@ -124,8 +125,8 @@ export class LeaderboardScene extends Phaser.Scene {
         fontStyle: 'bold'
       }).setOrigin(0, 0.5);
 
-      // Skor
-      this.add.text(width/2 + listWidth/2 - 50, y, `${player.score.toLocaleString('id-ID')}`, {
+      // Skor (Eco Points)
+      this.add.text(width/2 + listWidth/2 - 50, y, `${player.score.toLocaleString('id-ID')} EP`, {
         fontFamily: 'monospace',
         fontSize: '28px',
         color: '#4ade80',
