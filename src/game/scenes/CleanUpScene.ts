@@ -11,6 +11,7 @@ import kertasImg from '../../assets/objects/kertas.png';
 import pisangImg from '../../assets/objects/pisang.png';
 import plastikImg from '../../assets/objects/plastik.png';
 import rantingImg from '../../assets/objects/ranting.png';
+import { createBackButton } from '../utils/UIUtils';
 import halamanKotor from '../../assets/backgrounds/halaman-kotor.png';
 import halamanKotor2Bg from '../../assets/backgrounds/Halaman-kotor2.png';
 import halamanBg from '../../assets/backgrounds/halaman.png';
@@ -246,6 +247,10 @@ export class CleanUpScene extends Phaser.Scene {
           }
         }
       });
+    });
+
+    createBackButton(this, 70, 70, () => {
+      this.scene.start('CaseSelectScene');
     });
   }
 

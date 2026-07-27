@@ -2,6 +2,7 @@ import * as Phaser from 'phaser';
 
 import halamanKotorBg from '../../assets/backgrounds/halaman-kotor.png';
 import surprisedTeacher from '../../assets/characters/teachers/suprised.png';
+import { createBackButton } from '../utils/UIUtils';
 import thinkingTeacher from '../../assets/characters/teachers/thinking.png';
 import boyIdle from '../../assets/characters/boy/boy-idle.png';
 import boySupprised from '../../assets/characters/boy/boy-supprised.png';
@@ -84,6 +85,10 @@ export class Case1BriefingScene extends Phaser.Scene {
         duration: 800
       });
       this.showCharactersAndDialog();
+    });
+
+    createBackButton(this, 70, 70, () => {
+      this.scene.start('CaseSelectScene');
     });
   }
 

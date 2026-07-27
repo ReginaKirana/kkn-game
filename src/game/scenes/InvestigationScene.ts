@@ -15,6 +15,7 @@ import plastikImg from '../../assets/objects/plastik.png';
 import rantingImg from '../../assets/objects/ranting.png';
 import selokanBg from '../../assets/backgrounds/selokan-tinngi.png';
 import { Case3TrashConfig } from '../config/Case3TrashConfig';
+import { createBackButton } from '../utils/UIUtils';
 
 export class InvestigationScene extends Phaser.Scene {
   private cluesFound: number = 0;
@@ -165,10 +166,13 @@ export class InvestigationScene extends Phaser.Scene {
     this.binBg.setDepth(10); // Cover markers
     this.binBg.setInteractive(); // Block clicks to clues while in POV
 
-    // Selesai Button (Hidden until all clues found)
     this.createNextButton(width, height);
 
     this.playIntroSequence(instructionText);
+
+    createBackButton(this, 70, 70, () => {
+      this.scene.start('CaseSelectScene');
+    });
   }
 
   private playIntroSequence(instructionText: string) {

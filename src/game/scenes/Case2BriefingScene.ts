@@ -8,6 +8,7 @@ import surprisedTeacher from '../../assets/characters/teachers/suprised.png';
 import thinkingTeacher from '../../assets/characters/teachers/thinking.png';
 import boyIdle from '../../assets/characters/boy/boy-idle.png';
 import girlIdle from '../../assets/characters/girl/girl-idle.png';
+import { createBackButton } from '../utils/UIUtils';
 
 export class Case2BriefingScene extends Phaser.Scene {
   private bg1!: Phaser.GameObjects.Image;
@@ -89,6 +90,10 @@ export class Case2BriefingScene extends Phaser.Scene {
         duration: 800
       });
       this.showCharactersAndDialog();
+    });
+
+    createBackButton(this, 70, 70, () => {
+      this.scene.start('CaseSelectScene', { case2Unlocked: true });
     });
   }
 
