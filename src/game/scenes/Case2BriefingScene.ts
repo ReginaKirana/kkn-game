@@ -64,7 +64,6 @@ export class Case2BriefingScene extends Phaser.Scene {
     this.teacherMaxScale = teacherMaxHeight / this.teacher.height;
     this.teacher.setScale(this.teacherMaxScale);
     this.teacher.setFlipX(true);
-    this.teacher.setAlpha(0);
     this.teacher.setDepth(20);
     this.teacher.y = height + 300;
 
@@ -76,7 +75,6 @@ export class Case2BriefingScene extends Phaser.Scene {
     this.playerMaxScale = playerMaxHeight / this.player.height;
     this.player.setScale(this.playerMaxScale);
     this.player.setFlipX(false);
-    this.player.setAlpha(0);
     this.player.setDepth(20);
     this.player.y = height + 300;
 

@@ -1,26 +1,13 @@
 import * as Phaser from 'phaser';
 
-import selokanBg from '../../assets/backgrounds/selokan-tinngi.png';
-import botolImg from '../../assets/objects/botol.png';
-import pisangImg from '../../assets/objects/pisang.png';
-import kalengImg from '../../assets/objects/kaleng.png';
-import plastikImg from '../../assets/objects/plastik.png';
-import appleImg from '../../assets/objects/apple.png';
-import daunImg from '../../assets/objects/daun.png';
-import gelasImg from '../../assets/objects/gelas.png';
-import kertasImg from '../../assets/objects/kertas.png';
-import rantingImg from '../../assets/objects/ranting.png';
-import thumbUpTeacher from '../../assets/characters/teachers/thumb-up.png';
-import smileTeacher from '../../assets/characters/teachers/smile.png';
+import halamanKotorBg from '../../assets/backgrounds/halaman-kotor.png';
 import surprisedTeacher from '../../assets/characters/teachers/suprised.png';
 import thinkingTeacher from '../../assets/characters/teachers/thinking.png';
 import boyIdle from '../../assets/characters/boy/boy-idle.png';
 import girlIdle from '../../assets/characters/girl/girl-idle.png';
 
-import { Case3TrashConfig } from '../config/Case3TrashConfig';
-
-export class Case3BriefingScene extends Phaser.Scene {
-  private bg!: Phaser.GameObjects.Image;
+export class Case1BriefingScene extends Phaser.Scene {
+  private bg1!: Phaser.GameObjects.Image;
   private overlay!: Phaser.GameObjects.Rectangle;
   private teacher!: Phaser.GameObjects.Image;
   private player!: Phaser.GameObjects.Image;
@@ -38,23 +25,11 @@ export class Case3BriefingScene extends Phaser.Scene {
   private playerMaxScale = 1;
 
   constructor() {
-    super('Case3BriefingScene');
+    super('Case1BriefingScene');
   }
 
   preload() {
-    this.load.image('selokan_bg', selokanBg);
-    this.load.image('botol', botolImg);
-    this.load.image('pisang', pisangImg);
-    this.load.image('kaleng', kalengImg);
-    this.load.image('plastik', plastikImg);
-    this.load.image('apple', appleImg);
-    this.load.image('daun', daunImg);
-    this.load.image('gelas', gelasImg);
-    this.load.image('kertas', kertasImg);
-    this.load.image('ranting', rantingImg);
-    
-    this.load.image('teacher_thumbup', thumbUpTeacher);
-    this.load.image('teacher_smile', smileTeacher);
+    this.load.image('halaman_kotor_bg', halamanKotorBg);
     this.load.image('teacher_surprised', surprisedTeacher);
     this.load.image('teacher_thinking', thinkingTeacher);
     this.load.image('boy_idle', boyIdle);
@@ -63,28 +38,10 @@ export class Case3BriefingScene extends Phaser.Scene {
 
   create() {
     const { width, height } = this.cameras.main;
-    this.currentDialogIndex = 0;
 
-    // Background (selokan-tinngi.png)
-    this.bg = this.add.image(width / 2, height / 2, 'selokan_bg');
-    this.bg.setScale(Math.max(width / this.bg.width, height / this.bg.height));
-
-    // Render Sampah di background agar terlihat saat briefing
-    Case3TrashConfig.distractors.forEach(d => {
-      const img = this.add.image(width * d.x, height * d.y, d.asset);
-      const maxDim = d.maxDim || 120;
-      img.setScale(maxDim / Math.max(img.width, img.height));
-      img.setTint(0x4a4a4a); // Di-overlay gelap
-    });
-
-    Case3TrashConfig.clues.forEach(c => {
-      const img = this.add.image(width * c.x, height * c.y, c.asset);
-      const maxDim = c.maxDim || 150;
-      if (img.width > maxDim || img.height > maxDim) {
-        img.setScale(maxDim / Math.max(img.width, img.height));
-      }
-      // Clue tidak digelapkan agar menonjol
-    });
+    // Background
+    this.bg1 = this.add.image(width / 2, height / 2, 'halaman_kotor_bg');
+    this.bg1.setScale(Math.max(width / this.bg1.width, height / this.bg1.height));
 
     // Overlay gelap - hidden initially
     this.overlay = this.add.rectangle(0, 0, width, height, 0x000000, 0.6).setOrigin(0, 0);
@@ -92,8 +49,8 @@ export class Case3BriefingScene extends Phaser.Scene {
     this.overlay.setDepth(10);
 
     // Teacher
-    this.teacher = this.add.image(width * 0.2, height, 'teacher_thumbup').setOrigin(0.5, 1);
-    const teacherMaxHeight = height * 0.85;
+    this.teacher = this.add.image(width * 0.2, height, 'teacher_surprised').setOrigin(0.5, 1);
+    const teacherMaxHeight = height * 0.82;
     this.teacherMaxScale = teacherMaxHeight / this.teacher.height;
     this.teacher.setScale(this.teacherMaxScale);
     this.teacher.setFlipX(true);
@@ -104,7 +61,7 @@ export class Case3BriefingScene extends Phaser.Scene {
     const gender = this.registry.get('playerGender') || 'boy';
     const playerAsset = gender === 'boy' ? 'boy_idle' : 'girl_idle';
     this.player = this.add.image(width * 0.8, height, playerAsset).setOrigin(0.5, 1);
-    const playerMaxHeight = height * 0.9;
+    const playerMaxHeight = height * 0.97;
     this.playerMaxScale = playerMaxHeight / this.player.height;
     this.player.setScale(this.playerMaxScale);
     this.player.setFlipX(false);
@@ -114,7 +71,7 @@ export class Case3BriefingScene extends Phaser.Scene {
     this.createDialogUI(width, height);
 
     // Start Sequence
-    this.time.delayedCall(3500, () => {
+    this.time.delayedCall(1000, () => {
       this.tweens.add({
         targets: this.overlay,
         alpha: 1,
@@ -159,35 +116,21 @@ export class Case3BriefingScene extends Phaser.Scene {
     const dialogues = [
       {
         speaker: 'Ibu Guru',
-        text: "Hebat! Kamu sudah berhasil menyelesaikan dua misi sebelumnya.",
+        text: "Ya ampun! Lihatlah halaman sekolah kita, berantakan sekali banyak sampah berserakan.",
         color: 0x3b82f6, // Blue
-        teacherKey: 'teacher_thumbup',
+        teacherKey: 'teacher_surprised',
         teacherScale: 1.0
       },
       {
         speaker: playerName,
-        text: "Berarti tugas kita sudah selesai ya, Bu?",
+        text: "Wah, benar Bu! Pasti ada yang membuang sampah sembarangan di sini.",
         color: 0x16a34a, // Green
-        teacherKey: 'teacher_smile',
+        teacherKey: 'teacher_thinking',
         teacherScale: 1.0
       },
       {
         speaker: 'Ibu Guru',
-        text: "Belum, masih ada satu misi terakhir. Coba lihat selokan di samping sekolah itu.",
-        color: 0x3b82f6,
-        teacherKey: 'teacher_surprised',
-        teacherScale: 1.0
-      },
-      {
-        speaker: playerName,
-        text: "Wah, ada banyak sampah yang menyumbat aliran airnya!",
-        color: 0x16a34a,
-        teacherKey: 'teacher_surprised',
-        teacherScale: 1.0
-      },
-      {
-        speaker: 'Ibu Guru',
-        text: "Tepat sekali. Yuk, kita cari tahu mengapa membuang sampah di selokan sangat berbahaya!",
+        text: "Ayo Detektif, selidiki benda apa saja yang dibuang sembarangan di halaman ini!",
         color: 0x3b82f6,
         teacherKey: 'teacher_thinking',
         teacherScale: 1.0
@@ -272,7 +215,7 @@ export class Case3BriefingScene extends Phaser.Scene {
           this.nextBtnContainer.y = nextBtnY + 4;
           shadow.y = -4;
           setTimeout(() => {
-            this.scene.start('InvestigationScene', { caseId: 'kasus_selokan' });
+            this.scene.start('InvestigationScene', { caseId: 'kasus_halaman' });
           }, 150);
         }
       }
@@ -321,11 +264,11 @@ export class Case3BriefingScene extends Phaser.Scene {
     };
 
     // Stash dialogues for startTyping closure
-    this.registry.set('c3b_dialogues', dialogues);
-    this.registry.set('c3b_dWidth', dialogWidth);
-    this.registry.set('c3b_dHeight', dialogHeight);
-    this.registry.set('c3b_nBg', nameBg);
-    this.registry.set('c3b_nText', nameText);
+    this.registry.set('c1b_dialogues', dialogues);
+    this.registry.set('c1b_dWidth', dialogWidth);
+    this.registry.set('c1b_dHeight', dialogHeight);
+    this.registry.set('c1b_nBg', nameBg);
+    this.registry.set('c1b_nText', nameText);
   }
 
   // To be overwritten by the closure above
@@ -341,7 +284,7 @@ export class Case3BriefingScene extends Phaser.Scene {
 
     this.tweens.add({
       targets: this.player,
-      y: this.cameras.main.height,
+      y: this.cameras.main.height + 150,
       duration: 600,
       delay: 200,
       ease: 'Back.easeOut',
@@ -354,11 +297,11 @@ export class Case3BriefingScene extends Phaser.Scene {
           duration: 400,
           ease: 'Power2',
           onComplete: () => {
-            const dialogues = this.registry.get('c3b_dialogues');
-            const dWidth = this.registry.get('c3b_dWidth');
-            const dHeight = this.registry.get('c3b_dHeight');
-            const nBg = this.registry.get('c3b_nBg');
-            const nText = this.registry.get('c3b_nText');
+            const dialogues = this.registry.get('c1b_dialogues');
+            const dWidth = this.registry.get('c1b_dWidth');
+            const dHeight = this.registry.get('c1b_dHeight');
+            const nBg = this.registry.get('c1b_nBg');
+            const nText = this.registry.get('c1b_nText');
             this.startTyping(dialogues, dWidth, dHeight, nBg, nText);
             
             // Show next btn
