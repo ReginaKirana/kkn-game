@@ -139,6 +139,8 @@ export class Case3BriefingScene extends Phaser.Scene {
     dialogBg.strokeRoundedRect(-dialogWidth/2, -dialogHeight/2, dialogWidth, dialogHeight, 20);
 
     const nameBg = this.add.graphics();
+    nameBg.fillStyle(0x3b82f6, 1);
+    nameBg.fillRoundedRect(-dialogWidth / 2 + 30, -dialogHeight / 2 - 25, 200, 50, 10);
     const nameText = this.add.text(-dialogWidth/2 + 130, -dialogHeight/2, 'Ibu Guru', {
       fontFamily: 'monospace',
       fontSize: '28px',

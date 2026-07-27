@@ -62,8 +62,8 @@ export class InvestigationScene extends Phaser.Scene {
     if (this.caseId === 'kasus_halaman') {
       clues = [
         { id: 'botol', x: width * 0.47, y: height * 0.52, text: 'Botol plastik ini dibuang di halaman,\nbukan di tempat sampah.', hasPov: false },
-        { id: 'pisang', x: width * 0.28, y: height * 0.8, text: 'Kulit pisang ini juga dibiarkan\nbegitu saja di halaman.', hasPov: false },
-        { id: 'daun', x: width * 0.75, y: height * 0.8, text: '🍃 Daun\n\nPetunjuk: Daun memang jatuh dari pohon,\ntetapi jumlahnya hanya sedikit.', hasPov: false },
+        { id: 'pisang', x: width * 0.28, y: height * 0.8, text: 'Kulit pisang ini dibiarkan\nbegitu saja di halaman.', hasPov: false },
+        { id: 'daun', x: width * 0.75, y: height * 0.8, text: 'Daun Kering.\nDaun gugur itu alami dan bisa menyatu dengan tanah.\nYang menjadi masalah adalah sampah buatan manusia!', hasPov: false },
         { id: 'tempat_sampah', x: width * 0.75, y: height * 0.465, text: 'Tempat Sampah.\nLoh, ternyata tempat sampahnya KOSONG!\nSeharusnya sampah dibuang ke sini!', hasPov: true }
       ];
     } else if (this.caseId === 'kasus_sampah') {

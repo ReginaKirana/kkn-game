@@ -9,6 +9,7 @@ import { ConclusionScene } from './scenes/ConclusionScene';
 import { SolutionScene } from './scenes/SolutionScene';
 import { ResultScene } from './scenes/ResultScene';
 import { CleanUpScene } from './scenes/CleanUpScene';
+import { Case1TransitionScene } from './scenes/Case1TransitionScene';
 import { Case1BriefingScene } from './scenes/Case1BriefingScene';
 import { Case2BriefingScene } from './scenes/Case2BriefingScene';
 import { Case2AnalysisScene } from './scenes/Case2AnalysisScene';
@@ -49,6 +50,7 @@ export default function initGame(parentContainerId: string, startScene?: string)
     SolutionScene,
     ResultScene,
     CleanUpScene,
+    Case1TransitionScene,
     Case1BriefingScene,
     Case2BriefingScene,
     Case2AnalysisScene,

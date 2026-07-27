@@ -4,7 +4,9 @@ import halamanKotorBg from '../../assets/backgrounds/halaman-kotor.png';
 import surprisedTeacher from '../../assets/characters/teachers/suprised.png';
 import thinkingTeacher from '../../assets/characters/teachers/thinking.png';
 import boyIdle from '../../assets/characters/boy/boy-idle.png';
+import boySupprised from '../../assets/characters/boy/boy-supprised.png';
 import girlIdle from '../../assets/characters/girl/girl-idle.png';
+import girlBingung from '../../assets/characters/girl/girl-bingung.png';
 
 export class Case1BriefingScene extends Phaser.Scene {
   private bg1!: Phaser.GameObjects.Image;
@@ -16,11 +18,11 @@ export class Case1BriefingScene extends Phaser.Scene {
   private typeWriterEvent!: Phaser.Time.TimerEvent;
   private nextBtnContainer!: Phaser.GameObjects.Container;
   private nextBtnText!: Phaser.GameObjects.Text;
-  
+
   private currentDialogIndex = 0;
   private isTyping = false;
   private isClicking = false;
-  
+
   private teacherMaxScale = 1;
   private playerMaxScale = 1;
 
@@ -33,7 +35,9 @@ export class Case1BriefingScene extends Phaser.Scene {
     this.load.image('teacher_surprised', surprisedTeacher);
     this.load.image('teacher_thinking', thinkingTeacher);
     this.load.image('boy_idle', boyIdle);
+    this.load.image('boy_supprised', boySupprised);
     this.load.image('girl_idle', girlIdle);
+    this.load.image('girl_bingung', girlBingung);
   }
 
   create() {
@@ -54,8 +58,9 @@ export class Case1BriefingScene extends Phaser.Scene {
     this.teacherMaxScale = teacherMaxHeight / this.teacher.height;
     this.teacher.setScale(this.teacherMaxScale);
     this.teacher.setFlipX(true);
+    this.teacher.setAlpha(0);
     this.teacher.setDepth(20);
-    this.teacher.y = height + 300;
+    this.teacher.y = height;
 
     // Player
     const gender = this.registry.get('playerGender') || 'boy';
@@ -63,10 +68,11 @@ export class Case1BriefingScene extends Phaser.Scene {
     this.player = this.add.image(width * 0.8, height, playerAsset).setOrigin(0.5, 1);
     const playerMaxHeight = height * 0.97;
     this.playerMaxScale = playerMaxHeight / this.player.height;
-    this.player.setScale(this.playerMaxScale);
+    this.player.setScale(this.playerMaxScale * 0.9);
     this.player.setFlipX(false);
+    this.player.setAlpha(0);
     this.player.setDepth(20);
-    this.player.y = height + 300;
+    this.player.y = height + 150;
 
     this.createDialogUI(width, height);
 
@@ -91,19 +97,21 @@ export class Case1BriefingScene extends Phaser.Scene {
 
     const dialogBg = this.add.graphics();
     dialogBg.fillStyle(0x0f172a, 0.85); // Slate 900
-    dialogBg.fillRoundedRect(-dialogWidth/2, -dialogHeight/2, dialogWidth, dialogHeight, 20);
+    dialogBg.fillRoundedRect(-dialogWidth / 2, -dialogHeight / 2, dialogWidth, dialogHeight, 20);
     dialogBg.lineStyle(4, 0x3b82f6, 1); // Blue border
-    dialogBg.strokeRoundedRect(-dialogWidth/2, -dialogHeight/2, dialogWidth, dialogHeight, 20);
+    dialogBg.strokeRoundedRect(-dialogWidth / 2, -dialogHeight / 2, dialogWidth, dialogHeight, 20);
 
     const nameBg = this.add.graphics();
-    const nameText = this.add.text(-dialogWidth/2 + 130, -dialogHeight/2, 'Ibu Guru', {
+    nameBg.fillStyle(0x3b82f6, 1);
+    nameBg.fillRoundedRect(-dialogWidth / 2 + 30, -dialogHeight / 2 - 25, 200, 50, 10);
+    const nameText = this.add.text(-dialogWidth / 2 + 130, -dialogHeight / 2, 'Ibu Guru', {
       fontFamily: 'monospace',
       fontSize: '28px',
       color: '#ffffff',
       fontStyle: 'bold'
     }).setOrigin(0.5);
 
-    this.textObj = this.add.text(-dialogWidth/2 + 50, -dialogHeight/2 + 40, '', {
+    this.textObj = this.add.text(-dialogWidth / 2 + 50, -dialogHeight / 2 + 40, '', {
       fontFamily: 'monospace',
       fontSize: '32px',
       color: '#f8fafc',
@@ -125,8 +133,9 @@ export class Case1BriefingScene extends Phaser.Scene {
         speaker: playerName,
         text: "Wah, benar Bu! Pasti ada yang membuang sampah sembarangan di sini.",
         color: 0x16a34a, // Green
-        teacherKey: 'teacher_thinking',
-        teacherScale: 1.0
+        teacherKey: 'teacher_surprised',
+        teacherScale: 1.0,
+        playerKey: { boy: 'boy_supprised', girl: 'girl_bingung' }
       },
       {
         speaker: 'Ibu Guru',
@@ -138,22 +147,22 @@ export class Case1BriefingScene extends Phaser.Scene {
     ];
 
     // Tombol Lanjut (Gaming Style)
-    const btnWidth = 240; 
+    const btnWidth = 240;
     const btnHeight = 55;
-    const nextBtnY = dialogHeight/2 - 45;
-    this.nextBtnContainer = this.add.container(dialogWidth/2 - 150, nextBtnY);
+    const nextBtnY = dialogHeight / 2 - 45;
+    this.nextBtnContainer = this.add.container(dialogWidth / 2 - 150, nextBtnY);
 
     const shadow = this.add.graphics();
     shadow.fillStyle(0x000000, 0.4);
-    shadow.fillRoundedRect(-btnWidth/2 + 3, -btnHeight/2 + 4, btnWidth, btnHeight, 15);
+    shadow.fillRoundedRect(-btnWidth / 2 + 3, -btnHeight / 2 + 4, btnWidth, btnHeight, 15);
 
     const nextBtnBg = this.add.graphics();
     nextBtnBg.fillStyle(0x16a34a, 1);
-    nextBtnBg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
+    nextBtnBg.fillRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
     nextBtnBg.lineStyle(4, 0xffffff, 0.3);
-    nextBtnBg.strokeRoundedRect(-btnWidth/2 + 2, -btnHeight/2 + 2, btnWidth - 4, btnHeight - 4, 13);
+    nextBtnBg.strokeRoundedRect(-btnWidth / 2 + 2, -btnHeight / 2 + 2, btnWidth - 4, btnHeight - 4, 13);
     nextBtnBg.lineStyle(3, 0x000000, 1);
-    nextBtnBg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
+    nextBtnBg.strokeRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
 
     this.nextBtnText = this.add.text(0, 0, 'LANJUT ➔', {
       fontFamily: 'Fredoka One, Arial, sans-serif',
@@ -173,11 +182,11 @@ export class Case1BriefingScene extends Phaser.Scene {
       this.input.setDefaultCursor('pointer');
       nextBtnBg.clear();
       nextBtnBg.fillStyle(0x22c55e, 1);
-      nextBtnBg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
+      nextBtnBg.fillRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
       nextBtnBg.lineStyle(4, 0xffffff, 0.5);
-      nextBtnBg.strokeRoundedRect(-btnWidth/2 + 2, -btnHeight/2 + 2, btnWidth - 4, btnHeight - 4, 13);
+      nextBtnBg.strokeRoundedRect(-btnWidth / 2 + 2, -btnHeight / 2 + 2, btnWidth - 4, btnHeight - 4, 13);
       nextBtnBg.lineStyle(3, 0x000000, 1);
-      nextBtnBg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
+      nextBtnBg.strokeRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
       this.nextBtnContainer.y = nextBtnY - 2;
       shadow.y = 2;
     });
@@ -187,11 +196,11 @@ export class Case1BriefingScene extends Phaser.Scene {
       this.input.setDefaultCursor('default');
       nextBtnBg.clear();
       nextBtnBg.fillStyle(0x16a34a, 1);
-      nextBtnBg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
+      nextBtnBg.fillRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
       nextBtnBg.lineStyle(4, 0xffffff, 0.3);
-      nextBtnBg.strokeRoundedRect(-btnWidth/2 + 2, -btnHeight/2 + 2, btnWidth - 4, btnHeight - 4, 13);
+      nextBtnBg.strokeRoundedRect(-btnWidth / 2 + 2, -btnHeight / 2 + 2, btnWidth - 4, btnHeight - 4, 13);
       nextBtnBg.lineStyle(3, 0x000000, 1);
-      nextBtnBg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
+      nextBtnBg.strokeRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
       this.nextBtnContainer.y = nextBtnY;
       shadow.y = 0;
     });
@@ -233,18 +242,26 @@ export class Case1BriefingScene extends Phaser.Scene {
       // Update teacher texture
       this.teacher.setTexture(currentDialog.teacherKey);
 
+      // Update player texture
+      const gender = this.registry.get('playerGender') || 'boy';
+      if (currentDialog.playerKey) {
+        this.player.setTexture(currentDialog.playerKey[gender]);
+      } else {
+        this.player.setTexture(gender === 'boy' ? 'boy_idle' : 'girl_idle');
+      }
+
       nText.text = currentDialog.speaker;
       nBg.clear();
       nBg.fillStyle(currentDialog.color, 1);
 
       if (isTeacher) {
-        nBg.fillRoundedRect(-dWidth/2 + 30, -dHeight/2 - 25, 200, 50, 10);
-        nText.x = -dWidth/2 + 130;
+        nBg.fillRoundedRect(-dWidth / 2 + 30, -dHeight / 2 - 25, 200, 50, 10);
+        nText.x = -dWidth / 2 + 130;
         this.tweens.add({ targets: this.teacher, scale: this.teacherMaxScale * currentDialog.teacherScale, alpha: 1, duration: 300 });
         this.tweens.add({ targets: this.player, scale: this.playerMaxScale * 0.9, alpha: 0.6, duration: 300 });
       } else {
-        nBg.fillRoundedRect(dWidth/2 - 230, -dHeight/2 - 25, 200, 50, 10);
-        nText.x = dWidth/2 - 130;
+        nBg.fillRoundedRect(dWidth / 2 - 230, -dHeight / 2 - 25, 200, 50, 10);
+        nText.x = dWidth / 2 - 130;
         this.tweens.add({ targets: this.player, scale: this.playerMaxScale, alpha: 1, duration: 300 });
         this.tweens.add({ targets: this.teacher, scale: this.teacherMaxScale * 0.9, alpha: 0.6, duration: 300 });
       }
@@ -277,17 +294,17 @@ export class Case1BriefingScene extends Phaser.Scene {
   private showCharactersAndDialog() {
     this.tweens.add({
       targets: this.teacher,
-      y: this.cameras.main.height,
-      duration: 600,
-      ease: 'Back.easeOut'
+      alpha: 1,
+      duration: 800,
+      ease: 'Power2'
     });
 
     this.tweens.add({
       targets: this.player,
-      y: this.cameras.main.height + 150,
-      duration: 600,
-      delay: 200,
-      ease: 'Back.easeOut',
+      alpha: 0.6,
+      duration: 800,
+      delay: 300,
+      ease: 'Power2',
       onComplete: () => {
         this.dialogContainer.y += 50;
         this.tweens.add({
@@ -303,7 +320,7 @@ export class Case1BriefingScene extends Phaser.Scene {
             const nBg = this.registry.get('c1b_nBg');
             const nText = this.registry.get('c1b_nText');
             this.startTyping(dialogues, dWidth, dHeight, nBg, nText);
-            
+
             // Show next btn
             this.time.delayedCall(dialogues[0].text.length * 30 + 500, () => {
               this.tweens.add({ targets: this.nextBtnContainer, alpha: 1, duration: 300 });

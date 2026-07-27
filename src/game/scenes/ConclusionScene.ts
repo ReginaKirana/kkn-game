@@ -94,7 +94,7 @@ export class ConclusionScene extends Phaser.Scene {
     const clueData = [
       { img: 'clue_botol', text: 'Botol plastik dibuang sembarangan di halaman.' },
       { img: 'clue_pisang', text: 'Kulit pisang dibiarkan begitu saja.' },
-      { img: 'clue_daun', text: 'Daun yang gugur dari pohon hanya sedikit.' },
+      { img: 'clue_daun', text: 'Daun gugur itu alami dan bisa menyatu dengan tanah.' },
       { img: 'clue_bin', text: 'Tempat sampah hijau & kuning KOSONG!' }
     ];
 

@@ -32,44 +32,41 @@ export class SolutionScene extends Phaser.Scene {
     this.add.rectangle(0, 0, width, height, 0x000000, 0.6).setOrigin(0, 0);
 
     // 3. Teacher Character
-    // Geser guru sedikit ke kiri (0.2) agar ada ruang untuk murid
     const teacher = this.add.image(width * 0.2, height, 'teacher_thumbup').setOrigin(0.5, 1);
-    // Skalakan proporsional
-    const teacherMaxHeight = height * 0.85;
+    const teacherMaxHeight = height * 0.82;
     const teacherMaxScale = teacherMaxHeight / teacher.height;
     teacher.setScale(teacherMaxScale);
-    // Balik gambar guru secara horizontal (flip X)
     teacher.setFlipX(true);
+    teacher.setAlpha(0);
+    teacher.y = height;
     
-    // Animasi masuk guru dari bawah
-    teacher.y = height + 300;
+    // Animasi fade in guru
     this.tweens.add({
       targets: teacher,
-      y: height,
-      duration: 600,
-      ease: 'Back.easeOut'
+      alpha: 1,
+      duration: 800,
+      ease: 'Power2'
     });
 
     // 4. Player Character (Murid)
     const gender = this.registry.get('playerGender') || 'boy';
     const playerAsset = gender === 'boy' ? 'boy_idle' : 'girl_idle';
     
-    // Tempatkan murid di sisi kanan (0.8)
     const player = this.add.image(width * 0.8, height, playerAsset).setOrigin(0.5, 1);
-    const playerMaxHeight = height * 0.9; // Perbesar ukuran murid
+    const playerMaxHeight = height * 0.97; 
     const playerMaxScale = playerMaxHeight / player.height;
-    player.setScale(playerMaxScale);
-    // Murid menghadap ke kiri (menatap guru)
+    player.setScale(playerMaxScale * 0.9);
     player.setFlipX(false);
+    player.setAlpha(0);
+    player.y = height + 150;
 
-    // Animasi masuk murid (muncul bersamaan dengan guru)
-    player.y = height + 300;
+    // Animasi fade in murid
     this.tweens.add({
       targets: player,
-      y: height,
-      duration: 600,
-      delay: 200, // Muncul sedikit setelah guru
-      ease: 'Back.easeOut'
+      alpha: 0.6,
+      duration: 800,
+      delay: 300, // Muncul sedikit setelah guru
+      ease: 'Power2'
     });
 
     // 4. Kotak Dialog (Gaming Style)
