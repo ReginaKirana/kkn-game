@@ -16,6 +16,7 @@ import surprisedTeacher from '../../assets/characters/teachers/suprised.png';
 import thinkingTeacher from '../../assets/characters/teachers/thinking.png';
 import boyIdle from '../../assets/characters/boy/boy-idle.png';
 import girlIdle from '../../assets/characters/girl/girl-idle.png';
+import { createBackButton } from '../utils/UIUtils';
 import boyBingung from '../../assets/characters/boy/boy-bingung.png';
 import boySurprised from '../../assets/characters/boy/boy-supprised.png';
 import girlBingung from '../../assets/characters/girl/girl-bingung.png';
@@ -128,6 +129,10 @@ export class Case3BriefingScene extends Phaser.Scene {
         duration: 800
       });
       this.showCharactersAndDialog();
+    });
+
+    createBackButton(this, 70, 70, () => {
+      this.scene.start('CaseSelectScene', { case3Unlocked: true });
     });
   }
 

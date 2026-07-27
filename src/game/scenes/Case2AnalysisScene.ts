@@ -6,6 +6,7 @@ import surprisedTeacher from '../../assets/characters/teachers/suprised.png';
 import smileTeacher from '../../assets/characters/teachers/smile.png';
 import boyIdle from '../../assets/characters/boy/boy-idle.png';
 import girlIdle from '../../assets/characters/girl/girl-idle.png';
+import { createBackButton } from '../utils/UIUtils';
 
 export class Case2AnalysisScene extends Phaser.Scene {
   private teacher!: Phaser.GameObjects.Image;
@@ -132,6 +133,10 @@ export class Case2AnalysisScene extends Phaser.Scene {
 
     this.createDialogUI(width, height);
     this.createOptionsUI(width, height);
+
+    createBackButton(this, 70, 70, () => {
+      this.scene.start('CaseSelectScene', { case2Unlocked: true });
+    });
   }
 
   private createDialogUI(width: number, height: number) {

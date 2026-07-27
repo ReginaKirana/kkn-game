@@ -1,6 +1,7 @@
 import * as Phaser from 'phaser';
 
 import selokanBg from '../../assets/backgrounds/selokan-tinngi.png';
+import { createBackButton } from '../utils/UIUtils';
 import selokanTransisi1 from '../../assets/backgrounds/selokan-transisi1.png';
 import selokanTransisi3 from '../../assets/backgrounds/selokan-transisi3.png';
 import selokanFinal from '../../assets/backgrounds/selokan-final.png';
@@ -211,6 +212,10 @@ export class Case3CleanUpScene extends Phaser.Scene {
           });
         });
       }
+    });
+
+    createBackButton(this, 70, 70, () => {
+      this.scene.start('CaseSelectScene', { case3Unlocked: true });
     });
   }
 

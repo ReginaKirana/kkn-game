@@ -9,6 +9,8 @@ import daunImg from '../../assets/objects/daun.png';
 import kalengImg from '../../assets/objects/kaleng.png';
 import kertasImg from '../../assets/objects/kertas.png';
 import pisangImg from '../../assets/objects/pisang.png';
+import binOranyeImg from '../../assets/objects/bin-oranye.png';
+import { createBackButton } from '../utils/UIUtils';
 import teacherThumbUp from '../../assets/characters/teachers/thumb-up.png';
 
 export class Case2SortScene extends Phaser.Scene {
@@ -304,6 +306,10 @@ export class Case2SortScene extends Phaser.Scene {
           ease: 'Power2'
         });
       }
+    });
+
+    createBackButton(this, 70, 70, () => {
+      this.scene.start('CaseSelectScene', { case2Unlocked: true });
     });
   }
 

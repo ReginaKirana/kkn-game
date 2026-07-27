@@ -7,6 +7,7 @@ import smileTeacher from '../../assets/characters/teachers/smile.png';
 import thinkingTeacher from '../../assets/characters/teachers/thinking.png';
 import boyIdle from '../../assets/characters/boy/boy-idle.png';
 import girlIdle from '../../assets/characters/girl/girl-idle.png';
+import { createBackButton } from '../utils/UIUtils';
 import boyBingung from '../../assets/characters/boy/boy-bingung.png';
 import boySurprised from '../../assets/characters/boy/boy-supprised.png';
 import girlBingung from '../../assets/characters/girl/girl-bingung.png';
@@ -140,6 +141,10 @@ export class Case3AnalysisScene extends Phaser.Scene {
 
     this.createDialogUI(width, height);
     this.createOptionsUI(width, height);
+
+    createBackButton(this, 70, 70, () => {
+      this.scene.start('CaseSelectScene', { case3Unlocked: true });
+    });
   }
 
   private createDialogUI(width: number, height: number) {

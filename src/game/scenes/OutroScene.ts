@@ -68,8 +68,8 @@ export class OutroScene extends Phaser.Scene {
     }
     
     // Sistem Skor: Menggunakan Eco Points yang dikumpulkan selama permainan
-    // Default 100 jika bermain dari pertengahan tanpa melalui awal
-    const score = this.registry.get('ecoPoints') || 100;
+    // Default 1000 jika bermain dari pertengahan tanpa melalui awal
+    const score = this.registry.get('ecoPoints') || 1000;
 
     try {
       const { error } = await supabase
@@ -266,7 +266,7 @@ export class OutroScene extends Phaser.Scene {
           ease: 'Back.easeOut'
         });
 
-        const scoreText = this.add.text(width / 2, height / 2 + 100, `Total Eco Points: ${this.registry.get('ecoPoints') || 100}`, {
+        const scoreText = this.add.text(width / 2, height / 2 + 100, `Total Eco Points: ${this.registry.get('ecoPoints') || 1000}`, {
           fontFamily: 'Fredoka One, Arial, sans-serif',
           fontSize: '48px',
           color: '#4ade80',
