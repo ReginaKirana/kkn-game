@@ -7,6 +7,9 @@ import smileTeacher from '../../assets/characters/teachers/smile.png';
 import thinkingTeacher from '../../assets/characters/teachers/thinking.png';
 import boyIdle from '../../assets/characters/boy/boy-idle.png';
 import girlIdle from '../../assets/characters/girl/girl-idle.png';
+import boyBingung from '../../assets/characters/boy/boy-bingung.png';
+import boySurprised from '../../assets/characters/boy/boy-supprised.png';
+import girlBingung from '../../assets/characters/girl/girl-bingung.png';
 
 export class Case3AnalysisScene extends Phaser.Scene {
   private teacher!: Phaser.GameObjects.Image;
@@ -37,6 +40,9 @@ export class Case3AnalysisScene extends Phaser.Scene {
     this.load.image('teacher_thinking', thinkingTeacher);
     this.load.image('boy_idle', boyIdle);
     this.load.image('girl_idle', girlIdle);
+    this.load.image('boy_bingung', boyBingung);
+    this.load.image('boy_surprised', boySurprised);
+    this.load.image('girl_bingung', girlBingung);
   }
 
   create() {
@@ -53,23 +59,22 @@ export class Case3AnalysisScene extends Phaser.Scene {
     this.tweens.add({ targets: overlay, alpha: 0.7, duration: 600 });
 
     // Teacher Character
-    this.teacher = this.add.image(width * 0.2, height, 'teacher_thinking').setOrigin(0.5, 1);
+    this.teacher = this.add.image(width * 0.2, height + 80, 'teacher_thinking').setOrigin(0.5, 1);
     this.teacher.setFlipX(true);
-    const teacherMaxHeight = height * 0.85;
+    const teacherMaxHeight = height * 0.82;
     this.teacherMaxScale = teacherMaxHeight / this.teacher.height;
     this.teacher.setScale(this.teacherMaxScale);
-    this.teacher.y = height + 300;
+    this.teacher.setAlpha(0);
 
     // Player Character
     const gender = this.registry.get('playerGender') || 'boy';
     const playerAsset = gender === 'boy' ? 'boy_idle' : 'girl_idle';
-    this.player = this.add.image(width * 0.8, height, playerAsset).setOrigin(0.5, 1);
-    const playerMaxHeight = height * 0.9;
+    this.player = this.add.image(width * 0.8, height + 180, playerAsset).setOrigin(0.5, 1);
+    const playerMaxHeight = height * 0.97;
     this.playerMaxScale = playerMaxHeight / this.player.height;
-    this.player.setScale(this.playerMaxScale * 0.9); // Starts listening
+    this.player.setScale(this.playerMaxScale); 
     this.player.setFlipX(false);
-    this.player.setAlpha(0.6); // Listening state
-    this.player.y = height + 300;
+    this.player.setAlpha(0); 
 
     const playerName = this.registry.get('playerName') || 'Detektif';
 
@@ -79,6 +84,7 @@ export class Case3AnalysisScene extends Phaser.Scene {
         text: "Berdasarkan petunjuk yang kamu temukan, mengapa kita tidak boleh membuang sampah ke selokan?",
         color: 0x3b82f6,
         teacherKey: 'teacher_thinking',
+        playerKey: 'boy_idle',
         teacherScale: 1.0,
         showOptions: true
       },
@@ -86,7 +92,8 @@ export class Case3AnalysisScene extends Phaser.Scene {
         speaker: playerName,
         text: "Tentu saja agar aliran air tidak tersumbat dan menyebabkan banjir, Bu!",
         color: 0x16a34a,
-        teacherKey: 'teacher_smile',
+        teacherKey: 'teacher_thinking',
+        playerKey: 'boy_idle',
         teacherScale: 1.0
       },
       {
@@ -94,6 +101,7 @@ export class Case3AnalysisScene extends Phaser.Scene {
         text: "Benar sekali! Sampah yang menumpuk di selokan dapat menghambat aliran air dan bahkan menyebabkan banjir parah.",
         color: 0x3b82f6,
         teacherKey: 'teacher_thumbup',
+        playerKey: 'boy_idle',
         teacherScale: 1.0,
         isEnd: true
       }
@@ -102,14 +110,15 @@ export class Case3AnalysisScene extends Phaser.Scene {
     this.registry.set('c3a_dialogs', dialogs);
 
     // Animasi masuk karakter
-    this.tweens.add({ targets: this.teacher, y: height, duration: 600, ease: 'Back.easeOut' });
-    this.tweens.add({
-      targets: this.player,
-      y: height,
-      duration: 600,
-      delay: 200,
-      ease: 'Back.easeOut',
-      onComplete: () => {
+    this.time.delayedCall(500, () => {
+      this.tweens.add({ targets: this.teacher, alpha: 1, duration: 800, ease: 'Power2' });
+      this.tweens.add({
+        targets: this.player,
+        scale: this.playerMaxScale * 0.9,
+        alpha: 0.6,
+        duration: 800,
+        ease: 'Power2',
+        onComplete: () => {
         this.dialogContainer.y += 50;
         this.tweens.add({
           targets: this.dialogContainer,
@@ -126,6 +135,7 @@ export class Case3AnalysisScene extends Phaser.Scene {
           }
         });
       }
+    });
     });
 
     this.createDialogUI(width, height);
@@ -267,6 +277,22 @@ export class Case3AnalysisScene extends Phaser.Scene {
       const isTeacher = currentDialog.speaker === 'Ibu Guru';
 
       this.teacher.setTexture(currentDialog.teacherKey);
+      const teacherMaxHeight = this.cameras.main.height * 0.82;
+      this.teacherMaxScale = teacherMaxHeight / this.teacher.height;
+
+      // Update player texture
+      if (currentDialog.playerKey) {
+        let actualKey = currentDialog.playerKey;
+        const gender = this.registry.get('playerGender') || 'boy';
+        if (gender === 'girl') {
+           if (actualKey === 'boy_bingung') actualKey = 'girl_bingung';
+           if (actualKey === 'boy_surprised') actualKey = 'girl_bingung'; // fallback
+           if (actualKey === 'boy_idle') actualKey = 'girl_idle';
+        }
+        this.player.setTexture(actualKey);
+        const playerMaxHeight = this.cameras.main.height * 0.97;
+        this.playerMaxScale = playerMaxHeight / this.player.height;
+      }
 
       nText.text = currentDialog.speaker;
       nBg.clear();
@@ -275,7 +301,7 @@ export class Case3AnalysisScene extends Phaser.Scene {
       if (isTeacher) {
         nBg.fillRoundedRect(-dWidth/2 + 30, -dHeight/2 - 25, 200, 50, 10);
         nText.x = -dWidth/2 + 130;
-        this.tweens.add({ targets: this.teacher, scale: this.teacherMaxScale * currentDialog.teacherScale, alpha: 1, duration: 300 });
+        this.tweens.add({ targets: this.teacher, scale: this.teacherMaxScale, alpha: 1, duration: 300 });
         this.tweens.add({ targets: this.player, scale: this.playerMaxScale * 0.9, alpha: 0.6, duration: 300 });
       } else {
         nBg.fillRoundedRect(dWidth/2 - 230, -dHeight/2 - 25, 200, 50, 10);

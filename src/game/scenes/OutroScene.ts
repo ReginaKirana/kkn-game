@@ -106,17 +106,30 @@ export class OutroScene extends Phaser.Scene {
       duration: 800,
       onComplete: () => {
         // Munculkan Guru
-        this.teacher = this.add.image(width * 0.25, height + 200, 'teacher_thumbup').setOrigin(0.5, 1);
+        this.teacher = this.add.image(width * 0.2, height + 80, 'teacher_thumbup').setOrigin(0.5, 1);
         this.teacher.setFlipX(true);
+        const teacherMaxHeight = height * 0.82;
+        this.teacher.setScale(teacherMaxHeight / this.teacher.height);
+        this.teacher.setAlpha(0);
 
         this.tweens.add({
           targets: this.teacher,
-          y: height,
-          duration: 600,
-          ease: 'Back.easeOut',
+          alpha: 1,
+          duration: 800,
+          ease: 'Power2',
           onComplete: () => {
             this.createDialogUI(width, height);
-            this.startTyping();
+            this.dialogContainer.y += 50;
+            this.tweens.add({
+              targets: this.dialogContainer,
+              alpha: 1,
+              y: height - 150,
+              duration: 400,
+              ease: 'Power2',
+              onComplete: () => {
+                this.startTyping();
+              }
+            });
           }
         });
       }
@@ -125,6 +138,8 @@ export class OutroScene extends Phaser.Scene {
 
   private createDialogUI(width: number, height: number) {
     this.dialogContainer = this.add.container(width / 2, height - 150);
+    this.dialogContainer.setAlpha(0);
+    this.dialogContainer.setDepth(30);
     
     const dialogWidth = width * 0.8;
     const dialogHeight = 220;
@@ -177,7 +192,7 @@ export class OutroScene extends Phaser.Scene {
     const dialogData = this.dialogs[this.currentDialogIndex];
     
     this.teacher.setTexture(dialogData.teacherKey);
-    const teacherMaxHeight = this.cameras.main.height * 0.85;
+    const teacherMaxHeight = this.cameras.main.height * 0.82;
     this.teacher.setScale((teacherMaxHeight / this.teacher.height) * (dialogData.teacherScale || 1));
 
     if (dialogData.textSize) {
