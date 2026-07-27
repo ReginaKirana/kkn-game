@@ -139,6 +139,24 @@ export class Case3CleanUpScene extends Phaser.Scene {
       img.on('pointerdown', () => {
         img.disableInteractive();
 
+        // Add Eco Points
+        let currentEp = this.registry.get('ecoPoints') || 100;
+        this.registry.set('ecoPoints', currentEp + 5);
+
+        // Floating +5 EP text
+        const bonusText = this.add.text(img.x, img.y - 40, '+5 EP', { 
+          fontSize: '28px', color: '#4ade80', fontStyle: 'bold', stroke: '#000000', strokeThickness: 4 
+        }).setOrigin(0.5).setDepth(20);
+
+        this.tweens.add({
+          targets: bonusText,
+          y: '-=50',
+          alpha: 0,
+          duration: 1000,
+          ease: 'Power2',
+          onComplete: () => bonusText.destroy()
+        });
+
         this.tweens.add({
           targets: img,
           scale: 0,
