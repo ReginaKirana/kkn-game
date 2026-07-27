@@ -214,11 +214,11 @@ export class CleanUpScene extends Phaser.Scene {
       gameObject.disableInteractive();
 
       // Add Eco Points
-      let currentEp = this.registry.get('ecoPoints') || 100;
-      this.registry.set('ecoPoints', currentEp + 5);
+      let currentEp = this.registry.get('ecoPoints') || 1000;
+      this.registry.set('ecoPoints', currentEp + 100);
 
-      // Floating +5 EP text
-      const bonusText = this.add.text(gameObject.x, gameObject.y - 40, '+5 EP', { 
+      // Floating +100 EP text
+      const bonusText = this.add.text(gameObject.x, gameObject.y - 40, '+100 EP', { 
         fontSize: '28px', color: '#4ade80', fontStyle: 'bold', stroke: '#000000', strokeThickness: 4 
       }).setOrigin(0.5).setDepth(20);
 
