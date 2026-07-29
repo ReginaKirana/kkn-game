@@ -16,6 +16,11 @@ import rantingImg from '../../assets/objects/ranting.png';
 import selokanBg from '../../assets/backgrounds/selokan-tinngi.png';
 import { Case3TrashConfig } from '../config/Case3TrashConfig';
 import { createBackButton } from '../utils/UIUtils';
+import case1ModalVoiceUrl from '../../assets/audio/case1-modal-investigasi.wav';
+import dingModalUrl from '../../assets/audio/case1/ding-modal.wav';
+import investigationBgUrl from '../../assets/audio/case1/investigation-bg.mp3';
+import btnClickUrl from '../../assets/audio/button_click.mp3';
+import collectUrl from '../../assets/audio/case1/investigation-collect.wav';
 
 export class InvestigationScene extends Phaser.Scene {
   private cluesFound: number = 0;
@@ -24,6 +29,8 @@ export class InvestigationScene extends Phaser.Scene {
   private caseId!: string;
   private binBg!: Phaser.GameObjects.Image;
   private instructionBanner!: Phaser.GameObjects.Container;
+  private bannerText!: Phaser.GameObjects.Text;
+  private bgMusic!: Phaser.Sound.BaseSound;
 
   constructor() {
     super('InvestigationScene');
@@ -33,6 +40,11 @@ export class InvestigationScene extends Phaser.Scene {
     this.load.image('halaman_kotor_bg', halamanKotorBg);
     this.load.image('bin_kosong_bg', binKosongBg);
     this.load.image('case1_game_bg', case1GameBg);
+    this.load.audio('case1_modal_voice', case1ModalVoiceUrl);
+    this.load.audio('ding_modal', dingModalUrl);
+    this.load.audio('investigation_bgm', investigationBgUrl);
+    this.load.audio('btn_click', btnClickUrl);
+    this.load.audio('collect_sfx', collectUrl);
     this.load.image('botol', botolImg);
     this.load.image('pisang', pisangImg);
     this.load.image('kaleng', kalengImg);
@@ -61,6 +73,9 @@ export class InvestigationScene extends Phaser.Scene {
     let clues: any[] = [];
 
     if (this.caseId === 'kasus_halaman') {
+      this.bgMusic = this.sound.add('investigation_bgm', { loop: true, volume: 0.4 });
+      this.bgMusic.play();
+
       clues = [
         { id: 'botol', x: width * 0.47, y: height * 0.52, text: 'Botol plastik ini dibuang di halaman,\nbukan di tempat sampah.', hasPov: false },
         { id: 'pisang', x: width * 0.28, y: height * 0.8, text: 'Kulit pisang ini dibiarkan\nbegitu saja di halaman.', hasPov: false },
@@ -143,14 +158,14 @@ export class InvestigationScene extends Phaser.Scene {
     instructionBg.lineStyle(4, 0x3b82f6, 1);
     instructionBg.strokeRoundedRect(-bannerWidth/2, -bannerHeight/2, bannerWidth, bannerHeight, 15);
 
-    const bannerText = this.add.text(0, 0, instructionText, {
+    this.bannerText = this.add.text(0, 0, `Bukti Ditemukan: 0 / ${this.totalClues}`, {
       fontFamily: 'Fredoka One, Arial, sans-serif',
       fontSize: '24px',
       color: '#ffffff',
       fontStyle: 'bold'
     }).setOrigin(0.5);
 
-    this.instructionBanner.add([instructionBg, bannerText]);
+    this.instructionBanner.add([instructionBg, this.bannerText]);
 
     clues.forEach(clue => {
       this.createClueMarker(clue.x, clue.y, clue.text, clue.hasPov, clue.asset, clue.maxDim);
@@ -169,6 +184,12 @@ export class InvestigationScene extends Phaser.Scene {
     this.createNextButton(width, height);
 
     this.playIntroSequence(instructionText);
+
+    this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
+      if (this.bgMusic) {
+        this.bgMusic.stop();
+      }
+    });
 
     createBackButton(this, 70, 70, () => {
       this.scene.start('CaseSelectScene');
@@ -196,8 +217,8 @@ export class InvestigationScene extends Phaser.Scene {
     boxBg.lineStyle(6, 0x3b82f6, 1);
     boxBg.strokeRoundedRect(-boxWidth/2, -boxHeight/2, boxWidth, boxHeight, 20);
 
-    // Text starts empty for typewriter effect
-    const text = this.add.text(0, 0, '', {
+    // Text "Quest dimulai!"
+    const text = this.add.text(0, 0, `🎉 Temukan ${this.totalClues} Bukti! 🎉`, {
       fontFamily: 'Fredoka One, Arial, sans-serif',
       fontSize: '36px',
       color: '#ffffff',
@@ -208,47 +229,49 @@ export class InvestigationScene extends Phaser.Scene {
 
     boxContainer.add([boxBg, text]);
 
-    // Animation sequence: 1. Pop in box
+    // 1. Fade in overlay
+    overlay.setAlpha(0);
     this.tweens.add({
-      targets: boxContainer,
-      scale: 1,
-      duration: 500,
-      ease: 'Back.easeOut',
+      targets: overlay,
+      alpha: 1,
+      duration: 150,
       onComplete: () => {
-        
-        // 2. Typewriter effect
-        let charIndex = 0;
-        const typeTimer = this.time.addEvent({
-          delay: 50,
-          repeat: instructionText.length - 1,
-          callback: () => {
-            text.setText(text.text + instructionText[charIndex]);
-            charIndex++;
+        // 2. Pop-in Modal (Scale Bounce)
+        if (this.caseId === 'kasus_halaman') {
+          this.sound.play('case1_modal_voice');
+        }
+        boxContainer.setScale(0.8);
+        this.tweens.add({
+          targets: boxContainer,
+          scale: 1,
+          duration: 400,
+          ease: 'Back.easeOut',
+          onComplete: () => {
+            // 3. Jeda sejenak, lalu fade out
+            this.time.delayedCall(2000, () => {
+              this.sound.play('ding_modal');
+              this.tweens.add({
+                targets: [boxContainer, overlay],
+                alpha: 0,
+                duration: 500,
+                onComplete: () => {
+                  boxContainer.destroy();
+                  overlay.destroy();
+                  
+                  // 4. Fade in the top banner
+                  if (this.instructionBanner) {
+                    this.tweens.add({
+                      targets: this.instructionBanner,
+                      alpha: 1,
+                      y: '+=10',
+                      duration: 500,
+                      ease: 'Sine.easeOut'
+                    });
+                  }
+                }
+              });
+            });
           }
-        });
-
-        // 3. Wait after typing finishes, then fade out
-        this.time.delayedCall(50 * instructionText.length + 1000, () => {
-          this.tweens.add({
-            targets: [boxContainer, overlay],
-            alpha: 0,
-            duration: 500,
-            onComplete: () => {
-              boxContainer.destroy();
-              overlay.destroy();
-              
-              // 4. Fade in the top banner
-              if (this.instructionBanner) {
-                this.tweens.add({
-                  targets: this.instructionBanner,
-                  alpha: 1,
-                  y: '+=10',
-                  duration: 500,
-                  ease: 'Sine.easeOut'
-                });
-              }
-            }
-          });
         });
       }
     });
@@ -343,6 +366,7 @@ export class InvestigationScene extends Phaser.Scene {
 
     container.on('pointerdown', () => {
       this.input.setDefaultCursor('default');
+      this.sound.play('collect_sfx');
       
       const onClueShown = () => {
         this.showDialog(text, hasPov);
@@ -364,6 +388,9 @@ export class InvestigationScene extends Phaser.Scene {
           ring.setVisible(false); // Matikan denyut cahaya
           
           if (this.cluesFound >= this.totalClues) {
+            this.bannerText.text = '✨ Investigasi Selesai! ✨';
+            this.bannerText.setColor('#4ade80'); // Green color for success
+            
             this.nextBtn.setVisible(true);
             this.tweens.add({
               targets: this.nextBtn,
@@ -372,6 +399,8 @@ export class InvestigationScene extends Phaser.Scene {
               duration: 500,
               ease: 'Back.easeOut'
             });
+          } else {
+            this.bannerText.text = `Bukti Ditemukan: ${this.cluesFound} / ${this.totalClues}`;
           }
         }
       };
@@ -507,6 +536,7 @@ export class InvestigationScene extends Phaser.Scene {
       if (isClosing) return;
       isClosing = true;
       this.input.setDefaultCursor('default');
+      this.sound.play('btn_click');
       
       closeBtn.y = closeBtnY + 4;
       shadow.y = -4;
