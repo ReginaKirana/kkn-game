@@ -8,6 +8,9 @@ import boyIdle from '../../assets/characters/boy/boy-idle.png';
 import boySupprised from '../../assets/characters/boy/boy-supprised.png';
 import girlIdle from '../../assets/characters/girl/girl-idle.png';
 import girlBingung from '../../assets/characters/girl/girl-bingung.png';
+import caseBriefingUrl from '../../assets/audio/case-briefing.mp3';
+import typingAudioUrl from '../../assets/audio/keyboard-typing.wav';
+import btnClickUrl from '../../assets/audio/button_click.mp3';
 
 export class Case1BriefingScene extends Phaser.Scene {
   private bg1!: Phaser.GameObjects.Image;
@@ -23,6 +26,8 @@ export class Case1BriefingScene extends Phaser.Scene {
   private currentDialogIndex = 0;
   private isTyping = false;
   private isClicking = false;
+  private bgMusic!: Phaser.Sound.BaseSound;
+  private typingSound!: Phaser.Sound.BaseSound;
 
   private teacherMaxScale = 1;
   private playerMaxScale = 1;
@@ -39,6 +44,9 @@ export class Case1BriefingScene extends Phaser.Scene {
     this.load.image('boy_supprised', boySupprised);
     this.load.image('girl_idle', girlIdle);
     this.load.image('girl_bingung', girlBingung);
+    this.load.audio('case_briefing_bgm', caseBriefingUrl);
+    this.load.audio('typing_sfx', typingAudioUrl);
+    this.load.audio('btn_click', btnClickUrl);
   }
 
   create() {
@@ -78,6 +86,19 @@ export class Case1BriefingScene extends Phaser.Scene {
     this.createDialogUI(width, height);
 
     // Start Sequence
+    this.bgMusic = this.sound.add('case_briefing_bgm', { loop: true, volume: 0.3 });
+    this.bgMusic.play();
+    this.typingSound = this.sound.add('typing_sfx', { loop: true, volume: 1 });
+
+    this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
+      if (this.bgMusic) {
+        this.bgMusic.stop();
+      }
+      if (this.typingSound) {
+        this.typingSound.stop();
+      }
+    });
+
     this.time.delayedCall(1000, () => {
       this.tweens.add({
         targets: this.overlay,
@@ -88,6 +109,7 @@ export class Case1BriefingScene extends Phaser.Scene {
     });
 
     createBackButton(this, 70, 70, () => {
+      this.sound.play('btn_click');
       this.scene.start('CaseSelectScene');
     });
   }
@@ -212,10 +234,12 @@ export class Case1BriefingScene extends Phaser.Scene {
 
     this.nextBtnContainer.on('pointerdown', () => {
       this.input.setDefaultCursor('default');
+      this.sound.play('btn_click');
       if (this.isTyping) {
         if (this.typeWriterEvent) this.typeWriterEvent.remove();
         this.textObj.text = dialogues[this.currentDialogIndex].text;
         this.isTyping = false;
+        if (this.typingSound) this.typingSound.stop();
       } else {
         if (this.currentDialogIndex < dialogues.length - 1) {
           this.currentDialogIndex++;
@@ -271,6 +295,10 @@ export class Case1BriefingScene extends Phaser.Scene {
         this.tweens.add({ targets: this.teacher, scale: this.teacherMaxScale * 0.9, alpha: 0.6, duration: 300 });
       }
 
+      if (this.typingSound && !this.typingSound.isPlaying) {
+        this.typingSound.play();
+      }
+
       let charIndex = 0;
       this.typeWriterEvent = this.time.addEvent({
         delay: 30,
@@ -280,6 +308,7 @@ export class Case1BriefingScene extends Phaser.Scene {
           charIndex++;
           if (charIndex === currentDialog.text.length) {
             this.isTyping = false;
+            if (this.typingSound) this.typingSound.stop();
           }
         }
       });
