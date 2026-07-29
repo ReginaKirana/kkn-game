@@ -4,6 +4,8 @@ import papanKasus2Bg from '../../assets/backgrounds/papan-kasus2.png';
 import papanKasus3Bg from '../../assets/backgrounds/papan-kasus3.png';
 import btnClickUrl from '../../assets/audio/button_click.mp3';
 import investigasiUrl from '../../assets/audio/investigasi.mp3';
+import padlockOpenUrl from '../../assets/audio/padlock-open.wav';
+import levelUpUrl from '../../assets/audio/level-up.mp3';
 
 export class CaseSelectScene extends Phaser.Scene {
   private bgMusic!: Phaser.Sound.BaseSound;
@@ -17,6 +19,8 @@ export class CaseSelectScene extends Phaser.Scene {
     this.load.image('papan_kasus3_bg', papanKasus3Bg);
     this.load.audio('btn_click', btnClickUrl);
     this.load.audio('investigasi_bgm', investigasiUrl);
+    this.load.audio('padlock_open', padlockOpenUrl);
+    this.load.audio('level_up', levelUpUrl);
   }
 
   create(data: { unlockCase2?: boolean, unlockCase3?: boolean, case2Unlocked?: boolean, case3Unlocked?: boolean }) {
@@ -123,6 +127,7 @@ export class CaseSelectScene extends Phaser.Scene {
         onComplete: () => {
           lockIcon.setAngle(0);
           lockIcon.text = '🔓';
+          this.sound.play('padlock_open', { volume: 0.8 });
           
           this.tweens.add({
             targets: lockIcon,
@@ -131,6 +136,7 @@ export class CaseSelectScene extends Phaser.Scene {
             duration: 500,
             ease: 'Power2',
             onComplete: () => {
+              this.sound.play('level_up', { volume: 0.8 });
               lockOverlay.destroy();
               oldBtn.destroy();
               this.createCaseButton(x, y, caseId, true, angle);

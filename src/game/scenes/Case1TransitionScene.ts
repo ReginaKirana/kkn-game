@@ -8,6 +8,7 @@ import teacherThumbUp from '../../assets/characters/teachers/thumb-up.png';
 import sparkleSound from '../../assets/audio/case1/sparkle.wav';
 import keyboardTyping from '../../assets/audio/keyboard-typing.wav';
 import finishCase from '../../assets/audio/case1/finish-case.wav';
+import buttonClickUrl from '../../assets/audio/button_click.mp3';
 
 export class Case1TransitionScene extends Phaser.Scene {
   constructor() {
@@ -23,6 +24,7 @@ export class Case1TransitionScene extends Phaser.Scene {
     this.load.audio('sparkle', sparkleSound);
     this.load.audio('keyboard_typing', keyboardTyping);
     this.load.audio('finish_case', finishCase);
+    this.load.audio('button_click', buttonClickUrl);
   }
 
   create(data: { caseId?: string }) {
@@ -284,9 +286,24 @@ export class Case1TransitionScene extends Phaser.Scene {
       if (isClicking) return;
       isClicking = true;
       this.input.setDefaultCursor('default');
+      this.sound.play('button_click', { volume: 0.8 });
       nextBtnContainer.y = nextBtnY + 4;
       shadow.y = -4;
-      setTimeout(() => { this.scene.start('CaseSelectScene', { unlockCase2: true }); }, 150);
+
+      const bgm = this.sound.get('bg_gameplay') as any;
+      if (bgm && bgm.isPlaying) {
+        this.tweens.add({
+          targets: bgm,
+          volume: 0,
+          duration: 500,
+          onComplete: () => {
+            bgm.stop();
+            this.scene.start('CaseSelectScene', { unlockCase2: true });
+          }
+        });
+      } else {
+        setTimeout(() => { this.scene.start('CaseSelectScene', { unlockCase2: true }); }, 500);
+      }
     });
 
     resultContainer.add([bg, title, score, nextBtnContainer]);

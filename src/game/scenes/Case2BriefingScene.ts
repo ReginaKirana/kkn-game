@@ -9,6 +9,11 @@ import thinkingTeacher from '../../assets/characters/teachers/thinking.png';
 import boyIdle from '../../assets/characters/boy/boy-idle.png';
 import girlIdle from '../../assets/characters/girl/girl-idle.png';
 import { createBackButton } from '../utils/UIUtils';
+import investigasiBgmUrl from '../../assets/audio/investigasi.mp3';
+import karakterMunculUrl from '../../assets/audio/sfx/karakter-muncul.wav';
+import keyboardTypingUrl from '../../assets/audio/keyboard-typing.wav';
+import btnClickUrl from '../../assets/audio/button_click.mp3';
+import modalInvestigasiUrl from '../../assets/audio/case1-modal-investigasi.wav';
 
 export class Case2BriefingScene extends Phaser.Scene {
   private bg1!: Phaser.GameObjects.Image;
@@ -25,6 +30,8 @@ export class Case2BriefingScene extends Phaser.Scene {
   private currentDialogIndex = 0;
   private isTyping = false;
   private isClicking = false;
+  private bgMusic!: Phaser.Sound.BaseSound;
+  private typingSound!: Phaser.Sound.BaseSound;
   
   private teacherMaxScale = 1;
   private playerMaxScale = 1;
@@ -41,6 +48,11 @@ export class Case2BriefingScene extends Phaser.Scene {
     this.load.image('teacher_thinking', thinkingTeacher);
     this.load.image('boy_idle', boyIdle);
     this.load.image('girl_idle', girlIdle);
+    this.load.audio('investigasi_bgm', investigasiBgmUrl);
+    this.load.audio('karakter_muncul', karakterMunculUrl);
+    this.load.audio('keyboard_typing', keyboardTypingUrl);
+    this.load.audio('btn_click', btnClickUrl);
+    this.load.audio('modal_investigasi', modalInvestigasiUrl);
   }
 
   create() {
@@ -83,6 +95,15 @@ export class Case2BriefingScene extends Phaser.Scene {
     this.createDialogUI(width, height);
 
     // Start Sequence
+    this.bgMusic = this.sound.add('investigasi_bgm', { loop: true, volume: 0.3 });
+    this.bgMusic.play();
+    this.typingSound = this.sound.add('keyboard_typing', { loop: true, volume: 1 });
+    
+    this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
+      if (this.bgMusic) this.bgMusic.stop();
+      if (this.typingSound) this.typingSound.stop();
+    });
+
     this.time.delayedCall(1000, () => {
       this.tweens.add({
         targets: this.overlay,
@@ -93,6 +114,7 @@ export class Case2BriefingScene extends Phaser.Scene {
     });
 
     createBackButton(this, 70, 70, () => {
+      this.sound.play('btn_click');
       this.scene.start('CaseSelectScene', { case2Unlocked: true });
     });
   }
@@ -216,10 +238,12 @@ export class Case2BriefingScene extends Phaser.Scene {
 
     this.nextBtnContainer.on('pointerdown', () => {
       this.input.setDefaultCursor('default');
+      this.sound.play('btn_click');
       if (this.isTyping) {
         if (this.typeWriterEvent) this.typeWriterEvent.remove();
         this.textObj.text = dialogues[this.currentDialogIndex].text;
         this.isTyping = false;
+        if (this.typingSound) this.typingSound.stop();
       } else {
         if (this.currentDialogIndex < dialogues.length - 1) {
           this.currentDialogIndex++;
@@ -232,9 +256,14 @@ export class Case2BriefingScene extends Phaser.Scene {
           this.isClicking = true;
           this.nextBtnContainer.y = nextBtnY + 4;
           shadow.y = -4;
-          setTimeout(() => {
-            this.scene.start('InvestigationScene', { caseId: 'kasus_sampah' });
-          }, 150);
+          this.tweens.add({
+            targets: [this.dialogContainer, this.teacher, this.player],
+            alpha: 0,
+            duration: 300,
+            onComplete: () => {
+              this.showInvestigationModal();
+            }
+          });
         }
       }
     });
@@ -266,13 +295,19 @@ export class Case2BriefingScene extends Phaser.Scene {
       if (isTeacher) {
         nBg.fillRoundedRect(-dWidth/2 + 30, -dHeight/2 - 25, 200, 50, 10);
         nText.x = -dWidth/2 + 130;
+        this.sound.play('karakter_muncul', { volume: 0.5 });
         this.tweens.add({ targets: this.teacher, scale: this.teacherMaxScale * currentDialog.teacherScale, alpha: 1, duration: 300 });
         this.tweens.add({ targets: this.player, scale: this.playerMaxScale * 0.9, alpha: 0.6, duration: 300 });
       } else {
         nBg.fillRoundedRect(dWidth/2 - 230, -dHeight/2 - 25, 200, 50, 10);
         nText.x = dWidth/2 - 130;
+        this.sound.play('karakter_muncul', { volume: 0.5 });
         this.tweens.add({ targets: this.player, scale: this.playerMaxScale, alpha: 1, duration: 300 });
         this.tweens.add({ targets: this.teacher, scale: this.teacherMaxScale * 0.9, alpha: 0.6, duration: 300 });
+      }
+
+      if (this.typingSound && !this.typingSound.isPlaying) {
+        this.typingSound.play();
       }
 
       let charIndex = 0;
@@ -284,6 +319,7 @@ export class Case2BriefingScene extends Phaser.Scene {
           charIndex++;
           if (charIndex === currentDialog.text.length) {
             this.isTyping = false;
+            if (this.typingSound) this.typingSound.stop();
           }
         }
       });
@@ -300,7 +336,65 @@ export class Case2BriefingScene extends Phaser.Scene {
   // To be overwritten by the closure above
   private startTyping: any;
 
+  private showInvestigationModal() {
+    const { width, height } = this.cameras.main;
+    const overlay = this.add.rectangle(0, 0, width, height, 0x000000, 0.6).setOrigin(0, 0);
+    overlay.setDepth(100);
+
+    const boxContainer = this.add.container(width / 2, height / 2);
+    boxContainer.setDepth(101);
+    boxContainer.setScale(0);
+
+    const boxWidth = 700;
+    const boxHeight = 150;
+    const boxBg = this.add.graphics();
+    boxBg.fillStyle(0x0f172a, 1);
+    boxBg.fillRoundedRect(-boxWidth/2, -boxHeight/2, boxWidth, boxHeight, 20);
+    boxBg.lineStyle(6, 0x3b82f6, 1);
+    boxBg.strokeRoundedRect(-boxWidth/2, -boxHeight/2, boxWidth, boxHeight, 20);
+
+    const text = this.add.text(0, 0, `Periksa Sampah yang Tercampur!`, {
+      fontFamily: 'Fredoka One, Arial, sans-serif',
+      fontSize: '36px',
+      color: '#ffffff',
+      fontStyle: 'bold',
+      align: 'center',
+      wordWrap: { width: boxWidth - 40 }
+    }).setOrigin(0.5);
+
+    boxContainer.add([boxBg, text]);
+
+    overlay.setAlpha(0);
+    this.tweens.add({
+      targets: overlay,
+      alpha: 1,
+      duration: 150,
+      onComplete: () => {
+        this.sound.play('modal_investigasi', { volume: 0.8 });
+        this.tweens.add({
+          targets: boxContainer,
+          scale: 1,
+          duration: 300,
+          ease: 'Back.easeOut',
+          onComplete: () => {
+            this.time.delayedCall(1500, () => {
+              this.tweens.add({
+                targets: [overlay, boxContainer],
+                alpha: 0,
+                duration: 200,
+                onComplete: () => {
+                  this.scene.start('InvestigationScene', { caseId: 'kasus_sampah' });
+                }
+              });
+            });
+          }
+        });
+      }
+    });
+  }
+
   private showCharactersAndDialog() {
+    this.sound.play('karakter_muncul', { volume: 0.8 });
     this.tweens.add({
       targets: this.teacher,
       alpha: 1,
@@ -314,6 +408,9 @@ export class Case2BriefingScene extends Phaser.Scene {
       duration: 600,
       delay: 200,
       ease: 'Power2',
+      onStart: () => {
+        this.sound.play('karakter_muncul', { volume: 0.8 });
+      },
       onComplete: () => {
         this.dialogContainer.y += 50;
         this.tweens.add({
