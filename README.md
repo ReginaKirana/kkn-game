@@ -1,4 +1,4 @@
-# 🌍 Detektif Sampah (Eco Detective) - KKN Game Project
+# 🌍 Detektif Sampah - KKN Game Project
 
 <div align="center">
   <img src="./src/assets/backgrounds/coverfix.png" alt="Detektif Sampah Cover" width="100%" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);" />
@@ -23,7 +23,7 @@
 
 ## 📖 About the Project
 
-**Detektif Sampah** (Eco Detective) is a specialized educational game created as part of a **KKN (Kuliah Kerja Nyata)** initiative. The game aims to build environmental awareness among students through engaging, interactive storytelling.
+**Detektif Sampah** is a specialized educational game created as part of a **KKN (Kuliah Kerja Nyata)** initiative. The game aims to build environmental awareness among students through engaging, interactive storytelling.
 
 Players step into the shoes of a "Garbage Detective" to investigate polluted areas, solve environmental cases (like cleaning up dirty yards and clogged sewers), and learn how to properly categorize and manage waste. By combining an interactive web portal with a dedicated 2D game engine, it provides a seamless and fun learning experience.
 
