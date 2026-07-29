@@ -5,6 +5,7 @@ import teacherSadAsset from '../../assets/characters/teachers/sad.png';
 import teacherSurprisedAsset from '../../assets/characters/teachers/suprised.png';
 import typingAudioUrl from '../../assets/audio/keyboard-typing.wav';
 import introAudioUrl from '../../assets/audio/intro.mp3';
+import btnClickUrl from '../../assets/audio/button_click.mp3';
 
 export class IntroScene extends Phaser.Scene {
   private dialogues: string[] = [
@@ -36,6 +37,7 @@ export class IntroScene extends Phaser.Scene {
     this.load.image('teacher_surprised', teacherSurprisedAsset);
     this.load.audio('typing_sfx', typingAudioUrl);
     this.load.audio('intro_bgm', introAudioUrl);
+    this.load.audio('btn_click', btnClickUrl);
   }
 
   create() {
@@ -273,6 +275,7 @@ export class IntroScene extends Phaser.Scene {
       this.input.setDefaultCursor('default'); // Reset cursor on leave
       this.actionBtn.y = targetY + 4;
       shadow.y = -4;
+      this.sound.play('btn_click');
 
       setTimeout(() => {
         // Transition to the next scene

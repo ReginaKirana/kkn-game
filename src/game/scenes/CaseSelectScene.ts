@@ -2,8 +2,11 @@ import * as Phaser from 'phaser';
 import papanKasusBg from '../../assets/backgrounds/papan-kasus.png';
 import papanKasus2Bg from '../../assets/backgrounds/papan-kasus2.png';
 import papanKasus3Bg from '../../assets/backgrounds/papan-kasus3.png';
+import btnClickUrl from '../../assets/audio/button_click.mp3';
+import investigasiUrl from '../../assets/audio/investigasi.mp3';
 
 export class CaseSelectScene extends Phaser.Scene {
+  private bgMusic!: Phaser.Sound.BaseSound;
   constructor() {
     super('CaseSelectScene');
   }
@@ -12,6 +15,8 @@ export class CaseSelectScene extends Phaser.Scene {
     this.load.image('papan_kasus_bg', papanKasusBg);
     this.load.image('papan_kasus2_bg', papanKasus2Bg);
     this.load.image('papan_kasus3_bg', papanKasus3Bg);
+    this.load.audio('btn_click', btnClickUrl);
+    this.load.audio('investigasi_bgm', investigasiUrl);
   }
 
   create(data: { unlockCase2?: boolean, unlockCase3?: boolean, case2Unlocked?: boolean, case3Unlocked?: boolean }) {
@@ -25,6 +30,15 @@ export class CaseSelectScene extends Phaser.Scene {
     const isUnlocking3 = data.unlockCase3 || unlock3FromUrl;
     const isCase3Unlocked = data.case3Unlocked || urlParams.get('case3Unlocked') === 'true' || isUnlocking3;
     const isCase2Unlocked = data.case2Unlocked || urlParams.get('case2Unlocked') === 'true' || isUnlocking2 || isCase3Unlocked;
+
+    this.bgMusic = this.sound.add('investigasi_bgm', { loop: true, volume: 1 });
+    this.bgMusic.play();
+
+    this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
+      if (this.bgMusic) {
+        this.bgMusic.stop();
+      }
+    });
 
     // Background Image
     let currentBg = 'papan_kasus_bg';
@@ -223,6 +237,7 @@ export class CaseSelectScene extends Phaser.Scene {
 
       selidikiBtn.on('pointerdown', () => {
         this.input.setDefaultCursor('default');
+        this.sound.play('btn_click');
         if (caseId === 'kasus_sampah') {
           this.scene.start('Case2BriefingScene');
         } else if (caseId === 'kasus_selokan') {
