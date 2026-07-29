@@ -5,6 +5,9 @@ import halamanKotor from '../../assets/backgrounds/halaman-kotor.png';
 import halamanKotor2Bg from '../../assets/backgrounds/Halaman-kotor2.png';
 import halamanBg from '../../assets/backgrounds/halaman.png';
 import teacherThumbUp from '../../assets/characters/teachers/thumb-up.png';
+import sparkleSound from '../../assets/audio/case1/sparkle.wav';
+import keyboardTyping from '../../assets/audio/keyboard-typing.wav';
+import finishCase from '../../assets/audio/case1/finish-case.wav';
 
 export class Case1TransitionScene extends Phaser.Scene {
   constructor() {
@@ -17,6 +20,9 @@ export class Case1TransitionScene extends Phaser.Scene {
     this.load.image('halaman_kotor2_bg', halamanKotor2Bg);
     this.load.image('halaman_bersih', halamanBg);
     this.load.image('teacher_thumbup', teacherThumbUp);
+    this.load.audio('sparkle', sparkleSound);
+    this.load.audio('keyboard_typing', keyboardTyping);
+    this.load.audio('finish_case', finishCase);
   }
 
   create(data: { caseId?: string }) {
@@ -54,6 +60,12 @@ export class Case1TransitionScene extends Phaser.Scene {
                 cleanBg.setAlpha(0);
                 cleanBg.setDepth(21);
                 
+                const sparkle = this.sound.add('sparkle', { volume: 0.8 });
+                sparkle.play();
+                this.time.delayedCall(2000, () => {
+                  if (sparkle.isPlaying) sparkle.stop();
+                });
+
                 this.tweens.add({
                   targets: cleanBg,
                   alpha: 1,
@@ -122,11 +134,14 @@ export class Case1TransitionScene extends Phaser.Scene {
     let typeWriterEvent: Phaser.Time.TimerEvent;
     let isTyping = false;
     let currentTextContent = "";
+    let typingSound: Phaser.Sound.BaseSound | null = null;
 
     const startTyping = () => {
       textObj.text = "";
       currentTextContent = dialogTexts[currentDialogIndex];
       isTyping = true;
+      typingSound = this.sound.add('keyboard_typing', { loop: true, volume: 0.5 });
+      typingSound.play();
       let charIndex = 0;
       typeWriterEvent = this.time.addEvent({
         delay: 30,
@@ -134,7 +149,10 @@ export class Case1TransitionScene extends Phaser.Scene {
         callback: () => {
           textObj.text += currentTextContent[charIndex];
           charIndex++;
-          if (charIndex >= currentTextContent.length) { isTyping = false; }
+          if (charIndex >= currentTextContent.length) { 
+            isTyping = false; 
+            if (typingSound) typingSound.stop();
+          }
         }
       });
     };
@@ -154,6 +172,7 @@ export class Case1TransitionScene extends Phaser.Scene {
         typeWriterEvent.remove();
         textObj.text = currentTextContent;
         isTyping = false;
+        if (typingSound) typingSound.stop();
       } else {
         currentDialogIndex++;
         if (currentDialogIndex < dialogTexts.length) { startTyping(); }
@@ -272,6 +291,7 @@ export class Case1TransitionScene extends Phaser.Scene {
 
     resultContainer.add([bg, title, score, nextBtnContainer]);
     resultContainer.setScale(0);
+    this.sound.play('finish_case', { volume: 0.8 });
     this.tweens.add({
       targets: resultContainer,
       scale: 1,

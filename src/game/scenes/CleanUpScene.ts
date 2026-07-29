@@ -18,7 +18,9 @@ import halamanBg from '../../assets/backgrounds/halaman.png';
 import teacherThumbUp from '../../assets/characters/teachers/thumb-up.png';
 import boyIdle from '../../assets/characters/boy/boy-idle.png';
 import girlIdle from '../../assets/characters/girl/girl-idle.png';
-
+import bgGameplay from '../../assets/audio/case1/bg-gameplay.mp3';
+import misiMulai from '../../assets/audio/case1/misi-mulai.wav';
+import masukSampah from '../../assets/audio/case1/masuk-sampah-gameplay.mp3';
 export class CleanUpScene extends Phaser.Scene {
   private caseId!: string;
   private trashItemsRemaining: number = 0;
@@ -46,11 +48,19 @@ export class CleanUpScene extends Phaser.Scene {
     this.load.image('teacher_thumbup', teacherThumbUp);
     this.load.image('boy_idle', boyIdle);
     this.load.image('girl_idle', girlIdle);
+    this.load.audio('bg_gameplay', bgGameplay);
+    this.load.audio('misi_mulai', misiMulai);
+    this.load.audio('masuk_sampah', masukSampah);
   }
 
   create(data: { caseId: string }) {
     this.caseId = data.caseId || 'kasus_halaman';
     const { width, height } = this.cameras.main;
+
+    if (!this.sound.get('bg_gameplay')?.isPlaying) {
+      this.sound.stopAll();
+      this.sound.play('bg_gameplay', { loop: true, volume: 0.4 });
+    }
 
     // 1. Background
     const bg = this.add.image(width / 2, height / 2, 'game_bg');
@@ -102,6 +112,12 @@ export class CleanUpScene extends Phaser.Scene {
     }).setOrigin(0.5);
     introText.setDepth(101);
     introText.setAlpha(0);
+
+    const misiSound = this.sound.add('misi_mulai', { volume: 0.8 });
+    misiSound.play();
+    this.time.delayedCall(1500, () => {
+      if (misiSound.isPlaying) misiSound.stop();
+    });
 
     // Animasi muncul perlahan (smooth) tanpa zoom yang berlebihan
     this.tweens.add({
@@ -212,6 +228,8 @@ export class CleanUpScene extends Phaser.Scene {
 
     this.input.on('drop', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Image, dropZone: Phaser.GameObjects.Zone) => {
       gameObject.disableInteractive();
+
+      this.sound.play('masuk_sampah', { volume: 0.8 });
 
       // Add Eco Points
       let currentEp = this.registry.get('ecoPoints') || 1000;

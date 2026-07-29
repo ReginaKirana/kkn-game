@@ -3,6 +3,9 @@ import halamanKotorBg from '../../assets/backgrounds/halaman-kotor.png';
 import teacherThumbUp from '../../assets/characters/teachers/thumb-up.png';
 import boyIdle from '../../assets/characters/boy/boy-idle.png';
 import girlIdle from '../../assets/characters/girl/girl-idle.png';
+import investigasiBg from '../../assets/audio/investigasi.mp3';
+import keyboardTyping from '../../assets/audio/keyboard-typing.wav';
+import buttonClick from '../../assets/audio/button_click.mp3';
 
 export class SolutionScene extends Phaser.Scene {
   private caseId!: string;
@@ -16,11 +19,19 @@ export class SolutionScene extends Phaser.Scene {
     this.load.image('teacher_thumbup', teacherThumbUp);
     this.load.image('boy_idle', boyIdle);
     this.load.image('girl_idle', girlIdle);
+    this.load.audio('investigasi_bg', investigasiBg);
+    this.load.audio('keyboard_typing', keyboardTyping);
+    this.load.audio('button_click', buttonClick);
   }
 
   create(data: { caseId: string }) {
     this.caseId = data.caseId || 'kasus_halaman';
     const { width, height } = this.cameras.main;
+
+    if (!this.sound.get('investigasi_bg')?.isPlaying) {
+      this.sound.stopAll();
+      this.sound.play('investigasi_bg', { loop: true, volume: 0.4 });
+    }
 
     // 1. Background
     const bg = this.add.image(width / 2, height / 2, 'halaman_kotor_bg');
@@ -119,9 +130,12 @@ export class SolutionScene extends Phaser.Scene {
     // Animasi Text Typewriter
     let currentTextCharIndex = 0;
     let typeWriterEvent: Phaser.Time.TimerEvent;
+    let typingSound: Phaser.Sound.BaseSound | null = null;
 
     const startTyping = () => {
       isTyping = true;
+      typingSound = this.sound.add('keyboard_typing', { loop: true, volume: 0.5 });
+      typingSound.play();
       textObj.text = '';
       currentTextCharIndex = 0;
       
@@ -157,6 +171,7 @@ export class SolutionScene extends Phaser.Scene {
           currentTextCharIndex++;
           if (currentTextCharIndex === currentDialog.text.length) {
             isTyping = false;
+            if (typingSound) typingSound.stop();
           }
         }
       });
@@ -243,13 +258,16 @@ export class SolutionScene extends Phaser.Scene {
     });
 
     nextBtnContainer.on('pointerdown', () => {
+      if (isClicking) return;
       this.input.setDefaultCursor('default');
+      this.sound.play('button_click', { volume: 0.8 });
       
       // Jika teks belum selesai, skip animasi
       if (isTyping) {
         typeWriterEvent.remove();
         textObj.text = dialogues[currentDialogIndex].text;
         isTyping = false;
+        if (typingSound) typingSound.stop();
         this.tweens.add({ targets: nextBtnContainer, alpha: 1, duration: 100 });
         const hitArea = new Phaser.Geom.Rectangle(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight);
         nextBtnContainer.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
@@ -264,7 +282,6 @@ export class SolutionScene extends Phaser.Scene {
           }
         } else {
           // Lanjut ke Solusi / Misi Bersih-bersih
-          if (isClicking) return;
           isClicking = true;
           
           nextBtnContainer.y = nextBtnY + 4;
