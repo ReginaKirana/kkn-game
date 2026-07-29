@@ -1,7 +1,7 @@
 # 🌍 Detektif Sampah (Eco Detective) - KKN Game Project
 
 <div align="center">
-  <img src="./src/assets/backgrounds/cover.png" alt="Detektif Sampah Cover" width="100%" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);" />
+  <img src="./src/assets/backgrounds/coverfix.png" alt="Detektif Sampah Cover" width="100%" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);" />
 </div>
 
 <br />
