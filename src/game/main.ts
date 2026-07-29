@@ -34,7 +34,7 @@ const config: Phaser.Types.Core.GameConfig = {
   // @ts-ignore - Phaser TS definitions sometimes miss resolution at the root
   resolution: window.devicePixelRatio, 
   scale: {
-    mode: Phaser.Scale.ENVELOP,
+    mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH
   }
 };
