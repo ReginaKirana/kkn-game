@@ -4,9 +4,15 @@ import botolImg from '../../assets/objects/botol.png';
 import pisangImg from '../../assets/objects/pisang.png';
 import daunImg from '../../assets/objects/daun.png';
 import binImg from '../../assets/objects/bin.png';
+import modalSfxUrl from '../../assets/audio/case1/investigation-modal.wav';
+import investigationBgUrl from '../../assets/audio/case1/investigation-bg.mp3';
+import btnClickUrl from '../../assets/audio/button_click.mp3';
+import correctUrl from '../../assets/audio/case1/correct.wav';
+import wrongUrl from '../../assets/audio/case1/wrong.wav';
 
 export class ConclusionScene extends Phaser.Scene {
   private caseId!: string;
+  private bgMusic!: Phaser.Sound.BaseSound;
 
   constructor() {
     super('ConclusionScene');
@@ -18,11 +24,23 @@ export class ConclusionScene extends Phaser.Scene {
     this.load.image('clue_pisang', pisangImg);
     this.load.image('clue_daun', daunImg);
     this.load.image('clue_bin', binImg);
+    this.load.audio('modal_sfx', modalSfxUrl);
+    this.load.audio('investigation_bgm', investigationBgUrl);
+    this.load.audio('btn_click', btnClickUrl);
+    this.load.audio('correct_sfx', correctUrl);
+    this.load.audio('wrong_sfx', wrongUrl);
   }
 
   create(data: { caseId: string }) {
     this.caseId = data.caseId || 'kasus_halaman';
     const { width, height } = this.cameras.main;
+
+    this.bgMusic = this.sound.add('investigation_bgm', { loop: true, volume: 0.4 });
+    this.bgMusic.play();
+
+    this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
+      if (this.bgMusic) this.bgMusic.stop();
+    });
 
     // 1. Gambar ulang background investigasi
     const bg = this.add.image(width / 2, height / 2, 'halaman_kotor_bg');
@@ -162,12 +180,16 @@ export class ConclusionScene extends Phaser.Scene {
     options.forEach((opt) => {
       const btn = this.createOptionButton(modalWidth/4, optionY, opt.id, opt.text, (modalWidth/2) - 120, () => {
         this.input.setDefaultCursor('default');
+        this.sound.play('btn_click');
         
         if (opt.isCorrect) {
           // Jawaban Benar
+          this.sound.play('correct_sfx');
+          if (this.bgMusic) this.bgMusic.stop();
           this.scene.start('SolutionScene', { caseId: this.caseId });
         } else {
           // Jawaban Salah
+          this.sound.play('wrong_sfx');
           errorText.setAlpha(1);
           // Animasi shake ringan
           this.tweens.add({
@@ -198,6 +220,7 @@ export class ConclusionScene extends Phaser.Scene {
     modalContainer.add([shadow, paper, title, lineTop, lineVert, ...leftElements, question, ...optionBtns, errorText]);
 
     // Efek Pop-in
+    this.sound.play('modal_sfx', { seek: 0.651 });
     modalContainer.setScale(0.7);
     modalContainer.setAlpha(0);
     this.tweens.add({
