@@ -7,6 +7,13 @@ import selokanFinal from '../../assets/backgrounds/selokan-final.png';
 import thumbUpTeacher from '../../assets/characters/teachers/thumb-up.png';
 import smileTeacher from '../../assets/characters/teachers/smile.png';
 
+import bgGameplayUrl from '../../assets/audio/case1/bg-gameplay.mp3';
+import sparkleUrl from '../../assets/audio/case1/sparkle.wav';
+import karakterMunculUrl from '../../assets/audio/sfx/karakter-muncul.wav';
+import keyboardTypingUrl from '../../assets/audio/keyboard-typing.wav';
+import finishCaseUrl from '../../assets/audio/case1/finish-case.wav';
+import btnClickUrl from '../../assets/audio/button_click.mp3';
+
 export class Case3TransitionScene extends Phaser.Scene {
   private bg!: Phaser.GameObjects.Image;
   private teacher!: Phaser.GameObjects.Image;
@@ -18,6 +25,9 @@ export class Case3TransitionScene extends Phaser.Scene {
   private currentDialogIndex = 0;
   private isTyping = false;
   private currentTextContent = "";
+  
+  private bgMusic!: Phaser.Sound.BaseSound;
+  private typingSound!: Phaser.Sound.BaseSound;
 
   private dialogs = [
     {
@@ -43,6 +53,13 @@ export class Case3TransitionScene extends Phaser.Scene {
     this.load.image('selokan_final', selokanFinal);
     this.load.image('teacher_thumbup', thumbUpTeacher);
     this.load.image('teacher_smile', smileTeacher);
+    
+    this.load.audio('bg_gameplay', bgGameplayUrl);
+    this.load.audio('sparkle', sparkleUrl);
+    this.load.audio('karakter_muncul', karakterMunculUrl);
+    this.load.audio('keyboard_typing', keyboardTypingUrl);
+    this.load.audio('finish_case', finishCaseUrl);
+    this.load.audio('btn_click', btnClickUrl);
   }
 
   create() {
@@ -52,6 +69,15 @@ export class Case3TransitionScene extends Phaser.Scene {
     // Background Awal (Tanpa sampah)
     this.bg = this.add.image(width / 2, height / 2, 'selokan_bg');
     this.bg.setScale(Math.max(width / this.bg.width, height / this.bg.height));
+
+    this.bgMusic = this.sound.add('bg_gameplay', { loop: true, volume: 0.3 });
+    this.bgMusic.play();
+    this.typingSound = this.sound.add('keyboard_typing', { loop: true, volume: 1 });
+
+    this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
+      if (this.bgMusic) this.bgMusic.stop();
+      if (this.typingSound) this.typingSound.stop();
+    });
 
     // Persiapan UI Guru (Hidden initially)
     this.overlay = this.add.rectangle(0, 0, width, height, 0x000000, 0.6).setOrigin(0, 0);
@@ -140,6 +166,13 @@ export class Case3TransitionScene extends Phaser.Scene {
       scale: 1,
       duration: 800,
       ease: 'Elastic.easeOut',
+      onStart: () => {
+        this.sound.play('sparkle', { volume: 0.8 });
+        // Menghentikan sparkle setelah 2 detik sesuai request sebelumnya (0-2 detik)
+        this.time.delayedCall(2000, () => {
+          this.sound.stopByKey('sparkle');
+        });
+      },
       onComplete: () => {
         this.time.delayedCall(2000, () => {
           container.destroy();
@@ -197,6 +230,7 @@ export class Case3TransitionScene extends Phaser.Scene {
       duration: 800
     });
     
+    this.sound.play('karakter_muncul', { volume: 0.8 });
     this.tweens.add({
       targets: this.teacher,
       alpha: 1,
@@ -232,10 +266,12 @@ export class Case3TransitionScene extends Phaser.Scene {
       delay: 30,
       repeat: this.currentTextContent.length - 1,
       callback: () => {
+        if (this.typingSound && !this.typingSound.isPlaying) this.typingSound.play();
         this.textObj.text += this.currentTextContent[i];
         i++;
         if (i === this.currentTextContent.length) {
           this.isTyping = false;
+          if (this.typingSound) this.typingSound.stop();
         }
       }
     });
@@ -246,6 +282,7 @@ export class Case3TransitionScene extends Phaser.Scene {
       if (this.typeWriterEvent) this.typeWriterEvent.remove();
       this.textObj.text = this.currentTextContent;
       this.isTyping = false;
+      if (this.typingSound) this.typingSound.stop();
     } else {
       this.currentDialogIndex++;
       if (this.currentDialogIndex < this.dialogs.length) {
@@ -356,12 +393,23 @@ export class Case3TransitionScene extends Phaser.Scene {
       if (isClicking) return;
       isClicking = true;
       this.input.setDefaultCursor('default');
+      this.sound.play('btn_click');
       nextBtnContainer.y = nextBtnY + 4;
       shadow.y = -4;
+
+      if (this.bgMusic) {
+        this.tweens.add({
+          targets: this.bgMusic,
+          volume: 0,
+          duration: 500,
+          onComplete: () => this.bgMusic.stop()
+        });
+      }
+
       setTimeout(() => { 
         this.registry.set('ecoPoints', (this.registry.get('ecoPoints') || 0) + 10);
         this.scene.start('OutroScene'); 
-      }, 150);
+      }, 500);
     });
 
     resultContainer.add([bg, title, score, nextBtnContainer]);
@@ -370,7 +418,10 @@ export class Case3TransitionScene extends Phaser.Scene {
       targets: resultContainer,
       scale: 1,
       duration: 500,
-      ease: 'Back.easeOut'
+      ease: 'Back.easeOut',
+      onStart: () => {
+        this.sound.play('finish_case');
+      }
     });
   }
 }

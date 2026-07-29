@@ -73,9 +73,6 @@ export class InvestigationScene extends Phaser.Scene {
     let clues: any[] = [];
 
     if (this.caseId === 'kasus_halaman') {
-      this.bgMusic = this.sound.add('investigation_bgm', { loop: true, volume: 0.4 });
-      this.bgMusic.play();
-
       clues = [
         { id: 'botol', x: width * 0.47, y: height * 0.52, text: 'Botol plastik ini dibuang di halaman,\nbukan di tempat sampah.', hasPov: false },
         { id: 'pisang', x: width * 0.28, y: height * 0.8, text: 'Kulit pisang ini dibiarkan\nbegitu saja di halaman.', hasPov: false },
@@ -142,6 +139,10 @@ export class InvestigationScene extends Phaser.Scene {
         img.setTint(0x4a4a4a); // Di-overlay gelap
       });
     }
+    
+    // Play BGM for all cases
+    this.bgMusic = this.sound.add('investigation_bgm', { loop: true, volume: 0.4 });
+    this.bgMusic.play();
 
     // Title / Instructions (Hidden initially, shown after intro)
     const bannerWidth = 600;
@@ -237,9 +238,7 @@ export class InvestigationScene extends Phaser.Scene {
       duration: 150,
       onComplete: () => {
         // 2. Pop-in Modal (Scale Bounce)
-        if (this.caseId === 'kasus_halaman') {
-          this.sound.play('case1_modal_voice');
-        }
+        this.sound.play('case1_modal_voice');
         boxContainer.setScale(0.8);
         this.tweens.add({
           targets: boxContainer,
@@ -662,6 +661,7 @@ export class InvestigationScene extends Phaser.Scene {
       if (isClicking) return;
       isClicking = true;
       this.input.setDefaultCursor('default');
+      this.sound.play('btn_click');
       
       this.nextBtn.y = height - 100 + 4;
       shadow.y = -4;

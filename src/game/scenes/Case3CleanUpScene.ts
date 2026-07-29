@@ -21,6 +21,13 @@ import smileTeacher from '../../assets/characters/teachers/smile.png';
 import boyIdle from '../../assets/characters/boy/boy-idle.png';
 import girlIdle from '../../assets/characters/girl/girl-idle.png';
 
+import bgGameplayUrl from '../../assets/audio/case1/bg-gameplay.mp3';
+import misiMulaiUrl from '../../assets/audio/case1/misi-mulai.wav';
+import masukSampahUrl from '../../assets/audio/case1/masuk-sampah-gameplay.mp3';
+import karakterMunculUrl from '../../assets/audio/sfx/karakter-muncul.wav';
+import keyboardTypingUrl from '../../assets/audio/keyboard-typing.wav';
+import btnClickUrl from '../../assets/audio/button_click.mp3';
+
 import { Case3TrashConfig } from '../config/Case3TrashConfig';
 
 export class Case3CleanUpScene extends Phaser.Scene {
@@ -29,6 +36,8 @@ export class Case3CleanUpScene extends Phaser.Scene {
 
   private bg!: Phaser.GameObjects.Image;
   private bannerContainer!: Phaser.GameObjects.Container;
+  private bgMusic!: Phaser.Sound.BaseSound;
+  private typingSound!: Phaser.Sound.BaseSound;
 
   constructor() {
     super('Case3CleanUpScene');
@@ -53,6 +62,13 @@ export class Case3CleanUpScene extends Phaser.Scene {
     this.load.image('teacher_smile', smileTeacher);
     this.load.image('boy_idle', boyIdle);
     this.load.image('girl_idle', girlIdle);
+    
+    this.load.audio('bg_gameplay', bgGameplayUrl);
+    this.load.audio('misi_mulai', misiMulaiUrl);
+    this.load.audio('masuk_sampah', masukSampahUrl);
+    this.load.audio('karakter_muncul', karakterMunculUrl);
+    this.load.audio('keyboard_typing', keyboardTypingUrl);
+    this.load.audio('btn_click', btnClickUrl);
   }
 
   create() {
@@ -62,6 +78,15 @@ export class Case3CleanUpScene extends Phaser.Scene {
     // Background
     this.bg = this.add.image(width / 2, height / 2, 'selokan_bg');
     this.bg.setScale(Math.max(width / this.bg.width, height / this.bg.height));
+
+    this.bgMusic = this.sound.add('bg_gameplay', { loop: true, volume: 0.3 });
+    this.bgMusic.play();
+    this.typingSound = this.sound.add('keyboard_typing', { loop: true, volume: 1 });
+
+    this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
+      if (this.bgMusic) this.bgMusic.stop();
+      if (this.typingSound) this.typingSound.stop();
+    });
 
     // Judul Instruksi / Banner Premium
     this.bannerContainer = this.add.container(width / 2, 60);
@@ -139,6 +164,7 @@ export class Case3CleanUpScene extends Phaser.Scene {
 
       img.on('pointerdown', () => {
         img.disableInteractive();
+        this.sound.play('masuk_sampah');
 
         // Add Eco Points
         let currentEp = this.registry.get('ecoPoints') || 1000;
@@ -182,6 +208,9 @@ export class Case3CleanUpScene extends Phaser.Scene {
       y: height / 2 - 20,
       duration: 800,
       ease: 'Power2',
+      onStart: () => {
+        this.sound.play('misi_mulai');
+      },
       onComplete: () => {
         this.time.delayedCall(800, () => {
           this.tweens.add({
@@ -215,6 +244,7 @@ export class Case3CleanUpScene extends Phaser.Scene {
     });
 
     createBackButton(this, 70, 70, () => {
+      this.sound.play('btn_click');
       this.scene.start('CaseSelectScene', { case3Unlocked: true });
     });
   }
@@ -294,8 +324,12 @@ export class Case3CleanUpScene extends Phaser.Scene {
       delay: 30, // Kecepatan mengetik
       repeat: fullText.length - 1,
       callback: () => {
+        if (this.typingSound && !this.typingSound.isPlaying) this.typingSound.play();
         dialogText.text += fullText[currentTextCharIndex];
         currentTextCharIndex++;
+        if (currentTextCharIndex >= fullText.length) {
+          if (this.typingSound) this.typingSound.stop();
+        }
       }
     });
 
@@ -334,7 +368,14 @@ export class Case3CleanUpScene extends Phaser.Scene {
     dialogContainer.add(nextBtnContainer);
 
     // Fade in player & dialog & overlay
-    this.tweens.add({ targets: [overlay, player, dialogContainer], alpha: 1, duration: 500 });
+    this.tweens.add({ 
+      targets: [overlay, player, dialogContainer], 
+      alpha: 1, 
+      duration: 500,
+      onStart: () => {
+        this.sound.play('karakter_muncul', { volume: 0.8 });
+      }
+    });
 
     // Munculkan tombol setelah teks selesai diketik
     this.time.delayedCall(fullText.length * 30 + 500, () => {
@@ -370,6 +411,7 @@ export class Case3CleanUpScene extends Phaser.Scene {
 
       nextBtnContainer.on('pointerdown', () => {
         this.input.setDefaultCursor('default');
+        this.sound.play('btn_click');
         isTutorialActive = false; // Stop cursor loop
 
         // Animasi keluar

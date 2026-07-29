@@ -190,13 +190,13 @@ export default function Learn() {
         <FlipCard id={2} onOpen={handleCardOpen}
           icon={<AlertTriangle size={32} color="#dc2626" />} title="Kenapa Dipilah?" frontText="Kalau dicampur bahaya ga?"
           bgColor="#fee2e2" textColor="#991b1b"
-          backContent={<><p>🌊 Selokan bisa tersumbat dan bikin banjir!</p><p>🦠 Jadi sarang penyakit dan nyamuk jahat.</p></>}
+          backContent={<><p>🌊 Mengurangi pencemaran dan mencegah bencana banjir.</p><p>♻️ Memudahkan proses daur ulang.</p></>}
         />
 
         <FlipCard id={3} onOpen={handleCardOpen}
           icon={<Recycle size={32} color="#0284c7" />} title="Mengenal 3R" frontText="Jurus Pahlawan Bumi!"
           bgColor="#e0f2fe" textColor="#075985"
-          backContent={<><p><b>Reduce:</b> Kurangi sampah plastik.</p><p><b>Reuse:</b> Pakai ulang barang bekas.</p><p><b>Recycle:</b> Daur ulang jadi barang baru.</p></>}
+          backContent={<><p><b>Reduce:</b> Mengurangi sampah dan tidak membuat sampah baru.</p><p><b>Reuse:</b> Menggunakan kembali barang yang masih layak pakai.</p><p><b>Recycle:</b> Mendaur ulang barang bekas menjadi barang layak pakai.</p></>}
         />
 
         <FlipCard id={4} onOpen={handleCardOpen}

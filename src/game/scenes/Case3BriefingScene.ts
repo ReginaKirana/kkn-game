@@ -21,6 +21,11 @@ import boyBingung from '../../assets/characters/boy/boy-bingung.png';
 import boySurprised from '../../assets/characters/boy/boy-supprised.png';
 import girlBingung from '../../assets/characters/girl/girl-bingung.png';
 
+import investigasiBgmUrl from '../../assets/audio/investigasi.mp3';
+import karakterMunculUrl from '../../assets/audio/sfx/karakter-muncul.wav';
+import keyboardTypingUrl from '../../assets/audio/keyboard-typing.wav';
+import btnClickUrl from '../../assets/audio/button_click.mp3';
+
 import { Case3TrashConfig } from '../config/Case3TrashConfig';
 
 export class Case3BriefingScene extends Phaser.Scene {
@@ -40,6 +45,9 @@ export class Case3BriefingScene extends Phaser.Scene {
 
   private teacherMaxScale = 1;
   private playerMaxScale = 1;
+
+  private bgMusic!: Phaser.Sound.BaseSound;
+  private typingSound!: Phaser.Sound.BaseSound;
 
   constructor() {
     super('Case3BriefingScene');
@@ -66,6 +74,11 @@ export class Case3BriefingScene extends Phaser.Scene {
     this.load.image('boy_bingung', boyBingung);
     this.load.image('boy_surprised', boySurprised);
     this.load.image('girl_bingung', girlBingung);
+    
+    this.load.audio('investigasi_bgm', investigasiBgmUrl);
+    this.load.audio('karakter_muncul', karakterMunculUrl);
+    this.load.audio('keyboard_typing', keyboardTypingUrl);
+    this.load.audio('btn_click', btnClickUrl);
   }
 
   create() {
@@ -119,6 +132,15 @@ export class Case3BriefingScene extends Phaser.Scene {
     this.player.setAlpha(0);
     this.player.y = height + 135;
 
+    this.bgMusic = this.sound.add('investigasi_bgm', { loop: true, volume: 0.3 });
+    this.bgMusic.play();
+    this.typingSound = this.sound.add('keyboard_typing', { loop: true, volume: 1 });
+
+    this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
+      if (this.bgMusic) this.bgMusic.stop();
+      if (this.typingSound) this.typingSound.stop();
+    });
+
     this.createDialogUI(width, height);
 
     // Start Sequence
@@ -132,6 +154,7 @@ export class Case3BriefingScene extends Phaser.Scene {
     });
 
     createBackButton(this, 70, 70, () => {
+      this.sound.play('btn_click');
       this.scene.start('CaseSelectScene', { case3Unlocked: true });
     });
   }
@@ -274,10 +297,12 @@ export class Case3BriefingScene extends Phaser.Scene {
 
     this.nextBtnContainer.on('pointerdown', () => {
       this.input.setDefaultCursor('default');
+      this.sound.play('btn_click');
       if (this.isTyping) {
         if (this.typeWriterEvent) this.typeWriterEvent.remove();
         this.textObj.text = dialogues[this.currentDialogIndex].text;
         this.isTyping = false;
+        if (this.typingSound) this.typingSound.stop();
       } else {
         if (this.currentDialogIndex < dialogues.length - 1) {
           this.currentDialogIndex++;
@@ -332,13 +357,19 @@ export class Case3BriefingScene extends Phaser.Scene {
       if (isTeacher) {
         nBg.fillRoundedRect(-dWidth / 2 + 30, -dHeight / 2 - 25, 200, 50, 10);
         nText.x = -dWidth / 2 + 130;
+        this.sound.play('karakter_muncul', { volume: 0.5 });
         this.tweens.add({ targets: this.teacher, scale: this.teacherMaxScale, alpha: 1, duration: 300 });
         this.tweens.add({ targets: this.player, scale: this.playerMaxScale * 0.9, alpha: 0.6, duration: 300 });
       } else {
         nBg.fillRoundedRect(dWidth / 2 - 230, -dHeight / 2 - 25, 200, 50, 10);
         nText.x = dWidth / 2 - 130;
+        this.sound.play('karakter_muncul', { volume: 0.5 });
         this.tweens.add({ targets: this.player, scale: this.playerMaxScale, alpha: 1, duration: 300 });
         this.tweens.add({ targets: this.teacher, scale: this.teacherMaxScale * 0.9, alpha: 0.6, duration: 300 });
+      }
+
+      if (this.typingSound && !this.typingSound.isPlaying) {
+        this.typingSound.play();
       }
 
       let charIndex = 0;
@@ -350,6 +381,7 @@ export class Case3BriefingScene extends Phaser.Scene {
           charIndex++;
           if (charIndex === currentDialog.text.length) {
             this.isTyping = false;
+            if (this.typingSound) this.typingSound.stop();
           }
         }
       });
@@ -367,6 +399,7 @@ export class Case3BriefingScene extends Phaser.Scene {
   private startTyping: any;
 
   private showCharactersAndDialog() {
+    this.sound.play('karakter_muncul', { volume: 0.8 });
     this.tweens.add({
       targets: this.teacher,
       alpha: 1,
@@ -380,6 +413,9 @@ export class Case3BriefingScene extends Phaser.Scene {
       alpha: 0.6,
       duration: 800,
       ease: 'Power2',
+      onStart: () => {
+        this.sound.play('karakter_muncul', { volume: 0.8 });
+      },
       onComplete: () => {
         this.dialogContainer.y += 50;
         this.tweens.add({

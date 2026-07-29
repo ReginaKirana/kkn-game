@@ -24,7 +24,7 @@ export default function About() {
           <h2 style={{ fontSize: '1.85rem', fontWeight: '800', color: '#1e293b', margin: 0 }}>Latar Belakang Proyek</h2>
         </div>
         <p style={{ fontSize: '1.15rem', color: '#475569', lineHeight: 1.8, marginBottom: '40px' }}>
-          Website <b style={{ color: '#10b981' }}>Sahabat Bumi</b> dan Game <b style={{ color: '#10b981' }}>Detektif Sampah</b> dikembangkan sebagai bagian dari program Kuliah Kerja Nyata (KKN) Universitas Diponegoro tahun 2026 di Desa Cibelok. Kami menyadari bahwa kebiasaan memilah sampah dan menjaga kebersihan lingkungan harus ditanamkan sejak usia dini. Oleh karena itu, kami merancang media pembelajaran yang menyenangkan, interaktif, dan mudah diakses oleh anak-anak sekolah dasar.
+          Website <b style={{ color: '#10b981' }}>Sahabat Bumi</b> dan Game <b style={{ color: '#10b981' }}>Detektif Sampah</b> dikembangkan sebagai bagian dari program Kuliah Kerja Nyata (KKN) Universitas Diponegoro tahun 2026 di Desa Cibelok, Kecamatan Taman, Kabupaten Pemalang. Kami menyadari bahwa kebiasaan memilah sampah dan menjaga kebersihan lingkungan harus ditanamkan sejak usia dini. Oleh karena itu, kami merancang media pembelajaran yang menyenangkan, interaktif, dan mudah diakses oleh anak-anak sekolah dasar.
         </p>
         
         <h3 style={{ fontSize: '1.35rem', fontWeight: '800', color: '#334155', marginBottom: '20px', textAlign: 'center' }}>Tim Pengembang</h3>
@@ -41,7 +41,7 @@ export default function About() {
             <div style={{ backgroundColor: '#ffffff', padding: '16px', borderRadius: '50%', marginBottom: '16px', boxShadow: '0 8px 16px rgba(16, 185, 129, 0.1)' }}>
               <BookOpen size={40} color="#10b981" />
             </div>
-            <h3 style={{ fontSize: '1.5rem', fontWeight: '800', color: '#1e293b', margin: '0 0 8px 0' }}>Kathrina</h3>
+            <h3 style={{ fontSize: '1.5rem', fontWeight: '800', color: '#1e293b', margin: '0 0 8px 0' }}>Khaterina</h3>
             <p style={{ color: '#16a34a', fontWeight: '700', fontSize: '1.1rem', margin: 0 }}>Naration Development</p>
           </div>
         </div>

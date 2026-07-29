@@ -12,6 +12,14 @@ import boyBingung from '../../assets/characters/boy/boy-bingung.png';
 import boySurprised from '../../assets/characters/boy/boy-supprised.png';
 import girlBingung from '../../assets/characters/girl/girl-bingung.png';
 
+import investigasiBgmUrl from '../../assets/audio/investigasi.mp3';
+import karakterMunculUrl from '../../assets/audio/sfx/karakter-muncul.wav';
+import keyboardTypingUrl from '../../assets/audio/keyboard-typing.wav';
+import btnClickUrl from '../../assets/audio/button_click.mp3';
+import wrongUrl from '../../assets/audio/case1/wrong.wav';
+import correctUrl from '../../assets/audio/case1/correct.wav';
+import misiMulaiUrl from '../../assets/audio/case1/misi-mulai.wav';
+
 export class Case3AnalysisScene extends Phaser.Scene {
   private teacher!: Phaser.GameObjects.Image;
   private player!: Phaser.GameObjects.Image;
@@ -29,6 +37,9 @@ export class Case3AnalysisScene extends Phaser.Scene {
   private teacherMaxScale = 1;
   private playerMaxScale = 1;
 
+  private bgMusic!: Phaser.Sound.BaseSound;
+  private typingSound!: Phaser.Sound.BaseSound;
+
   constructor() {
     super('Case3AnalysisScene');
   }
@@ -44,6 +55,14 @@ export class Case3AnalysisScene extends Phaser.Scene {
     this.load.image('boy_bingung', boyBingung);
     this.load.image('boy_surprised', boySurprised);
     this.load.image('girl_bingung', girlBingung);
+    
+    this.load.audio('investigasi_bgm', investigasiBgmUrl);
+    this.load.audio('karakter_muncul', karakterMunculUrl);
+    this.load.audio('keyboard_typing', keyboardTypingUrl);
+    this.load.audio('btn_click', btnClickUrl);
+    this.load.audio('wrong', wrongUrl);
+    this.load.audio('correct', correctUrl);
+    this.load.audio('misi_mulai', misiMulaiUrl);
   }
 
   create() {
@@ -110,8 +129,18 @@ export class Case3AnalysisScene extends Phaser.Scene {
 
     this.registry.set('c3a_dialogs', dialogs);
 
+    this.bgMusic = this.sound.add('investigasi_bgm', { loop: true, volume: 0.3 });
+    this.bgMusic.play();
+    this.typingSound = this.sound.add('keyboard_typing', { loop: true, volume: 1 });
+
+    this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
+      if (this.bgMusic) this.bgMusic.stop();
+      if (this.typingSound) this.typingSound.stop();
+    });
+
     // Animasi masuk karakter
     this.time.delayedCall(500, () => {
+      this.sound.play('karakter_muncul', { volume: 0.8 });
       this.tweens.add({ targets: this.teacher, alpha: 1, duration: 800, ease: 'Power2' });
       this.tweens.add({
         targets: this.player,
@@ -119,6 +148,9 @@ export class Case3AnalysisScene extends Phaser.Scene {
         alpha: 0.6,
         duration: 800,
         ease: 'Power2',
+        onStart: () => {
+          this.sound.play('karakter_muncul', { volume: 0.8 });
+        },
         onComplete: () => {
         this.dialogContainer.y += 50;
         this.tweens.add({
@@ -143,6 +175,7 @@ export class Case3AnalysisScene extends Phaser.Scene {
     this.createOptionsUI(width, height);
 
     createBackButton(this, 70, 70, () => {
+      this.sound.play('btn_click');
       this.scene.start('CaseSelectScene', { case3Unlocked: true });
     });
   }
@@ -240,11 +273,13 @@ export class Case3AnalysisScene extends Phaser.Scene {
 
     this.nextBtnContainer.on('pointerdown', () => {
       this.input.setDefaultCursor('default');
+      this.sound.play('btn_click');
       const dialogs = this.registry.get('c3a_dialogs');
       if (this.isTyping) {
         if (this.typeWriterEvent) this.typeWriterEvent.remove();
         this.textObj.text = dialogs[this.currentDialogIndex].text;
         this.isTyping = false;
+        if (this.typingSound) this.typingSound.stop();
         if (dialogs[this.currentDialogIndex].showOptions) {
           this.showOptions();
         } else {
@@ -258,9 +293,63 @@ export class Case3AnalysisScene extends Phaser.Scene {
             this.isClicking = true;
             this.nextBtnContainer.y = nextBtnY + 4;
             shadow.y = -4;
-            setTimeout(() => {
-              this.scene.start('Case3CleanUpScene');
-            }, 150);
+
+            this.sound.play('misi_mulai');
+            if (this.bgMusic) {
+              this.tweens.add({
+                targets: this.bgMusic,
+                volume: 0,
+                duration: 500,
+                onComplete: () => this.bgMusic.stop()
+              });
+            }
+
+            // Banner
+            const bannerWidth = width;
+            const bannerHeight = 150;
+            const bannerBg = this.add.graphics();
+            bannerBg.fillStyle(0x0f172a, 0.95);
+            bannerBg.fillRect(0, height / 2 - bannerHeight / 2, bannerWidth, bannerHeight);
+            bannerBg.lineStyle(4, 0x3b82f6, 1);
+            bannerBg.strokeRect(0, height / 2 - bannerHeight / 2, bannerWidth, bannerHeight);
+            bannerBg.setDepth(200);
+
+            const bannerTextObj = this.add.text(width / 2, height / 2, 'MISI SELANJUTNYA:\nBERSIHKAN SELOKAN', {
+              fontFamily: 'Fredoka One, Arial, sans-serif',
+              fontSize: '48px',
+              color: '#fbbf24',
+              fontStyle: 'bold',
+              align: 'center',
+              stroke: '#000000',
+              strokeThickness: 6
+            }).setOrigin(0.5).setDepth(201);
+
+            bannerBg.setAlpha(0);
+            bannerTextObj.setAlpha(0);
+            bannerTextObj.setScale(0.5);
+
+            this.tweens.add({
+              targets: [bannerBg, bannerTextObj],
+              alpha: 1,
+              duration: 400,
+              ease: 'Power2'
+            });
+
+            this.tweens.add({
+              targets: bannerTextObj,
+              scale: 1,
+              duration: 500,
+              ease: 'Back.easeOut',
+              onComplete: () => {
+                this.time.delayedCall(1200, () => {
+                  this.cameras.main.fadeOut(300, 0, 0, 0, (cam: any, progress: number) => {
+                    if (progress === 1) {
+                      this.scene.start('Case3CleanUpScene');
+                    }
+                  });
+                });
+              }
+            });
           } else {
             this.currentDialogIndex++;
             this.startTyping(dialogs, dialogWidth, dialogHeight, nameBg, nameText);
@@ -306,13 +395,19 @@ export class Case3AnalysisScene extends Phaser.Scene {
       if (isTeacher) {
         nBg.fillRoundedRect(-dWidth/2 + 30, -dHeight/2 - 25, 200, 50, 10);
         nText.x = -dWidth/2 + 130;
+        this.sound.play('karakter_muncul', { volume: 0.5 });
         this.tweens.add({ targets: this.teacher, scale: this.teacherMaxScale, alpha: 1, duration: 300 });
         this.tweens.add({ targets: this.player, scale: this.playerMaxScale * 0.9, alpha: 0.6, duration: 300 });
       } else {
         nBg.fillRoundedRect(dWidth/2 - 230, -dHeight/2 - 25, 200, 50, 10);
         nText.x = dWidth/2 - 130;
+        this.sound.play('karakter_muncul', { volume: 0.5 });
         this.tweens.add({ targets: this.player, scale: this.playerMaxScale, alpha: 1, duration: 300 });
         this.tweens.add({ targets: this.teacher, scale: this.teacherMaxScale * 0.9, alpha: 0.6, duration: 300 });
+      }
+
+      if (this.typingSound && !this.typingSound.isPlaying) {
+        this.typingSound.play();
       }
 
       let charIndex = 0;
@@ -324,6 +419,7 @@ export class Case3AnalysisScene extends Phaser.Scene {
           charIndex++;
           if (charIndex === currentDialog.text.length) {
             this.isTyping = false;
+            if (this.typingSound) this.typingSound.stop();
             if (currentDialog.showOptions) {
               this.showOptions();
             } else {
@@ -423,6 +519,7 @@ export class Case3AnalysisScene extends Phaser.Scene {
 
         if (opt.isCorrect) {
           // Benar
+          this.sound.play('correct');
           btnBg.clear();
           btnBg.fillStyle(0x16a34a, 1); // Green
           btnBg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
@@ -445,6 +542,7 @@ export class Case3AnalysisScene extends Phaser.Scene {
           }, 600);
         } else {
           // Salah
+          this.sound.play('wrong');
           btnBg.clear();
           btnBg.fillStyle(0xdc2626, 1); // Red
           btnBg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
