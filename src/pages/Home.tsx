@@ -187,17 +187,19 @@ export default function Home() {
                 return (
                   <div
                     key={idx}
-                    style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 24px', backgroundColor: '#f8fafc', borderRadius: '16px', border: '1px solid #e2e8f0', transition: 'transform 0.2s ease, box-shadow 0.2s ease' }}
+                    style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 'clamp(12px, 3vw, 16px) clamp(16px, 4vw, 24px)', backgroundColor: '#f8fafc', borderRadius: '16px', border: '1px solid #e2e8f0', transition: 'transform 0.2s ease, box-shadow 0.2s ease', gap: '8px' }}
                     onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)'; }}
                     onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                      <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: bg, color: color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1.1rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
+                      <div style={{ minWidth: '36px', height: '36px', borderRadius: '50%', backgroundColor: bg, color: color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1.1rem' }}>
                         {idx + 1}
                       </div>
-                      <div style={{ fontWeight: 'bold', color: '#334155', fontSize: '1.1rem' }}>{player.name} {school}</div>
+                      <div style={{ fontWeight: 'bold', color: '#334155', fontSize: '1.05rem', wordBreak: 'break-word', lineHeight: '1.3' }}>
+                        {player.name} <br/> <span style={{ fontSize: '0.9rem', color: '#64748b', fontWeight: '600' }}>{school}</span>
+                      </div>
                     </div>
-                    <div style={{ fontWeight: '900', color: '#16a34a', fontSize: '1.25rem' }}>{player.score.toLocaleString('id-ID')}</div>
+                    <div style={{ fontWeight: '900', color: '#16a34a', fontSize: '1.15rem', whiteSpace: 'nowrap' }}>{player.score.toLocaleString('id-ID')}</div>
                   </div>
                 );
               })

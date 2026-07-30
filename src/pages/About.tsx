@@ -16,19 +16,19 @@ export default function About() {
         </p>
       </section>
 
-      <section style={{ backgroundColor: '#ffffff', borderRadius: '32px', padding: '40px', border: '2px solid #e2e8f0', boxShadow: '0 15px 35px rgba(0,0,0,0.05)' }}>
+      <section style={{ backgroundColor: '#ffffff', borderRadius: '32px', padding: 'clamp(24px, 5vw, 40px)', border: '2px solid #e2e8f0', boxShadow: '0 15px 35px rgba(0,0,0,0.05)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
           <div style={{ backgroundColor: '#fef2f2', padding: '16px', borderRadius: '50%', color: '#ef4444', display: 'flex' }}>
             <Heart size={32} fill="currentColor" />
           </div>
-          <h2 style={{ fontSize: '1.85rem', fontWeight: '800', color: '#1e293b', margin: 0 }}>Latar Belakang Proyek</h2>
+          <h2 style={{ fontSize: 'clamp(1.4rem, 4vw, 1.85rem)', fontWeight: '800', color: '#1e293b', margin: 0 }}>Latar Belakang Proyek</h2>
         </div>
-        <p style={{ fontSize: '1.15rem', color: '#475569', lineHeight: 1.8, marginBottom: '40px' }}>
+        <p style={{ fontSize: '1.1rem', color: '#475569', lineHeight: 1.8, marginBottom: '40px' }}>
           Website <b style={{ color: '#10b981' }}>Sahabat Bumi</b> dan Game <b style={{ color: '#10b981' }}>Detektif Sampah</b> dikembangkan sebagai bagian dari program Kuliah Kerja Nyata (KKN) Universitas Diponegoro tahun 2026 di Desa Cibelok, Kecamatan Taman, Kabupaten Pemalang. Kami menyadari bahwa kebiasaan memilah sampah dan menjaga kebersihan lingkungan harus ditanamkan sejak usia dini. Oleh karena itu, kami merancang media pembelajaran yang menyenangkan, interaktif, dan mudah diakses oleh anak-anak sekolah dasar.
         </p>
         
         <h3 style={{ fontSize: '1.35rem', fontWeight: '800', color: '#334155', marginBottom: '20px', textAlign: 'center' }}>Tim Pengembang</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 250px), 1fr))', gap: '24px' }}>
           <div style={{ backgroundColor: '#f0f9ff', padding: '32px 24px', borderRadius: '24px', border: '2px solid #bae6fd', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', transition: 'transform 0.2s', cursor: 'default' }} onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-4px)'} onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
             <div style={{ backgroundColor: '#ffffff', padding: '16px', borderRadius: '50%', marginBottom: '16px', boxShadow: '0 8px 16px rgba(59, 130, 246, 0.1)' }}>
               <Code size={40} color="#3b82f6" />
