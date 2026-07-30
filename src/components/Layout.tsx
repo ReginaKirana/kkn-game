@@ -7,7 +7,7 @@ export default function Layout() {
   return (
     <>
       <nav className="navbar">
-        <div className="container flex justify-between items-center">
+        <div className="container flex justify-between items-center" style={{ flexWrap: 'wrap', gap: '16px' }}>
           <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Leaf size={28} className="text-primary" />
             <h1 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary)' }}>Sahabat Bumi</h1>
