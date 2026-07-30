@@ -154,7 +154,7 @@ export class Case3BriefingScene extends Phaser.Scene {
     });
 
     createBackButton(this, 70, 70, () => {
-      this.sound.play('btn_click');
+      this.sound.play('btn_click', { seek: 0.8 });
       this.scene.start('CaseSelectScene', { case3Unlocked: true });
     });
   }
@@ -228,7 +228,7 @@ export class Case3BriefingScene extends Phaser.Scene {
       },
       {
         speaker: 'Ibu Guru',
-        text: "Tepat sekali. Yuk, kita cari tahu mengapa membuang sampah di selokan sangat berbahaya!",
+        text: "Tepat sekali. Sekarang giliranmu untuk selidiki apa penyebabnya",
         color: 0x3b82f6,
         teacherKey: 'teacher_thinking',
         playerKey: 'boy_idle',
@@ -297,7 +297,7 @@ export class Case3BriefingScene extends Phaser.Scene {
 
     this.nextBtnContainer.on('pointerdown', () => {
       this.input.setDefaultCursor('default');
-      this.sound.play('btn_click');
+      this.sound.play('btn_click', { seek: 0.8 });
       if (this.isTyping) {
         if (this.typeWriterEvent) this.typeWriterEvent.remove();
         this.textObj.text = dialogues[this.currentDialogIndex].text;

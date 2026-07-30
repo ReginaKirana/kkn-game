@@ -260,7 +260,7 @@ export class SolutionScene extends Phaser.Scene {
     nextBtnContainer.on('pointerdown', () => {
       if (isClicking) return;
       this.input.setDefaultCursor('default');
-      this.sound.play('button_click', { volume: 0.8 });
+      this.sound.play('button_click', { volume: 0.8, seek: 0.8 });
       
       // Jika teks belum selesai, skip animasi
       if (isTyping) {

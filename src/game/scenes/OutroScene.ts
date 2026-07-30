@@ -10,6 +10,7 @@ export class OutroScene extends Phaser.Scene {
   private dialogContainer!: Phaser.GameObjects.Container;
   private textObj!: Phaser.GameObjects.Text;
   private typeWriterEvent!: Phaser.Time.TimerEvent;
+  private nextBtn!: Phaser.GameObjects.Text;
   
   private currentDialogIndex = 0;
   private isTyping = false;
@@ -17,12 +18,12 @@ export class OutroScene extends Phaser.Scene {
 
   private dialogs = [
     {
-      text: "Selamat! Kamu berhasil menyelesaikan semua misi sebagai Detektif Sampah.",
+      text: "Luar biasa! Laporan terakhir sudah selesai! Berkat bantuanmu, lingkungan sekitar sudah kembali bersih dan nyaman.",
       teacherKey: 'teacher_thumbup',
       teacherScale: 1.0
     },
     {
-      text: "Hari ini kamu sudah belajar:\n\n🗑️ Membuang sampah pada tempatnya.\n♻️ Memilah sampah sesuai jenisnya.\n💧 Menjaga selokan agar air mengalir lancar.",
+      text: "Hari ini kamu sudah belajar:\n🗑️ Membuang sampah pada tempatnya.\n♻️ Memilah sampah sesuai jenisnya.\n💧 Menjaga selokan agar air mengalir lancar.",
       teacherKey: 'teacher_smile',
       teacherScale: 1.0,
       textSize: '24px' // Slightly smaller text for this long bullet point list
@@ -30,6 +31,11 @@ export class OutroScene extends Phaser.Scene {
     {
       text: "Yuk, mulai biasakan menjaga kebersihan lingkungan setiap hari! 🌱",
       teacherKey: 'teacher_thumbup',
+      teacherScale: 1.0
+    },
+    {
+      text: "Terima kasih telah menjadi Detektif Sampah yang hebat!",
+      teacherKey: 'teacher_smile',
       teacherScale: 1.0
     }
   ];
@@ -166,13 +172,29 @@ export class OutroScene extends Phaser.Scene {
       lineSpacing: 10
     });
 
+    this.nextBtn = this.add.text(dialogWidth / 2 - 30, dialogHeight / 2 - 20, 'Lanjut ➔', {
+      fontFamily: 'monospace',
+      fontSize: '26px',
+      color: '#4ade80',
+      fontStyle: 'bold'
+    }).setOrigin(1, 1).setInteractive({ useHandCursor: true }).setAlpha(0);
+
     const clickArea = this.add.zone(0, 0, dialogWidth, dialogHeight)
       .setRectangleDropZone(dialogWidth, dialogHeight)
       .setInteractive({ useHandCursor: true });
     
-    clickArea.on('pointerdown', () => this.handleDialogClick());
+    this.nextBtn.on('pointerover', () => this.nextBtn.setColor('#22c55e'));
+    this.nextBtn.on('pointerout', () => this.nextBtn.setColor('#4ade80'));
 
-    this.dialogContainer.add([dialogBg, nameBg, nameText, this.textObj, clickArea]);
+    const advanceDialog = () => {
+      this.sound.play('btn_click', { seek: 0.8 });
+      this.handleDialogClick();
+    };
+
+    clickArea.on('pointerdown', () => this.handleDialogClick());
+    this.nextBtn.on('pointerdown', advanceDialog);
+
+    this.dialogContainer.add([dialogBg, nameBg, nameText, this.textObj, clickArea, this.nextBtn]);
 
     // Animate in
     this.dialogContainer.setAlpha(0);
@@ -200,6 +222,7 @@ export class OutroScene extends Phaser.Scene {
     }
 
     this.isTyping = true;
+    this.nextBtn.setAlpha(0);
     this.currentTextContent = dialogData.text;
     this.textObj.text = '';
 
@@ -212,6 +235,12 @@ export class OutroScene extends Phaser.Scene {
         i++;
         if (i === this.currentTextContent.length) {
           this.isTyping = false;
+          this.nextBtn.setAlpha(1);
+          if (this.currentDialogIndex === this.dialogs.length - 1) {
+            this.nextBtn.setText('Selesai ➔');
+          } else {
+            this.nextBtn.setText('Lanjut ➔');
+          }
         }
       }
     });
@@ -222,6 +251,12 @@ export class OutroScene extends Phaser.Scene {
       if (this.typeWriterEvent) this.typeWriterEvent.remove();
       this.textObj.text = this.currentTextContent;
       this.isTyping = false;
+      this.nextBtn.setAlpha(1);
+      if (this.currentDialogIndex === this.dialogs.length - 1) {
+        this.nextBtn.setText('Selesai ➔');
+      } else {
+        this.nextBtn.setText('Lanjut ➔');
+      }
     } else {
       this.currentDialogIndex++;
       if (this.currentDialogIndex < this.dialogs.length) {
@@ -241,60 +276,79 @@ export class OutroScene extends Phaser.Scene {
       alpha: 0,
       duration: 500,
       onComplete: () => {
-        
-        // Badge UI
-        const badgeTitle = this.add.text(width / 2, height / 2 - 150, 'Lencana\nDetektif Sampah Hebat', {
-          fontFamily: 'monospace',
-          fontSize: '48px',
-          color: '#fef08a',
-          fontStyle: 'bold',
-          align: 'center',
+        const missionCompleteText = this.add.text(width / 2, height / 2, 'MISI SELESAI!', {
+          fontFamily: 'Fredoka One, Arial, sans-serif',
+          fontSize: '72px',
+          color: '#4ade80',
           stroke: '#000000',
-          strokeThickness: 6
-        }).setOrigin(0.5).setAlpha(0);
-        
-        const badgeIcon = this.add.text(width / 2, height / 2, '🏆', {
-          fontSize: '150px'
-        }).setOrigin(0.5).setAlpha(0).setScale(0);
+          strokeThickness: 8,
+          shadow: { offsetX: 4, offsetY: 4, color: '#000000', blur: 5, fill: true }
+        }).setOrigin(0.5).setAlpha(0).setScale(0.5);
 
         this.tweens.add({
-          targets: badgeIcon,
+          targets: missionCompleteText,
           alpha: 1,
           scale: 1,
-          angle: 360,
-          duration: 1000,
-          ease: 'Back.easeOut'
-        });
-
-        const scoreText = this.add.text(width / 2, height / 2 + 100, `Total Eco Points: ${this.registry.get('ecoPoints') || 1000}`, {
-          fontFamily: 'Fredoka One, Arial, sans-serif',
-          fontSize: '48px',
-          color: '#4ade80',
-          fontStyle: 'bold',
-          stroke: '#000000',
-          strokeThickness: 6,
-          shadow: { offsetX: 3, offsetY: 3, color: '#000000', blur: 0, fill: true }
-        }).setOrigin(0.5).setAlpha(0);
-
-        this.tweens.add({
-          targets: scoreText,
-          alpha: 1,
-          duration: 800,
-          delay: 700,
-          ease: 'Power2'
-        });
-
-        this.tweens.add({
-          targets: badgeTitle,
-          alpha: 1,
-          y: height / 2 - 200,
-          duration: 800,
-          delay: 500,
-          ease: 'Power2',
+          duration: 600,
+          ease: 'Back.easeOut',
+          hold: 1500,
+          yoyo: true,
           onComplete: () => {
-            this.createActionButtons(width, height);
-          }
-        });
+                // Badge UI
+                const badgeTitle = this.add.text(width / 2, height / 2 - 150, 'Lencana\nDetektif Sampah', {
+                  fontFamily: 'monospace',
+                  fontSize: '48px',
+                  color: '#fef08a',
+                  fontStyle: 'bold',
+                  align: 'center',
+                  stroke: '#000000',
+                  strokeThickness: 6
+                }).setOrigin(0.5).setAlpha(0);
+                
+                const badgeIcon = this.add.text(width / 2, height / 2, '🏆', {
+                  fontSize: '150px'
+                }).setOrigin(0.5).setAlpha(0).setScale(0);
+
+                this.tweens.add({
+                  targets: badgeIcon,
+                  alpha: 1,
+                  scale: 1,
+                  angle: 360,
+                  duration: 1000,
+                  ease: 'Back.easeOut'
+                });
+
+                const scoreText = this.add.text(width / 2, height / 2 + 100, `Total Eco Points: ${this.registry.get('ecoPoints') || 1000}`, {
+                  fontFamily: 'Fredoka One, Arial, sans-serif',
+                  fontSize: '48px',
+                  color: '#4ade80',
+                  fontStyle: 'bold',
+                  stroke: '#000000',
+                  strokeThickness: 6,
+                  shadow: { offsetX: 3, offsetY: 3, color: '#000000', blur: 0, fill: true }
+                }).setOrigin(0.5).setAlpha(0);
+
+                this.tweens.add({
+                  targets: scoreText,
+                  alpha: 1,
+                  duration: 800,
+                  delay: 700,
+                  ease: 'Power2'
+                });
+
+                this.tweens.add({
+                  targets: badgeTitle,
+                  alpha: 1,
+                  y: height / 2 - 200,
+                  duration: 800,
+                  delay: 500,
+                  ease: 'Power2',
+                  onComplete: () => {
+                    this.createActionButtons(width, height);
+                  }
+                });
+              }
+            });
       }
     });
   }

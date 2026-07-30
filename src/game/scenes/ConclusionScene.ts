@@ -10,9 +10,15 @@ import btnClickUrl from '../../assets/audio/button_click.mp3';
 import correctUrl from '../../assets/audio/case1/correct.wav';
 import wrongUrl from '../../assets/audio/case1/wrong.wav';
 
+// New imports for teacher
+import teacherSurprisedImg from '../../assets/characters/teachers/suprised.png';
+import teacherSmileImg from '../../assets/characters/teachers/smile.png';
+import typingAudioUrl from '../../assets/audio/keyboard-typing.wav';
+
 export class ConclusionScene extends Phaser.Scene {
   private caseId!: string;
   private bgMusic!: Phaser.Sound.BaseSound;
+  private typingSound!: Phaser.Sound.BaseSound;
 
   constructor() {
     super('ConclusionScene');
@@ -29,6 +35,11 @@ export class ConclusionScene extends Phaser.Scene {
     this.load.audio('btn_click', btnClickUrl);
     this.load.audio('correct_sfx', correctUrl);
     this.load.audio('wrong_sfx', wrongUrl);
+    
+    // Teacher assets
+    this.load.image('teacher_surprised', teacherSurprisedImg);
+    this.load.image('teacher_smile', teacherSmileImg);
+    this.load.audio('typing_sfx', typingAudioUrl);
   }
 
   create(data: { caseId: string }) {
@@ -37,43 +48,100 @@ export class ConclusionScene extends Phaser.Scene {
 
     this.bgMusic = this.sound.add('investigation_bgm', { loop: true, volume: 0.4 });
     this.bgMusic.play();
+    this.typingSound = this.sound.add('typing_sfx', { loop: true, volume: 1 });
 
     this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
       if (this.bgMusic) this.bgMusic.stop();
+      if (this.typingSound) this.typingSound.stop();
     });
 
-    // 1. Gambar ulang background investigasi
+    // Background
     const bg = this.add.image(width / 2, height / 2, 'halaman_kotor_bg');
     const scaleX = width / bg.width;
     const scaleY = height / bg.height;
     bg.setScale(Math.max(scaleX, scaleY));
 
-    // 2. Gelapkan layar (overlay)
+    // Overlay
     this.add.rectangle(0, 0, width, height, 0x000000, 0.7).setOrigin(0, 0);
 
-    // 3. Buat Modal "Kertas Resume"
-    const modalContainer = this.add.container(width / 2, height / 2);
+    // ==========================================
+    // TEACHER SETUP (Left Side)
+    // ==========================================
+    const teacher = this.add.image(width * 0.18, height, 'teacher_surprised').setOrigin(0.5, 1);
+    const teacherMaxHeight = height * 0.85;
+    teacher.setScale(teacherMaxHeight / teacher.height);
+    teacher.setFlipX(true);
+    teacher.setAlpha(0);
+
+    // Dialog Box for Teacher
+    const dialogContainer = this.add.container(width * 0.18, height * 0.15);
+    dialogContainer.setAlpha(0);
+
+    const dialogW = width * 0.32;
+    const dialogH = 180;
     
-    // PERBESAR UKURAN KERTAS AGAR MUAT 2 KOLOM
-    const modalWidth = 1400;
+    const dialogBg = this.add.graphics();
+    dialogBg.fillStyle(0x0f172a, 0.9);
+    dialogBg.fillRoundedRect(-dialogW/2, -dialogH/2, dialogW, dialogH, 20);
+    dialogBg.lineStyle(4, 0x3b82f6, 1);
+    dialogBg.strokeRoundedRect(-dialogW/2, -dialogH/2, dialogW, dialogH, 20);
+    
+    // Tail
+    dialogBg.fillStyle(0x0f172a, 0.9);
+    dialogBg.beginPath();
+    dialogBg.moveTo(0, dialogH/2);
+    dialogBg.lineTo(20, dialogH/2 + 30);
+    dialogBg.lineTo(40, dialogH/2);
+    dialogBg.fillPath();
+    dialogBg.lineStyle(4, 0x3b82f6, 1);
+    dialogBg.beginPath();
+    dialogBg.moveTo(0, dialogH/2);
+    dialogBg.lineTo(20, dialogH/2 + 30);
+    dialogBg.lineTo(40, dialogH/2);
+    dialogBg.strokePath();
+
+    const dialogText = this.add.text(0, -15, '', {
+      fontFamily: 'monospace',
+      fontSize: '24px',
+      color: '#ffffff',
+      wordWrap: { width: dialogW - 60 },
+      lineSpacing: 8,
+      align: 'center'
+    }).setOrigin(0.5);
+
+    // Next Button inside Dialog
+    const nextBtn = this.add.text(dialogW/2 - 20, dialogH/2 - 15, 'Lanjut ➔', {
+      fontFamily: 'monospace',
+      fontSize: '22px',
+      color: '#4ade80',
+      fontStyle: 'bold'
+    }).setOrigin(1, 1).setInteractive({ useHandCursor: true });
+    nextBtn.setVisible(false);
+
+    dialogContainer.add([dialogBg, dialogText, nextBtn]);
+
+    // ==========================================
+    // MODAL LAPORAN (Right Side)
+    // ==========================================
+    // Posisi di kanan
+    const modalContainer = this.add.container(width * 0.65, height / 2);
+    
+    const modalWidth = 1200;
     const modalHeight = 850;
 
-    // Bayangan kotak
     const shadow = this.add.graphics();
     shadow.fillStyle(0x000000, 0.5);
     shadow.fillRoundedRect(-modalWidth/2 + 10, -modalHeight/2 + 15, modalWidth, modalHeight, 20);
 
-    // Latar kotak (Dark Navy Gaming Style)
     const paper = this.add.graphics();
     paper.fillStyle(0x0f172a, 0.95);
     paper.fillRoundedRect(-modalWidth/2, -modalHeight/2, modalWidth, modalHeight, 20);
     paper.lineStyle(6, 0x3b82f6, 1);
     paper.strokeRoundedRect(-modalWidth/2, -modalHeight/2, modalWidth, modalHeight, 20);
 
-    // Judul
     const title = this.add.text(0, -modalHeight/2 + 60, 'LAPORAN INVESTIGASI', {
       fontFamily: 'Fredoka One, Arial, sans-serif',
-      fontSize: '48px',
+      fontSize: '42px',
       color: '#ffffff',
       fontStyle: 'bold',
       stroke: '#000000',
@@ -81,7 +149,6 @@ export class ConclusionScene extends Phaser.Scene {
       shadow: { offsetX: 2, offsetY: 2, color: '#000000', blur: 0, fill: true }
     }).setOrigin(0.5);
 
-    // Garis pemisah atas (Neon Blue)
     const lineTop = this.add.graphics();
     lineTop.lineStyle(4, 0x3b82f6, 0.8);
     lineTop.beginPath();
@@ -89,25 +156,25 @@ export class ConclusionScene extends Phaser.Scene {
     lineTop.lineTo(modalWidth/2 - 50, -modalHeight/2 + 120);
     lineTop.strokePath();
 
-    // Garis pemisah tengah (Vertikal, Neon Blue)
     const lineVert = this.add.graphics();
     lineVert.lineStyle(4, 0x3b82f6, 0.8);
     lineVert.beginPath();
     lineVert.moveTo(0, -modalHeight/2 + 120);
     lineVert.lineTo(0, modalHeight/2 - 50);
     lineVert.strokePath();
+    lineVert.setAlpha(0); // Hide initially
 
-    // ==========================================
-    // KOLOM KIRI (CLUE & GAMBAR)
-    // ==========================================
-    const cluesTitle = this.add.text(-modalWidth/2 + 60, -modalHeight/2 + 150, 'Bukti Ditemukan:', {
+    // Kolom Kiri
+    const leftColumn = this.add.container(0, 0);
+    const cluesTitle = this.add.text(-modalWidth/2 + 50, -modalHeight/2 + 150, 'Bukti Ditemukan:', {
       fontFamily: 'Fredoka One, Arial, sans-serif',
-      fontSize: '32px',
-      color: '#60a5fa', // Light Blue
+      fontSize: '28px',
+      color: '#60a5fa',
       fontStyle: 'bold',
       stroke: '#000000',
       strokeThickness: 4
     });
+    leftColumn.add(cluesTitle);
 
     const clueData = [
       { img: 'clue_botol', text: 'Botol plastik dibuang sembarangan di halaman.' },
@@ -117,59 +184,58 @@ export class ConclusionScene extends Phaser.Scene {
     ];
 
     let clueY = -modalHeight/2 + 250;
-    const leftElements: Phaser.GameObjects.GameObject[] = [cluesTitle];
+    const clueContainers: Phaser.GameObjects.Container[] = [];
 
     clueData.forEach((clue) => {
-      // Icon gambar benda
-      const img = this.add.image(-modalWidth/2 + 120, clueY, clue.img);
-      // Skalakan gambar agar pas di dalam kotak clue
-      const maxImgSize = 100;
+      const clueCont = this.add.container(0, 0);
+      const img = this.add.image(-modalWidth/2 + 110, clueY, clue.img);
+      const maxImgSize = 90;
       const scale = Math.min(maxImgSize / img.width, maxImgSize / img.height);
       img.setScale(scale);
       
-      // Teks clue
-      const text = this.add.text(-modalWidth/2 + 200, clueY, clue.text, {
+      const text = this.add.text(-modalWidth/2 + 180, clueY, clue.text, {
         fontFamily: 'Fredoka One, Arial, sans-serif',
-        fontSize: '24px',
-        color: '#e2e8f0', // Light Gray
-        wordWrap: { width: (modalWidth/2) - 250 },
+        fontSize: '20px',
+        color: '#e2e8f0',
+        wordWrap: { width: (modalWidth/2) - 210 },
         lineSpacing: 5
       }).setOrigin(0, 0.5);
 
-      leftElements.push(img, text);
-      clueY += 140; // Jarak antar clue (karena ada gambar, jaraknya lebih besar)
+      clueCont.add([img, text]);
+      clueCont.setAlpha(0); // Hide initially
+      clueContainers.push(clueCont);
+      leftColumn.add(clueCont);
+      clueY += 130;
     });
 
-    // ==========================================
-    // KOLOM KANAN (KUIS)
-    // ==========================================
-    const question = this.add.text(modalWidth/4, -modalHeight/2 + 250, 'Berdasarkan bukti di samping,\napa penyebab utama\nhalaman sekolah ini kotor?', {
+    // Kolom Kanan
+    const rightColumn = this.add.container(0, 0);
+    const question = this.add.text(modalWidth/4, -modalHeight/2 + 230, 'Dari bukti-bukti tersebut,\napa yang dapat kamu\nsimpulkan?', {
       fontFamily: 'Fredoka One, Arial, sans-serif',
-      fontSize: '32px',
-      color: '#facc15', // Yellow
+      fontSize: '28px',
+      color: '#facc15',
       fontStyle: 'bold',
       align: 'center',
-      wordWrap: { width: (modalWidth/2) - 100 },
+      wordWrap: { width: (modalWidth/2) - 80 },
       stroke: '#000000',
       strokeThickness: 4,
       shadow: { offsetX: 2, offsetY: 2, color: '#000000', blur: 0, fill: true },
-      lineSpacing: 10
+      lineSpacing: 8
     }).setOrigin(0.5);
 
     const options = [
       { id: 'A', text: 'Tempat sampah\nterlalu penuh', isCorrect: false },
       { id: 'B', text: 'Angin kencang\nmenerbangkan sampah', isCorrect: false },
-      { id: 'C', text: 'Kurangnya kesadaran\nmembuang sampah pada tempatnya', isCorrect: true }
+      { id: 'C', text: 'Ada orang yang membuang\nsampah sembarangan', isCorrect: true }
     ];
 
-    let optionY = -modalHeight/2 + 380;
+    let optionY = -modalHeight/2 + 370;
     const optionBtns: Phaser.GameObjects.Container[] = [];
 
-    // Teks Error (muncul jika jawaban salah)
-    const errorText = this.add.text(modalWidth/4, optionY + 370, '❌ Coba perhatikan lagi petunjuk\nyang sudah kamu temukan.', {
+    const errorText = this.add.text(modalWidth/4, optionY + 360, '❌ Coba perhatikan lagi petunjuk\nyang sudah kamu temukan.', {
       fontFamily: 'Fredoka One, Arial, sans-serif',
-      fontSize: '24px',
-      color: '#ef4444', // Red
+      fontSize: '22px',
+      color: '#ef4444',
       fontStyle: 'bold',
       align: 'center',
       stroke: '#000000',
@@ -178,85 +244,233 @@ export class ConclusionScene extends Phaser.Scene {
     errorText.setAlpha(0);
 
     options.forEach((opt) => {
-      const btn = this.createOptionButton(modalWidth/4, optionY, opt.id, opt.text, (modalWidth/2) - 120, () => {
+      const btnW = (modalWidth/2) - 80;
+      const btn = this.createOptionButton(modalWidth/4, optionY, opt.id, opt.text, btnW, (bg, prefixBg) => {
         this.input.setDefaultCursor('default');
-        this.sound.play('btn_click');
+        this.sound.play('btn_click', { seek: 0.8 });
         
         if (opt.isCorrect) {
-          // Jawaban Benar
           this.sound.play('correct_sfx');
-          if (this.bgMusic) this.bgMusic.stop();
-          this.scene.start('SolutionScene', { caseId: this.caseId });
+          
+          // Visual Feedback: Ubah warna tombol jadi Hijau
+          bg.clear();
+          bg.fillStyle(0x22c55e, 1);
+          bg.fillRoundedRect(-btnW/2, -40, btnW, 80, 15);
+          bg.lineStyle(4, 0xffffff, 0.8);
+          bg.strokeRoundedRect(-btnW/2 + 2, -40 + 2, btnW - 4, 80 - 4, 13);
+          
+          prefixBg.clear();
+          prefixBg.fillStyle(0x16a34a, 1);
+          prefixBg.fillRoundedRect(-btnW/2, -40, 60, 80, { tl: 15, bl: 15, tr: 0, br: 0 });
+
+          // Visual Feedback: Teks BENAR popup
+          const correctText = this.add.text(modalWidth/4, optionY, 'BENAR! ✅', {
+            fontFamily: 'Fredoka One, Arial, sans-serif',
+            fontSize: '42px',
+            color: '#4ade80',
+            fontStyle: 'bold',
+            stroke: '#000000',
+            strokeThickness: 6,
+            shadow: { offsetX: 3, offsetY: 3, color: '#000000', blur: 0, fill: true }
+          }).setOrigin(0.5).setScale(0);
+
+          rightColumn.add(correctText);
+          
+          this.tweens.add({
+            targets: correctText,
+            scale: 1.2,
+            y: optionY - 40,
+            duration: 400,
+            ease: 'Back.easeOut',
+            onComplete: () => {
+              this.tweens.add({
+                targets: correctText,
+                scale: 1,
+                duration: 200
+              });
+            }
+          });
+
+          // Jeda sebentar sebelum pindah scene agar user bisa melihat feedback
+          this.time.delayedCall(2000, () => {
+            if (this.bgMusic) this.bgMusic.stop();
+            this.scene.start('SolutionScene', { caseId: this.caseId });
+          });
+          
         } else {
-          // Jawaban Salah
-          this.sound.play('wrong_sfx');
+          // Extra volume for wrong sound as requested
+          this.sound.play('wrong_sfx', { volume: 1.5 });
           errorText.setAlpha(1);
-          // Animasi shake ringan
           this.tweens.add({
             targets: errorText,
             x: modalWidth/4 + 10,
             duration: 50,
             yoyo: true,
             repeat: 3,
-            onComplete: () => {
-              errorText.setX(modalWidth/4);
-            }
+            onComplete: () => errorText.setX(modalWidth/4)
           });
-          
-          // Hilangkan setelah beberapa detik
           this.time.delayedCall(3000, () => {
-            this.tweens.add({
-              targets: errorText,
-              alpha: 0,
-              duration: 300
-            });
+            this.tweens.add({ targets: errorText, alpha: 0, duration: 300 });
           });
         }
       });
       optionBtns.push(btn);
-      optionY += 110; // Jarak antar tombol opsi
+      optionY += 105;
     });
 
-    modalContainer.add([shadow, paper, title, lineTop, lineVert, ...leftElements, question, ...optionBtns, errorText]);
+    rightColumn.add([question, ...optionBtns, errorText]);
+    rightColumn.setAlpha(0); // Hide initially
 
-    // Efek Pop-in
-    this.sound.play('modal_sfx', { seek: 0.651 });
-    modalContainer.setScale(0.7);
+    modalContainer.add([shadow, paper, title, lineTop, lineVert, leftColumn, rightColumn]);
+    
+    const targetScale = 0.82;
+    modalContainer.setScale(targetScale);
     modalContainer.setAlpha(0);
-    this.tweens.add({
-      targets: modalContainer,
-      scale: 1,
-      alpha: 1,
-      duration: 500,
-      ease: 'Back.easeOut'
+
+    // ==========================================
+    // SEQUENCE ANIMATION
+    // ==========================================
+    let currentStep = 0;
+    let typeWriterEvent: Phaser.Time.TimerEvent;
+
+    const startTyping = (text: string) => {
+      dialogText.text = '';
+      let charIndex = 0;
+      nextBtn.setVisible(false);
+      
+      if (this.typingSound && !this.typingSound.isPlaying) {
+        this.typingSound.play();
+      }
+      
+      typeWriterEvent = this.time.addEvent({
+        delay: 35,
+        repeat: text.length - 1,
+        callback: () => {
+          dialogText.text += text[charIndex];
+          charIndex++;
+          if (charIndex === text.length) {
+            if (this.typingSound) this.typingSound.stop();
+            nextBtn.setVisible(true);
+          }
+        }
+      });
+    };
+
+    const runStep = () => {
+      if (currentStep === 0) {
+        // Step 0: Show teacher and first dialog
+        this.tweens.add({
+          targets: [teacher, dialogContainer],
+          alpha: 1,
+          duration: 500,
+          onComplete: () => {
+            startTyping("Kamu sudah mengumpulkan 4 bukti. Sekarang, cermati semua bukti yang kamu temukan.");
+          }
+        });
+      } 
+      else if (currentStep === 1) {
+        // Step 1: Show modal and clues one by one
+        nextBtn.setVisible(false);
+        this.sound.play('modal_sfx', { seek: 0.651 });
+        
+        this.tweens.add({
+          targets: modalContainer,
+          alpha: 1,
+          scale: { from: 0.5, to: targetScale },
+          ease: 'Back.easeOut',
+          duration: 500,
+          onComplete: () => {
+            // Animate clues popping in one by one
+            clueContainers.forEach((clueC, index) => {
+              this.time.delayedCall(index * 700, () => {
+                this.sound.play('btn_click', { seek: 0.8, volume: 0.5 });
+                this.tweens.add({
+                  targets: clueC,
+                  alpha: 1,
+                  x: { from: -50, to: 0 },
+                  duration: 400,
+                  ease: 'Power2'
+                });
+              });
+            });
+            
+            // Proceed to next teacher dialog after clues are shown
+            this.time.delayedCall(clueContainers.length * 700 + 500, () => {
+              currentStep++;
+              runStep();
+            });
+          }
+        });
+      }
+      else if (currentStep === 2) {
+        // Step 2: Teacher changes expression and says next line
+        teacher.setTexture('teacher_smile');
+        startTyping("Sekarang isi laporan investigasimu!");
+      }
+      else if (currentStep === 3) {
+        // Step 3: Show right column (Quiz)
+        nextBtn.setVisible(false); // Hide it permanently as they need to answer the quiz
+        this.sound.play('btn_click', { seek: 0.8, volume: 0.7 });
+        this.tweens.add({
+          targets: [lineVert, rightColumn],
+          alpha: 1,
+          duration: 500
+        });
+      }
+    };
+
+    nextBtn.on('pointerover', () => nextBtn.setColor('#22c55e'));
+    nextBtn.on('pointerout', () => nextBtn.setColor('#4ade80'));
+    nextBtn.on('pointerdown', () => {
+      this.sound.play('btn_click', { seek: 0.8 });
+      
+      // If typing, finish typing immediately
+      if (typeWriterEvent && typeWriterEvent.getProgress() < 1) {
+        typeWriterEvent.remove();
+        if (this.typingSound) this.typingSound.stop();
+        
+        if (currentStep === 0) {
+          dialogText.text = "Kamu sudah mengumpulkan 4 bukti. Sekarang, cermati semua bukti yang kamu temukan.";
+        } else if (currentStep === 2) {
+          dialogText.text = "Sekarang isi laporan investigasimu!";
+        }
+        nextBtn.setVisible(true);
+      } else {
+        // proceed to next step
+        currentStep++;
+        runStep();
+      }
     });
+
+    // Start Sequence
+    this.time.delayedCall(500, () => runStep());
   }
 
-  private createOptionButton(x: number, y: number, prefix: string, text: string, width: number, onClick: () => void) {
+  private createOptionButton(x: number, y: number, prefix: string, text: string, width: number, onClick: (bg: Phaser.GameObjects.Graphics, prefixBg: Phaser.GameObjects.Graphics) => void) {
     const container = this.add.container(x, y);
-    const height = 75; // Slightly taller for gaming style
+    const height = 80;
 
     const shadow = this.add.graphics();
     shadow.fillStyle(0x000000, 0.4);
     shadow.fillRoundedRect(-width/2 + 4, -height/2 + 6, width, height, 15);
 
     const bg = this.add.graphics();
-    bg.fillStyle(0x1e3a8a, 1); // Dark blue button
+    bg.fillStyle(0x1e3a8a, 1);
     bg.fillRoundedRect(-width/2, -height/2, width, height, 15);
-    bg.lineStyle(4, 0xffffff, 0.2); // Inner highlight
+    bg.lineStyle(4, 0xffffff, 0.2);
     bg.strokeRoundedRect(-width/2 + 2, -height/2 + 2, width - 4, height - 4, 13);
-    bg.lineStyle(3, 0x000000, 1); // Outer border
+    bg.lineStyle(3, 0x000000, 1);
     bg.strokeRoundedRect(-width/2, -height/2, width, height, 15);
 
     const prefixBg = this.add.graphics();
-    prefixBg.fillStyle(0x3b82f6, 1); // Neon blue prefix
-    prefixBg.fillRoundedRect(-width/2, -height/2, 70, height, { tl: 15, bl: 15, tr: 0, br: 0 });
+    prefixBg.fillStyle(0x3b82f6, 1);
+    prefixBg.fillRoundedRect(-width/2, -height/2, 60, height, { tl: 15, bl: 15, tr: 0, br: 0 });
     prefixBg.lineStyle(3, 0x000000, 1);
-    prefixBg.strokeRoundedRect(-width/2, -height/2, 70, height, { tl: 15, bl: 15, tr: 0, br: 0 });
+    prefixBg.strokeRoundedRect(-width/2, -height/2, 60, height, { tl: 15, bl: 15, tr: 0, br: 0 });
 
-    const prefixText = this.add.text(-width/2 + 35, 0, prefix, {
+    const prefixText = this.add.text(-width/2 + 30, 0, prefix, {
       fontFamily: 'Fredoka One, Arial, sans-serif',
-      fontSize: '32px',
+      fontSize: '28px',
       color: '#ffffff',
       fontStyle: 'bold',
       stroke: '#000000',
@@ -264,9 +478,9 @@ export class ConclusionScene extends Phaser.Scene {
       shadow: { offsetX: 2, offsetY: 2, color: '#000000', blur: 0, fill: true }
     }).setOrigin(0.5);
 
-    const labelText = this.add.text(-width/2 + 90, 0, text, {
+    const labelText = this.add.text(-width/2 + 75, 0, text, {
       fontFamily: 'Fredoka One, Arial, sans-serif',
-      fontSize: '22px',
+      fontSize: '20px',
       color: '#ffffff',
       fontStyle: 'bold',
       stroke: '#000000',
@@ -283,15 +497,13 @@ export class ConclusionScene extends Phaser.Scene {
     container.on('pointerover', () => {
       if (isClicking) return;
       this.input.setDefaultCursor('pointer');
-      
       bg.clear();
-      bg.fillStyle(0x3b82f6, 1); // Hover brighter blue
+      bg.fillStyle(0x3b82f6, 1);
       bg.fillRoundedRect(-width/2, -height/2, width, height, 15);
       bg.lineStyle(4, 0xffffff, 0.5);
       bg.strokeRoundedRect(-width/2 + 2, -height/2 + 2, width - 4, height - 4, 13);
       bg.lineStyle(3, 0x000000, 1);
       bg.strokeRoundedRect(-width/2, -height/2, width, height, 15);
-      
       container.y -= 2;
       shadow.y = 2;
     });
@@ -299,7 +511,6 @@ export class ConclusionScene extends Phaser.Scene {
     container.on('pointerout', () => {
       if (isClicking) return;
       this.input.setDefaultCursor('default');
-      
       bg.clear();
       bg.fillStyle(0x1e3a8a, 1);
       bg.fillRoundedRect(-width/2, -height/2, width, height, 15);
@@ -307,7 +518,6 @@ export class ConclusionScene extends Phaser.Scene {
       bg.strokeRoundedRect(-width/2 + 2, -height/2 + 2, width - 4, height - 4, 13);
       bg.lineStyle(3, 0x000000, 1);
       bg.strokeRoundedRect(-width/2, -height/2, width, height, 15);
-      
       container.y = y;
       shadow.y = 0;
     });
@@ -316,13 +526,11 @@ export class ConclusionScene extends Phaser.Scene {
       if (isClicking) return;
       isClicking = true;
       this.input.setDefaultCursor('default');
-      
       container.y = y + 4;
       shadow.y = -4;
 
       setTimeout(() => {
-        onClick();
-        // Reset state manually in case it doesn't change scene (wrong answer)
+        onClick(bg, prefixBg);
         isClicking = false;
         container.y = y;
         shadow.y = 0;

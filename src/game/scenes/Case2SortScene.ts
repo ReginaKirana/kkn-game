@@ -341,7 +341,7 @@ export class Case2SortScene extends Phaser.Scene {
     });
 
     createBackButton(this, 70, 70, () => {
-      this.sound.play('btn_click');
+      this.sound.play('btn_click', { seek: 0.8 });
       this.scene.start('CaseSelectScene', { case2Unlocked: true });
     });
   }
@@ -399,7 +399,17 @@ export class Case2SortScene extends Phaser.Scene {
       .setRectangleDropZone(dialogWidth, dialogHeight)
       .setInteractive({ useHandCursor: true });
     
-    dialogContainer.add([dialogBg, nameBg, nameText, textObj, clickArea]);
+    const nextBtn = this.add.text(dialogWidth / 2 - 30, dialogHeight / 2 - 20, 'Selesai ➔', {
+      fontFamily: 'monospace',
+      fontSize: '26px',
+      color: '#4ade80',
+      fontStyle: 'bold'
+    }).setOrigin(1, 1).setInteractive({ useHandCursor: true }).setAlpha(0);
+
+    nextBtn.on('pointerover', () => nextBtn.setColor('#22c55e'));
+    nextBtn.on('pointerout', () => nextBtn.setColor('#4ade80'));
+
+    dialogContainer.add([dialogBg, nameBg, nameText, textObj, clickArea, nextBtn]);
     dialogContainer.setAlpha(0);
     dialogContainer.y += 50;
 
@@ -430,19 +440,22 @@ export class Case2SortScene extends Phaser.Scene {
                 i++;
                 if (i >= content.length) {
                   isTyping = false;
+                  nextBtn.setAlpha(1);
                   if (this.typingSound) this.typingSound.stop();
                 }
               }
             });
 
-            clickArea.on('pointerdown', () => {
+            const advanceDialog = () => {
               if (isTyping) {
                 typeWriterEvent.remove();
                 textObj.text = content;
                 isTyping = false;
+                nextBtn.setAlpha(1);
                 if (this.typingSound) this.typingSound.stop();
               } else {
                 clickArea.disableInteractive();
+                nextBtn.disableInteractive();
                 this.tweens.add({
                   targets: [dialogContainer, teacher],
                   alpha: 0,
@@ -454,6 +467,12 @@ export class Case2SortScene extends Phaser.Scene {
                   }
                 });
               }
+            };
+
+            clickArea.on('pointerdown', advanceDialog);
+            nextBtn.on('pointerdown', () => {
+              this.sound.play('btn_click', { seek: 0.8 });
+              advanceDialog();
             });
           }
         });
@@ -552,7 +571,7 @@ export class Case2SortScene extends Phaser.Scene {
       if (isClicking) return;
       isClicking = true;
       this.input.setDefaultCursor('default');
-      this.sound.play('btn_click');
+      this.sound.play('btn_click', { seek: 0.8 });
       nextBtnContainer.y = nextBtnY + 4;
       shadow.y = -4;
       
@@ -722,7 +741,7 @@ export class Case2SortScene extends Phaser.Scene {
 
       nextBtnContainer.on('pointerdown', () => {
         this.input.setDefaultCursor('default');
-        this.sound.play('btn_click');
+        this.sound.play('btn_click', { seek: 0.8 });
         isTutorialActive = false;
         
         this.tweens.add({

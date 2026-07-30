@@ -37,13 +37,13 @@ export class Case2AnalysisScene extends Phaser.Scene {
   private dialogs = [
     {
       speaker: 'Ibu Guru',
-      text: "Sekarang semua petunjuk sudah ditemukan.",
+      text: "Kerja bagus! Sekarang kamu sudah tahu kalau sampah punya jenis yang berbeda.",
       color: 0x3b82f6,
       teacherKey: 'teacher_smile'
     },
     {
       speaker: 'Ibu Guru',
-      text: "Menurutmu, mengapa sampah perlu dipilah?",
+      text: "Menurutmu, kenapa sampah perlu dipilah?",
       color: 0x3b82f6,
       teacherKey: 'teacher_surprised',
       showOptions: true
@@ -58,7 +58,13 @@ export class Case2AnalysisScene extends Phaser.Scene {
       speaker: 'Ibu Guru',
       text: "Benar! Sampah perlu dipilah agar dapat diolah sesuai jenisnya.",
       color: 0x3b82f6,
-      teacherKey: 'teacher_thumbup',
+      teacherKey: 'teacher_thumbup'
+    },
+    {
+      speaker: 'Ibu Guru',
+      text: "Sekarang saatnya kamu memilah sampah sesuai jenisnya!",
+      color: 0x3b82f6,
+      teacherKey: 'teacher_smile',
       isEnd: true
     }
   ];
@@ -265,7 +271,7 @@ export class Case2AnalysisScene extends Phaser.Scene {
 
     this.nextBtnContainer.on('pointerdown', () => {
       this.input.setDefaultCursor('default');
-      this.sound.play('btn_click');
+      this.sound.play('btn_click', { seek: 0.8 });
       if (this.isTyping) {
         if (this.typeWriterEvent) this.typeWriterEvent.remove();
         this.textObj.text = this.dialogs[this.currentDialogIndex].text;
@@ -525,6 +531,24 @@ export class Case2AnalysisScene extends Phaser.Scene {
           
           this.registry.set('ecoPoints', (this.registry.get('ecoPoints') || 0) + 5);
           
+          // UI Point Animation (+5 EP)
+          const epText = this.add.text(this.cameras.main.width / 2, this.cameras.main.height / 2 - 100 + yPos, '+5 EP', {
+            fontFamily: 'Fredoka One, Arial, sans-serif',
+            fontSize: '32px',
+            color: '#facc15', // Yellow
+            stroke: '#000000',
+            strokeThickness: 5
+          }).setOrigin(0.5).setDepth(100);
+
+          this.tweens.add({
+            targets: epText,
+            y: '-=50',
+            alpha: 0,
+            duration: 1200,
+            ease: 'Power2',
+            onComplete: () => epText.destroy()
+          });
+
           setTimeout(() => {
             this.hideOptions();
             this.currentDialogIndex++;
@@ -533,7 +557,7 @@ export class Case2AnalysisScene extends Phaser.Scene {
             const nBg = this.registry.get('c2a_nBg');
             const nText = this.registry.get('c2a_nText');
             this.startTyping(this.dialogs, dWidth, dHeight, nBg, nText);
-          }, 600);
+          }, 1200);
         } else {
           // Salah
           this.sound.play('wrong');
@@ -545,7 +569,14 @@ export class Case2AnalysisScene extends Phaser.Scene {
           btnBg.lineStyle(3, 0x000000, 1);
           btnBg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
           
-          this.cameras.main.shake(200, 0.01);
+          this.tweens.add({
+            targets: btnContainer,
+            x: 10,
+            duration: 50,
+            yoyo: true,
+            repeat: 3,
+            onComplete: () => btnContainer.setX(0)
+          });
           setTimeout(() => {
             // Restore visual
             btnBg.clear();

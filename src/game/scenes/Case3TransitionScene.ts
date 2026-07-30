@@ -21,6 +21,7 @@ export class Case3TransitionScene extends Phaser.Scene {
   private textObj!: Phaser.GameObjects.Text;
   private typeWriterEvent!: Phaser.Time.TimerEvent;
   private overlay!: Phaser.GameObjects.Rectangle;
+  private nextBtn!: Phaser.GameObjects.Text;
   
   private currentDialogIndex = 0;
   private isTyping = false;
@@ -214,13 +215,29 @@ export class Case3TransitionScene extends Phaser.Scene {
       lineSpacing: 10
     });
 
+    this.nextBtn = this.add.text(dialogWidth / 2 - 30, dialogHeight / 2 - 20, 'Lanjut ➔', {
+      fontFamily: 'monospace',
+      fontSize: '26px',
+      color: '#4ade80',
+      fontStyle: 'bold'
+    }).setOrigin(1, 1).setInteractive({ useHandCursor: true }).setAlpha(0);
+
     const clickArea = this.add.zone(0, 0, dialogWidth, dialogHeight)
       .setRectangleDropZone(dialogWidth, dialogHeight)
       .setInteractive({ useHandCursor: true });
     
-    clickArea.on('pointerdown', () => this.handleDialogClick());
+    this.nextBtn.on('pointerover', () => this.nextBtn.setColor('#22c55e'));
+    this.nextBtn.on('pointerout', () => this.nextBtn.setColor('#4ade80'));
 
-    this.dialogContainer.add([dialogBg, nameBg, nameText, this.textObj, clickArea]);
+    const advanceDialog = () => {
+      this.sound.play('btn_click', { seek: 0.8 });
+      this.handleDialogClick();
+    };
+
+    clickArea.on('pointerdown', () => this.handleDialogClick());
+    this.nextBtn.on('pointerdown', advanceDialog);
+
+    this.dialogContainer.add([dialogBg, nameBg, nameText, this.textObj, clickArea, this.nextBtn]);
   }
 
   private showEndingSequence() {
@@ -258,6 +275,7 @@ export class Case3TransitionScene extends Phaser.Scene {
     this.teacher.setScale((teacherMaxHeight / this.teacher.height) * (dialogData.teacherScale || 1));
 
     this.isTyping = true;
+    this.nextBtn.setAlpha(0);
     this.currentTextContent = dialogData.text;
     this.textObj.text = '';
 
@@ -272,6 +290,12 @@ export class Case3TransitionScene extends Phaser.Scene {
         if (i === this.currentTextContent.length) {
           this.isTyping = false;
           if (this.typingSound) this.typingSound.stop();
+          this.nextBtn.setAlpha(1);
+          if (this.currentDialogIndex === this.dialogs.length - 1) {
+            this.nextBtn.setText('Selesai ➔');
+          } else {
+            this.nextBtn.setText('Lanjut ➔');
+          }
         }
       }
     });
@@ -283,6 +307,12 @@ export class Case3TransitionScene extends Phaser.Scene {
       this.textObj.text = this.currentTextContent;
       this.isTyping = false;
       if (this.typingSound) this.typingSound.stop();
+      this.nextBtn.setAlpha(1);
+      if (this.currentDialogIndex === this.dialogs.length - 1) {
+        this.nextBtn.setText('Selesai ➔');
+      } else {
+        this.nextBtn.setText('Lanjut ➔');
+      }
     } else {
       this.currentDialogIndex++;
       if (this.currentDialogIndex < this.dialogs.length) {
@@ -393,7 +423,7 @@ export class Case3TransitionScene extends Phaser.Scene {
       if (isClicking) return;
       isClicking = true;
       this.input.setDefaultCursor('default');
-      this.sound.play('btn_click');
+      this.sound.play('btn_click', { seek: 0.8 });
       nextBtnContainer.y = nextBtnY + 4;
       shadow.y = -4;
 

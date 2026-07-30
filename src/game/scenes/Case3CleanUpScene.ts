@@ -244,7 +244,7 @@ export class Case3CleanUpScene extends Phaser.Scene {
     });
 
     createBackButton(this, 70, 70, () => {
-      this.sound.play('btn_click');
+      this.sound.play('btn_click', { seek: 0.8 });
       this.scene.start('CaseSelectScene', { case3Unlocked: true });
     });
   }
@@ -411,7 +411,7 @@ export class Case3CleanUpScene extends Phaser.Scene {
 
       nextBtnContainer.on('pointerdown', () => {
         this.input.setDefaultCursor('default');
-        this.sound.play('btn_click');
+        this.sound.play('btn_click', { seek: 0.8 });
         isTutorialActive = false; // Stop cursor loop
 
         // Animasi keluar

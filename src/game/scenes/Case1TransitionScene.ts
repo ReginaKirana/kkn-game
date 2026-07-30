@@ -64,8 +64,33 @@ export class Case1TransitionScene extends Phaser.Scene {
                 
                 const sparkle = this.sound.add('sparkle', { volume: 0.8 });
                 sparkle.play();
-                this.time.delayedCall(2000, () => {
+                this.time.delayedCall(3000, () => {
                   if (sparkle.isPlaying) sparkle.stop();
+                });
+                
+                // Flash effect
+                const flash = this.add.rectangle(0, 0, width, height, 0xffffff, 1).setOrigin(0).setDepth(22);
+                this.tweens.add({ targets: flash, alpha: 0, duration: 1000, onComplete: () => flash.destroy() });
+
+                // BERSIH text
+                const bersihText = this.add.text(width / 2, height / 2 - 50, 'BERSIH! ✨', {
+                    fontFamily: 'Fredoka One, Arial, sans-serif',
+                    fontSize: '80px',
+                    color: '#4ade80', // Green
+                    stroke: '#ffffff',
+                    strokeThickness: 12,
+                    shadow: { offsetX: 4, offsetY: 4, color: '#000000', blur: 5, fill: true }
+                }).setOrigin(0.5).setAlpha(0).setScale(0).setDepth(23);
+
+                this.tweens.add({
+                    targets: bersihText,
+                    alpha: 1,
+                    scale: 1,
+                    duration: 500,
+                    ease: 'Back.easeOut',
+                    yoyo: true,
+                    hold: 1500,
+                    onComplete: () => bersihText.destroy()
                 });
 
                 this.tweens.add({
@@ -120,8 +145,10 @@ export class Case1TransitionScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     const dialogTexts = [
-      "Hebat, Detektif! Kamu berhasil menemukan penyebab halaman sekolah menjadi kotor dan membersihkannya.",
-      "Ingat ya, membuang sampah pada tempatnya akan membuat lingkungan tetap bersih dan nyaman."
+      "Good job, Detektif! Kamu berhasil menyelesaikan tahap pertama dengan menemukan penyebab dari lingkungan sekolah yang kotor dan membersihkannya.",
+      "Namun, ada hal menarik dari bukti yang sudah kamu kumpulkan.",
+      "Sampah yang ditemukan ternyata berbeda-beda.",
+      "Yuk, lanjutkan penyelidikan ke tahap selanjutnya."
     ];
     let currentDialogIndex = 0;
 
@@ -138,8 +165,16 @@ export class Case1TransitionScene extends Phaser.Scene {
     let currentTextContent = "";
     let typingSound: Phaser.Sound.BaseSound | null = null;
 
+    const nextBtn = this.add.text(dialogWidth / 2 - 30, dialogHeight / 2 - 20, 'Lanjut ➔', {
+      fontFamily: 'monospace',
+      fontSize: '26px',
+      color: '#4ade80',
+      fontStyle: 'bold'
+    }).setOrigin(1, 1).setInteractive({ useHandCursor: true }).setAlpha(0);
+
     const startTyping = () => {
       textObj.text = "";
+      nextBtn.setAlpha(0);
       currentTextContent = dialogTexts[currentDialogIndex];
       isTyping = true;
       typingSound = this.sound.add('keyboard_typing', { loop: true, volume: 0.5 });
@@ -154,6 +189,7 @@ export class Case1TransitionScene extends Phaser.Scene {
           if (charIndex >= currentTextContent.length) { 
             isTyping = false; 
             if (typingSound) typingSound.stop();
+            nextBtn.setAlpha(1);
           }
         }
       });
@@ -164,22 +200,27 @@ export class Case1TransitionScene extends Phaser.Scene {
       .setRectangleDropZone(dialogWidth, dialogHeight)
       .setInteractive({ useHandCursor: true });
 
-    dialogContainer.add([dialogBg, nameBg, nameText, textObj, clickArea]);
+    dialogContainer.add([dialogBg, nameBg, nameText, textObj, clickArea, nextBtn]);
     dialogContainer.setAlpha(0);
     dialogContainer.y += 50;
     this.tweens.add({ targets: dialogContainer, alpha: 1, y: height - 150, duration: 500, delay: 400, ease: 'Power2' });
 
-    clickArea.on('pointerdown', () => {
+    nextBtn.on('pointerover', () => nextBtn.setColor('#22c55e'));
+    nextBtn.on('pointerout', () => nextBtn.setColor('#4ade80'));
+
+    const advanceDialog = () => {
       if (isTyping) {
         typeWriterEvent.remove();
         textObj.text = currentTextContent;
         isTyping = false;
         if (typingSound) typingSound.stop();
+        nextBtn.setAlpha(1);
       } else {
         currentDialogIndex++;
         if (currentDialogIndex < dialogTexts.length) { startTyping(); }
         else {
           clickArea.disableInteractive();
+          nextBtn.disableInteractive();
           this.tweens.add({
             targets: [dialogContainer, teacher],
             alpha: 0,
@@ -192,7 +233,14 @@ export class Case1TransitionScene extends Phaser.Scene {
           });
         }
       }
+    };
+
+    clickArea.on('pointerdown', advanceDialog);
+    nextBtn.on('pointerdown', () => {
+      this.sound.play('btn_click', { seek: 0.8 });
+      advanceDialog();
     });
+
   }
 
   private showFinalResult(width: number, height: number) {
@@ -286,7 +334,7 @@ export class Case1TransitionScene extends Phaser.Scene {
       if (isClicking) return;
       isClicking = true;
       this.input.setDefaultCursor('default');
-      this.sound.play('button_click', { volume: 0.8 });
+      this.sound.play('button_click', { volume: 0.8, seek: 0.8 });
       nextBtnContainer.y = nextBtnY + 4;
       shadow.y = -4;
 

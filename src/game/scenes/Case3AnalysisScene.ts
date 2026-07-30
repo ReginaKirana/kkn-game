@@ -122,6 +122,14 @@ export class Case3AnalysisScene extends Phaser.Scene {
         color: 0x3b82f6,
         teacherKey: 'teacher_thumbup',
         playerKey: 'boy_idle',
+        teacherScale: 1.0
+      },
+      {
+        speaker: 'Ibu Guru',
+        text: "Sekarang saatnya kamu melaksanakan tugas selanjutnya dengan mengumpulkan sampah yang ada di selokan",
+        color: 0x3b82f6,
+        teacherKey: 'teacher_smile',
+        playerKey: 'boy_idle',
         teacherScale: 1.0,
         isEnd: true
       }
@@ -175,7 +183,7 @@ export class Case3AnalysisScene extends Phaser.Scene {
     this.createOptionsUI(width, height);
 
     createBackButton(this, 70, 70, () => {
-      this.sound.play('btn_click');
+      this.sound.play('btn_click', { seek: 0.8 });
       this.scene.start('CaseSelectScene', { case3Unlocked: true });
     });
   }
@@ -273,7 +281,7 @@ export class Case3AnalysisScene extends Phaser.Scene {
 
     this.nextBtnContainer.on('pointerdown', () => {
       this.input.setDefaultCursor('default');
-      this.sound.play('btn_click');
+      this.sound.play('btn_click', { seek: 0.8 });
       const dialogs = this.registry.get('c3a_dialogs');
       if (this.isTyping) {
         if (this.typeWriterEvent) this.typeWriterEvent.remove();
@@ -530,6 +538,24 @@ export class Case3AnalysisScene extends Phaser.Scene {
           
           this.registry.set('ecoPoints', (this.registry.get('ecoPoints') || 0) + 5);
           
+          // UI Point Animation (+5 EP)
+          const epText = this.add.text(this.cameras.main.width / 2, this.cameras.main.height / 2 - 100 + yPos, '+5 EP', {
+            fontFamily: 'Fredoka One, Arial, sans-serif',
+            fontSize: '32px',
+            color: '#facc15', // Yellow
+            stroke: '#000000',
+            strokeThickness: 5
+          }).setOrigin(0.5).setDepth(100);
+
+          this.tweens.add({
+            targets: epText,
+            y: '-=50',
+            alpha: 0,
+            duration: 1200,
+            ease: 'Power2',
+            onComplete: () => epText.destroy()
+          });
+
           setTimeout(() => {
             this.hideOptions();
             this.currentDialogIndex++;
@@ -539,7 +565,7 @@ export class Case3AnalysisScene extends Phaser.Scene {
             const nBg = this.registry.get('c3a_nBg');
             const nText = this.registry.get('c3a_nText');
             this.startTyping(dialogs, dWidth, dHeight, nBg, nText);
-          }, 600);
+          }, 1200);
         } else {
           // Salah
           this.sound.play('wrong');
@@ -551,7 +577,14 @@ export class Case3AnalysisScene extends Phaser.Scene {
           btnBg.lineStyle(3, 0x000000, 1);
           btnBg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
           
-          this.cameras.main.shake(200, 0.01);
+          this.tweens.add({
+            targets: btnContainer,
+            x: 10,
+            duration: 50,
+            yoyo: true,
+            repeat: 3,
+            onComplete: () => btnContainer.setX(0)
+          });
           setTimeout(() => {
             // Restore visual
             btnBg.clear();

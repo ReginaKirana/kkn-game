@@ -229,7 +229,7 @@ export class CleanUpScene extends Phaser.Scene {
     this.input.on('drop', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Image, dropZone: Phaser.GameObjects.Zone) => {
       gameObject.disableInteractive();
 
-      this.sound.play('masuk_sampah', { volume: 0.8 });
+      this.sound.play('masuk_sampah', { volume: 1.5, seek: 0.2 });
 
       // Add Eco Points
       let currentEp = this.registry.get('ecoPoints') || 1000;
@@ -242,9 +242,9 @@ export class CleanUpScene extends Phaser.Scene {
 
       this.tweens.add({
         targets: bonusText,
-        y: '-=50',
+        y: '-=60',
         alpha: 0,
-        duration: 1000,
+        duration: 1500,
         ease: 'Power2',
         onComplete: () => bonusText.destroy()
       });

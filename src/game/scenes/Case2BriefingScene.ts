@@ -114,7 +114,7 @@ export class Case2BriefingScene extends Phaser.Scene {
     });
 
     createBackButton(this, 70, 70, () => {
-      this.sound.play('btn_click');
+      this.sound.play('btn_click', { seek: 0.8 });
       this.scene.start('CaseSelectScene', { case2Unlocked: true });
     });
   }
@@ -156,25 +156,32 @@ export class Case2BriefingScene extends Phaser.Scene {
     const dialogues = [
       {
         speaker: 'Ibu Guru',
-        text: "Hebat! Halaman sekolah sudah bersih.",
+        text: "Guru: Selamat kamu sudah menyelesaikan tahap pertama.",
         color: 0x3b82f6, // Blue
         teacherKey: 'teacher_thumbup',
         teacherScale: 1.0
       },
-      {
-        speaker: playerName,
-        text: "Tetapi… semua sampah yang terkumpul ini masih tercampur ya, Bu?",
-        color: 0x16a34a, // Green
-        teacherKey: 'teacher_thumbup', // Jangan berubah sebelum ngomong
+       {
+        speaker: 'Ibu Guru',
+        text: "Dari hasil laporan investigasimu, kamu menemukan berbagai macam sampah.",
+        color: 0x3b82f6, // Blue
+        teacherKey: 'teacher_thinking',
+        teacherScale: 0.85
+      },
+       {
+        speaker: 'Ibu Guru',
+        text: "  Tugasmu selanjutnya adalah mencari tahu jenis setiap sampah agar mudah dipilah.",
+        color: 0x3b82f6, // Blue
+        teacherKey: 'teacher_suprised',
         teacherScale: 1.0
       },
       {
-        speaker: 'Ibu Guru',
-        text: "Benar sekali. Menurutmu, apakah semua sampah ini boleh dibuang ke tempat yang sama?",
-        color: 0x3b82f6,
-        teacherKey: 'teacher_thinking',
-        teacherScale: 0.85 // Dikecilin ukurannya
-      }
+        speaker: playerName,
+        text: "Kalau begitu, aku harus menyelediki jenis setiap sampah!",
+        color: 0x16a34a, // Green
+        teacherKey: 'teacher_suprised', // Jangan berubah sebelum ngomong
+        teacherScale: 1.0
+      },
     ];
 
     // Tombol Lanjut (Gaming Style)
@@ -238,7 +245,7 @@ export class Case2BriefingScene extends Phaser.Scene {
 
     this.nextBtnContainer.on('pointerdown', () => {
       this.input.setDefaultCursor('default');
-      this.sound.play('btn_click');
+      this.sound.play('btn_click', { seek: 0.8 });
       if (this.isTyping) {
         if (this.typeWriterEvent) this.typeWriterEvent.remove();
         this.textObj.text = dialogues[this.currentDialogIndex].text;

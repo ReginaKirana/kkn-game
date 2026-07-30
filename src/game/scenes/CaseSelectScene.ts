@@ -243,7 +243,7 @@ export class CaseSelectScene extends Phaser.Scene {
 
       selidikiBtn.on('pointerdown', () => {
         this.input.setDefaultCursor('default');
-        this.sound.play('btn_click');
+        this.sound.play('btn_click', { seek: 0.8 });
         if (caseId === 'kasus_sampah') {
           this.scene.start('Case2BriefingScene');
         } else if (caseId === 'kasus_selokan') {
