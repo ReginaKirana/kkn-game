@@ -62,11 +62,11 @@ export default function Layout() {
 
             {/* Tim KKN */}
             <div>
-              <h3 style={{ color: '#1e293b', fontWeight: '800', fontSize: '1.25rem', marginBottom: '20px' }}>Tim KKN Cibelok 2026</h3>
+              <h3 style={{ color: '#1e293b', fontWeight: '800', fontSize: '1.25rem', marginBottom: '20px' }}>Tim II KKN UNDIP Cibelok 2026</h3>
               <div style={{ color: '#64748b', fontSize: '0.95rem', lineHeight: 1.8 }}>
                 <div style={{ marginBottom: '12px' }}>
                   <span style={{ color: '#16a34a', fontWeight: '800' }}>Tim Pengembang Game & Web:</span><br/>
-                  Regina & Kathrina
+                  Regina & Khaterina
                 </div>
                 <div>
                   <span style={{ color: '#16a34a', fontWeight: '800' }}>Anggota Tim Lainnya:</span><br/>
