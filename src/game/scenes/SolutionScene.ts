@@ -30,7 +30,8 @@ export class SolutionScene extends Phaser.Scene {
 
     if (!this.sound.get('investigasi_bg')?.isPlaying) {
       this.sound.stopAll();
-      this.sound.play('investigasi_bg', { loop: true, volume: 0.4 });
+      const bgm = this.sound.add('investigasi_bg', { loop: true, volume: 0.4 });
+      bgm.play();
     }
 
     // 1. Background
@@ -179,122 +180,131 @@ export class SolutionScene extends Phaser.Scene {
 
     startTyping();
 
-    // Tombol Lanjut (Gaming Style)
-    const btnWidth = 240; 
-    const btnHeight = 55;
-    const nextBtnY = dialogHeight/2 - 45;
-    const nextBtnContainer = this.add.container(dialogWidth/2 - 150, nextBtnY);
-
-    const shadow = this.add.graphics();
-    shadow.fillStyle(0x000000, 0.4);
-    shadow.fillRoundedRect(-btnWidth/2 + 3, -btnHeight/2 + 4, btnWidth, btnHeight, 15);
-
-    const nextBtnBg = this.add.graphics();
-    nextBtnBg.fillStyle(0x16a34a, 1); // Green
-    nextBtnBg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
-    nextBtnBg.lineStyle(4, 0xffffff, 0.3);
-    nextBtnBg.strokeRoundedRect(-btnWidth/2 + 2, -btnHeight/2 + 2, btnWidth - 4, btnHeight - 4, 13);
-    nextBtnBg.lineStyle(3, 0x000000, 1);
-    nextBtnBg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
-
-    const nextBtnText = this.add.text(0, 0, 'LANJUT ➔', {
-      fontFamily: 'Fredoka One, Arial, sans-serif',
-      fontSize: '20px',
-      color: '#ffffff',
-      fontStyle: 'bold',
-      stroke: '#000000',
-      strokeThickness: 3,
-      shadow: { offsetX: 2, offsetY: 2, color: '#000000', blur: 0, fill: true }
-    }).setOrigin(0.5);
-
-    nextBtnContainer.add([shadow, nextBtnBg, nextBtnText]);
-    nextBtnContainer.setAlpha(0);
+    // Tombol Lanjut (Teks Saja)
+    const nextBtnText = this.add.text(dialogWidth / 2 - 30, dialogHeight / 2 - 20, 'Lanjut ➔', {
+      fontFamily: 'monospace',
+      fontSize: '26px',
+      color: '#4ade80',
+      fontStyle: 'bold'
+    }).setOrigin(1, 1).setAlpha(0).setInteractive({ useHandCursor: true });
 
     // Munculkan tombol Lanjut setelah teks pertama selesai (kasih delay sedikit)
     this.time.delayedCall(dialogues[0].text.length * 30 + 500, () => {
       this.tweens.add({
-        targets: nextBtnContainer,
+        targets: nextBtnText,
         alpha: 1,
         duration: 300
       });
-      
-      const hitArea = new Phaser.Geom.Rectangle(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight);
-      nextBtnContainer.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
     });
 
-    // Interaksi Tombol
+    // Tombol Bersihkan (Gaming Style, Blue)
+    const bersihkanBtn = this.add.container(dialogWidth / 2 - 110, dialogHeight / 2 - 40);
+    const bersihkanBg = this.add.graphics();
+    bersihkanBg.fillStyle(0x3b82f6, 1);
+    bersihkanBg.fillRoundedRect(-85, -25, 170, 50, 15);
+    
+    const bersihkanText = this.add.text(0, 0, 'Bersihkan', {
+      fontFamily: 'monospace',
+      fontSize: '22px',
+      color: '#ffffff',
+      fontStyle: 'bold'
+    }).setOrigin(0.5);
+    
+    bersihkanBtn.add([bersihkanBg, bersihkanText]);
+    bersihkanBtn.setAlpha(0);
+    
+    const bersihkanHitArea = new Phaser.Geom.Rectangle(-85, -25, 170, 50);
+    bersihkanBtn.setInteractive(bersihkanHitArea, Phaser.Geom.Rectangle.Contains);
+    
+    bersihkanBtn.on('pointerover', () => {
+      this.input.setDefaultCursor('pointer');
+      bersihkanBg.clear();
+      bersihkanBg.fillStyle(0x2563eb, 1);
+      bersihkanBg.fillRoundedRect(-85, -25, 170, 50, 15);
+    });
+    
+    bersihkanBtn.on('pointerout', () => {
+      this.input.setDefaultCursor('default');
+      bersihkanBg.clear();
+      bersihkanBg.fillStyle(0x3b82f6, 1);
+      bersihkanBg.fillRoundedRect(-85, -25, 170, 50, 15);
+    });
+
+    // Interaksi Tombol Lanjut (Teks Saja)
     let isClicking = false;
 
-    nextBtnContainer.on('pointerover', () => {
+    nextBtnText.on('pointerover', () => {
       if (isClicking) return;
+      nextBtnText.setColor('#22c55e');
+    });
+
+    nextBtnText.on('pointerout', () => {
+      if (isClicking) return;
+      nextBtnText.setColor('#4ade80');
+    });
+
+    // Klik dimana saja di dalam dialog untuk lanjut/skip
+    const hitArea = new Phaser.Geom.Rectangle(-dialogWidth / 2, -dialogHeight / 2, dialogWidth, dialogHeight);
+    const interactiveBg = this.add.zone(0, 0, dialogWidth, dialogHeight);
+    interactiveBg.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
+    
+    interactiveBg.on('pointerover', () => {
       this.input.setDefaultCursor('pointer');
-      
-      nextBtnBg.clear();
-      nextBtnBg.fillStyle(0x22c55e, 1); // Lighter green
-      nextBtnBg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
-      nextBtnBg.lineStyle(4, 0xffffff, 0.5);
-      nextBtnBg.strokeRoundedRect(-btnWidth/2 + 2, -btnHeight/2 + 2, btnWidth - 4, btnHeight - 4, 13);
-      nextBtnBg.lineStyle(3, 0x000000, 1);
-      nextBtnBg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
-      
-      nextBtnContainer.y = nextBtnY - 2;
-      shadow.y = 2;
+    });
+    
+    interactiveBg.on('pointerout', () => {
+      this.input.setDefaultCursor('default');
     });
 
-    nextBtnContainer.on('pointerout', () => {
+    const handleNextDialog = () => {
       if (isClicking) return;
-      this.input.setDefaultCursor('default');
-      
-      nextBtnBg.clear();
-      nextBtnBg.fillStyle(0x16a34a, 1);
-      nextBtnBg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
-      nextBtnBg.lineStyle(4, 0xffffff, 0.3);
-      nextBtnBg.strokeRoundedRect(-btnWidth/2 + 2, -btnHeight/2 + 2, btnWidth - 4, btnHeight - 4, 13);
-      nextBtnBg.lineStyle(3, 0x000000, 1);
-      nextBtnBg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
-      
-      nextBtnContainer.y = nextBtnY;
-      shadow.y = 0;
-    });
-
-    nextBtnContainer.on('pointerdown', () => {
-      if (isClicking) return;
-      this.input.setDefaultCursor('default');
-      this.sound.play('button_click', { volume: 0.8, seek: 0.8 });
+      this.sound.play('button_click', { volume: 0.9, seek: 0.8 });
       
       // Jika teks belum selesai, skip animasi
       if (isTyping) {
-        typeWriterEvent.remove();
+        typeWriterEvent.destroy();
         textObj.text = dialogues[currentDialogIndex].text;
         isTyping = false;
         if (typingSound) typingSound.stop();
-        this.tweens.add({ targets: nextBtnContainer, alpha: 1, duration: 100 });
-        const hitArea = new Phaser.Geom.Rectangle(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight);
-        nextBtnContainer.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
+        
+        if (currentDialogIndex === dialogues.length - 1) {
+          this.tweens.add({ targets: bersihkanBtn, alpha: 1, duration: 100 });
+        } else {
+          this.tweens.add({ targets: nextBtnText, alpha: 1, duration: 100 });
+        }
       } else {
         // Jika teks sudah selesai, cek apakah ada dialog berikutnya
         if (currentDialogIndex < dialogues.length - 1) {
           currentDialogIndex++;
           startTyping();
+          nextBtnText.setAlpha(0); // Sembunyikan lagi saat mengetik
           
-          if (currentDialogIndex === dialogues.length - 1) {
-            nextBtnText.text = 'BERSIHKAN ➔';
-          }
-        } else {
-          // Lanjut ke Solusi / Misi Bersih-bersih
-          isClicking = true;
-          
-          nextBtnContainer.y = nextBtnY + 4;
-          shadow.y = -4;
-
-          setTimeout(() => {
-            this.scene.start('CleanUpScene', { caseId: this.caseId });
-          }, 150);
+          this.time.delayedCall(dialogues[currentDialogIndex].text.length * 30 + 500, () => {
+            if (currentDialogIndex === dialogues.length - 1) {
+              this.tweens.add({ targets: bersihkanBtn, alpha: 1, duration: 300 });
+            } else {
+              this.tweens.add({ targets: nextBtnText, alpha: 1, duration: 300 });
+            }
+          });
         }
       }
+    };
+
+    interactiveBg.on('pointerdown', handleNextDialog);
+    nextBtnText.on('pointerdown', handleNextDialog);
+
+    bersihkanBtn.on('pointerdown', () => {
+      if (isClicking) return;
+      isClicking = true;
+      this.input.setDefaultCursor('default');
+      this.sound.play('button_click', { volume: 0.9, seek: 0.8 });
+      
+      setTimeout(() => {
+        this.scene.start('CleanUpScene', { caseId: this.caseId });
+      }, 150);
     });
 
-    dialogContainer.add([dialogBg, nameBg, nameText, textObj, nextBtnContainer]);
+    dialogContainer.add([dialogBg, interactiveBg, nameBg, nameText, textObj, nextBtnText, bersihkanBtn]);
 
     // Efek Pop in dialog
     dialogContainer.setAlpha(0);

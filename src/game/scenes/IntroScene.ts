@@ -74,7 +74,7 @@ export class IntroScene extends Phaser.Scene {
 
     this.typingSound = this.sound.add('typing_sfx', { loop: true, volume: 1.0 });
 
-    this.bgMusic = this.sound.add('intro_bgm', { loop: true, volume: 0.6 });
+    this.bgMusic = this.sound.add('intro_bgm', { loop: true, volume: 2 });
     this.bgMusic.play();
 
     // Stop music if the scene is forcefully shut down (e.g., via debug scene skip)
@@ -235,7 +235,7 @@ export class IntroScene extends Phaser.Scene {
     this.mulaiBtn.on('pointerdown', () => {
       if (!this.isTyping && this.currentDialogIndex === this.dialogues.length - 1) {
         this.input.setDefaultCursor('default');
-        this.sound.play('btn_click', { seek: 0.8 });
+        this.sound.play('btn_click', { seek: 0.8, volume: 0.9 });
         
         // Go to next scene
         this.cameras.main.fadeOut(500, 0, 0, 0);
@@ -290,7 +290,7 @@ export class IntroScene extends Phaser.Scene {
         this.finishTyping();
       } else {
         if (this.currentDialogIndex < this.dialogues.length - 1) {
-          this.sound.play('btn_click', { seek: 0.8 });
+          this.sound.play('btn_click', { seek: 0.8, volume: 0.3 });
           this.currentDialogIndex++;
           this.showDialog();
           if (this.currentDialogIndex === this.dialogues.length - 1) {
@@ -324,7 +324,7 @@ export class IntroScene extends Phaser.Scene {
       this.teacherObj.setTexture('teacher_happy');
       this.teacherObj.setFlipX(true); 
       // happy: posisinya kebawahin dikit
-      this.teacherObj.y += 35;
+      this.teacherObj.y += 55;
     } else if (this.currentDialogIndex === 2) {
       this.teacherObj.setTexture('teacher_surprised');
       this.teacherObj.setFlipX(true);

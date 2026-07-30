@@ -145,7 +145,7 @@ export class InvestigationScene extends Phaser.Scene {
     }
     
     // Play BGM for all cases
-    this.bgMusic = this.sound.add('investigation_bgm', { loop: true, volume: 1.0 });
+    this.bgMusic = this.sound.add('investigation_bgm', { loop: true, volume: 0.9 });
     this.bgMusic.play();
 
     // Title / Instructions (Hidden initially, shown after intro)
@@ -369,7 +369,7 @@ export class InvestigationScene extends Phaser.Scene {
 
     container.on('pointerdown', () => {
       this.input.setDefaultCursor('default');
-      this.sound.play('collect_sfx');
+      this.sound.play('collect_sfx', {volume: 0.5});
       
       const onClueShown = () => {
         this.showDialog(text, hasPov, () => {
@@ -541,7 +541,7 @@ export class InvestigationScene extends Phaser.Scene {
       if (isClosing) return;
       isClosing = true;
       this.input.setDefaultCursor('default');
-      this.sound.play('btn_click', { seek: 0.8 });
+      this.sound.play('btn_click', { seek: 0.8, volume: 0.8 });
       
       closeBtn.y = closeBtnY + 4;
       shadow.y = -4;
@@ -670,7 +670,7 @@ export class InvestigationScene extends Phaser.Scene {
       if (isClicking) return;
       isClicking = true;
       this.input.setDefaultCursor('default');
-      this.sound.play('btn_click', { seek: 0.8 });
+      this.sound.play('btn_click', { seek: 0.8, volume: 0.9 });
       
       this.nextBtn.y = height - 100 + 4;
       shadow.y = -4;
@@ -783,7 +783,7 @@ export class InvestigationScene extends Phaser.Scene {
     };
 
     const handleDialogClick = () => {
-      this.sound.play('btn_click', { seek: 0.8 });
+      this.sound.play('btn_click', { seek: 0.8, volume: 0.9 });
       if (isTyping) {
         if (typeWriterEvent) typeWriterEvent.remove();
         textObj.text = dialogues[currentDialogIndex].text;

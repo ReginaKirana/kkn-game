@@ -5,10 +5,13 @@ import halamanKotor from '../../assets/backgrounds/halaman-kotor.png';
 import halamanKotor2Bg from '../../assets/backgrounds/Halaman-kotor2.png';
 import halamanBg from '../../assets/backgrounds/halaman.png';
 import teacherThumbUp from '../../assets/characters/teachers/thumb-up.png';
+import teacherSmile from '../../assets/characters/teachers/smile.png';
+import teacherSurprised from '../../assets/characters/teachers/suprised.png';
 import sparkleSound from '../../assets/audio/case1/sparkle.wav';
 import keyboardTyping from '../../assets/audio/keyboard-typing.wav';
 import finishCase from '../../assets/audio/case1/finish-case.wav';
 import buttonClickUrl from '../../assets/audio/button_click.mp3';
+import bgGameplay from '../../assets/audio/case1/bg-gameplay.mp3';
 
 export class Case1TransitionScene extends Phaser.Scene {
   constructor() {
@@ -21,15 +24,23 @@ export class Case1TransitionScene extends Phaser.Scene {
     this.load.image('halaman_kotor2_bg', halamanKotor2Bg);
     this.load.image('halaman_bersih', halamanBg);
     this.load.image('teacher_thumbup', teacherThumbUp);
+    this.load.image('teacher_smile', teacherSmile);
+    this.load.image('teacher_surprised', teacherSurprised);
     this.load.audio('sparkle', sparkleSound);
     this.load.audio('keyboard_typing', keyboardTyping);
     this.load.audio('finish_case', finishCase);
     this.load.audio('button_click', buttonClickUrl);
+    this.load.audio('bg_gameplay', bgGameplay);
   }
 
   create(data: { caseId?: string }) {
     const caseId = data.caseId || 'kasus_halaman';
     const { width, height } = this.cameras.main;
+
+    if (!this.sound.get('bg_gameplay')?.isPlaying) {
+      this.sound.stopAll();
+      this.sound.play('bg_gameplay', { loop: true, volume: 0.4 });
+    }
 
     // Start with the game_bg
     const bg = this.add.image(width / 2, height / 2, 'game_bg');
@@ -50,7 +61,7 @@ export class Case1TransitionScene extends Phaser.Scene {
           kotor2Bg.setScale(Math.max(width / kotor2Bg.width, height / kotor2Bg.height));
           kotor2Bg.setAlpha(0);
           kotor2Bg.setDepth(20);
-          
+
           this.tweens.add({
             targets: kotor2Bg,
             alpha: 1,
@@ -61,58 +72,41 @@ export class Case1TransitionScene extends Phaser.Scene {
                 cleanBg.setScale(Math.max(width / cleanBg.width, height / cleanBg.height));
                 cleanBg.setAlpha(0);
                 cleanBg.setDepth(21);
-                
+
                 const sparkle = this.sound.add('sparkle', { volume: 0.8 });
                 sparkle.play();
                 this.time.delayedCall(3000, () => {
                   if (sparkle.isPlaying) sparkle.stop();
                 });
-                
+
                 // Flash effect
                 const flash = this.add.rectangle(0, 0, width, height, 0xffffff, 1).setOrigin(0).setDepth(22);
                 this.tweens.add({ targets: flash, alpha: 0, duration: 1000, onComplete: () => flash.destroy() });
 
-                // Sparkle burst
+                // Sparkle falling from top
                 const createSparkle = () => {
-                    const angle = Phaser.Math.Between(0, 360) * Math.PI / 180;
-                    const radius = Phaser.Math.Between(100, 250);
-                    const sparkle = this.add.text(width/2, height/2 - 50, '✨', { fontSize: '60px' })
-                        .setOrigin(0.5).setDepth(22).setAlpha(0);
-                    this.tweens.add({
-                        targets: sparkle,
-                        x: width/2 + Math.cos(angle) * radius,
-                        y: height/2 - 50 + Math.sin(angle) * radius,
-                        alpha: { from: 1, to: 0 },
-                        scale: { from: 0.5, to: 1.5 },
-                        duration: 800 + Phaser.Math.Between(0, 400),
-                        ease: 'Power2',
-                        onComplete: () => sparkle.destroy()
-                    });
+                  const startX = Phaser.Math.Between(0, width);
+                  const startY = -50;
+                  const size = Phaser.Math.Between(40, 70);
+                  const sparkle = this.add.text(startX, startY, '✨', { fontSize: `${size}px` })
+                    .setOrigin(0.5).setDepth(22);
+
+                  this.tweens.add({
+                    targets: sparkle,
+                    y: height + 100,
+                    x: startX + Phaser.Math.Between(-150, 150),
+                    rotation: Phaser.Math.Between(-3, 3),
+                    alpha: { start: 1, to: 0 },
+                    duration: Phaser.Math.Between(1500, 2500),
+                    ease: 'Sine.easeInOut',
+                    onComplete: () => sparkle.destroy()
+                  });
                 };
-                for (let i = 0; i < 20; i++) {
-                    this.time.delayedCall(i * 50, createSparkle);
+
+                // Spawn many sparkles over a short duration
+                for (let i = 0; i < 40; i++) {
+                  this.time.delayedCall(i * 50, createSparkle);
                 }
-
-                // BERSIH text
-                const bersihText = this.add.text(width / 2, height / 2 - 50, 'BERSIH! ✨', {
-                    fontFamily: 'Fredoka One, Arial, sans-serif',
-                    fontSize: '90px',
-                    color: '#ffffff',
-                    stroke: '#16a34a',
-                    strokeThickness: 16,
-                    shadow: { offsetX: 4, offsetY: 4, color: '#000000', blur: 10, fill: true }
-                }).setOrigin(0.5).setAlpha(0).setScale(0).setDepth(23);
-
-                this.tweens.add({
-                    targets: bersihText,
-                    alpha: 1,
-                    scale: 1,
-                    duration: 500,
-                    ease: 'Back.easeOut',
-                    yoyo: true,
-                    hold: 1500,
-                    onComplete: () => bersihText.destroy()
-                });
 
                 this.tweens.add({
                   targets: cleanBg,
@@ -186,6 +180,13 @@ export class Case1TransitionScene extends Phaser.Scene {
     let currentTextContent = "";
     let typingSound: Phaser.Sound.BaseSound | null = null;
 
+    const expressions = [
+      'teacher_thumbup',
+      'teacher_smile',
+      'teacher_surprised',
+      'teacher_smile'
+    ];
+
     const nextBtn = this.add.text(dialogWidth / 2 - 30, dialogHeight / 2 - 20, 'Lanjut ➔', {
       fontFamily: 'monospace',
       fontSize: '26px',
@@ -194,6 +195,11 @@ export class Case1TransitionScene extends Phaser.Scene {
     }).setOrigin(1, 1).setAlpha(0);
 
     const startTyping = () => {
+      teacher.setTexture(expressions[currentDialogIndex]);
+      // Sesuaikan ulang skalanya berdasarkan gambar yang baru supaya tidak kebesaran/kekecilan
+      const teacherMaxHeight = height * 0.85;
+      teacher.setScale(teacherMaxHeight / teacher.height);
+
       textObj.text = "";
       nextBtn.setAlpha(0);
       currentTextContent = dialogTexts[currentDialogIndex];
@@ -207,8 +213,8 @@ export class Case1TransitionScene extends Phaser.Scene {
         callback: () => {
           textObj.text += currentTextContent[charIndex];
           charIndex++;
-          if (charIndex >= currentTextContent.length) { 
-            isTyping = false; 
+          if (charIndex >= currentTextContent.length) {
+            isTyping = false;
             if (typingSound) typingSound.stop();
             nextBtn.setAlpha(1);
           }
@@ -217,17 +223,31 @@ export class Case1TransitionScene extends Phaser.Scene {
     };
     startTyping();
 
-    const clickArea = this.add.zone(0, 0, width, height).setOrigin(0).setInteractive();
+    // Klik dimana saja di dalam dialog untuk lanjut/skip
+    const hitArea = new Phaser.Geom.Rectangle(-dialogWidth / 2, -dialogHeight / 2, dialogWidth, dialogHeight);
+    const interactiveBg = this.add.zone(0, 0, dialogWidth, dialogHeight);
+    interactiveBg.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
 
-    dialogContainer.add([dialogBg, nameBg, nameText, textObj, nextBtn]);
+    interactiveBg.on('pointerover', () => {
+      this.input.setDefaultCursor('pointer');
+    });
+
+    interactiveBg.on('pointerout', () => {
+      this.input.setDefaultCursor('default');
+    });
+
+    nextBtn.setInteractive();
+    nextBtn.on('pointerover', () => { this.input.setDefaultCursor('pointer'); nextBtn.setColor('#22c55e'); });
+    nextBtn.on('pointerout', () => { this.input.setDefaultCursor('pointer'); nextBtn.setColor('#4ade80'); }); // Tetap pointer karena di dalam interactiveBg
+
+    dialogContainer.add([dialogBg, nameBg, nameText, textObj, nextBtn, interactiveBg]);
     dialogContainer.setAlpha(0);
     dialogContainer.y += 50;
     this.tweens.add({ targets: dialogContainer, alpha: 1, y: height - 150, duration: 500, delay: 400, ease: 'Power2' });
 
-
     const advanceDialog = () => {
       if (isTyping) {
-        typeWriterEvent.remove();
+        if (typeWriterEvent) typeWriterEvent.destroy();
         textObj.text = currentTextContent;
         isTyping = false;
         if (typingSound) typingSound.stop();
@@ -236,7 +256,8 @@ export class Case1TransitionScene extends Phaser.Scene {
         currentDialogIndex++;
         if (currentDialogIndex < dialogTexts.length) { startTyping(); }
         else {
-          clickArea.disableInteractive();
+          this.input.off('pointerdown', handleDialogClick);
+          interactiveBg.disableInteractive();
           nextBtn.disableInteractive();
           this.tweens.add({
             targets: [dialogContainer, teacher],
@@ -252,11 +273,13 @@ export class Case1TransitionScene extends Phaser.Scene {
       }
     };
 
-    clickArea.on('pointerdown', () => {
-      this.sound.play('btn_click', { seek: 0.8 });
+    const handleDialogClick = () => {
+      this.sound.play('button_click', { seek: 0.8 });
       advanceDialog();
-    });
+    };
 
+    // Gunakan global pointerdown agar klik di mana saja (bahkan di luar area dialog) pasti terdeteksi
+    this.input.on('pointerdown', handleDialogClick);
   }
 
   private showFinalResult(width: number, height: number) {

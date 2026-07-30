@@ -35,7 +35,7 @@ export class ConclusionScene extends Phaser.Scene {
     this.load.audio('btn_click', btnClickUrl);
     this.load.audio('correct_sfx', correctUrl);
     this.load.audio('wrong_sfx', wrongUrl);
-    
+
     // Teacher assets
     this.load.image('teacher_surprised', teacherSurprisedImg);
     this.load.image('teacher_smile', teacherSmileImg);
@@ -79,25 +79,25 @@ export class ConclusionScene extends Phaser.Scene {
 
     const dialogW = width * 0.32;
     const dialogH = 180;
-    
+
     const dialogBg = this.add.graphics();
     dialogBg.fillStyle(0x0f172a, 0.9);
-    dialogBg.fillRoundedRect(-dialogW/2, -dialogH/2, dialogW, dialogH, 20);
+    dialogBg.fillRoundedRect(-dialogW / 2, -dialogH / 2, dialogW, dialogH, 20);
     dialogBg.lineStyle(4, 0x3b82f6, 1);
-    dialogBg.strokeRoundedRect(-dialogW/2, -dialogH/2, dialogW, dialogH, 20);
-    
+    dialogBg.strokeRoundedRect(-dialogW / 2, -dialogH / 2, dialogW, dialogH, 20);
+
     // Tail
     dialogBg.fillStyle(0x0f172a, 0.9);
     dialogBg.beginPath();
-    dialogBg.moveTo(0, dialogH/2);
-    dialogBg.lineTo(20, dialogH/2 + 30);
-    dialogBg.lineTo(40, dialogH/2);
+    dialogBg.moveTo(0, dialogH / 2);
+    dialogBg.lineTo(20, dialogH / 2 + 30);
+    dialogBg.lineTo(40, dialogH / 2);
     dialogBg.fillPath();
     dialogBg.lineStyle(4, 0x3b82f6, 1);
     dialogBg.beginPath();
-    dialogBg.moveTo(0, dialogH/2);
-    dialogBg.lineTo(20, dialogH/2 + 30);
-    dialogBg.lineTo(40, dialogH/2);
+    dialogBg.moveTo(0, dialogH / 2);
+    dialogBg.lineTo(20, dialogH / 2 + 30);
+    dialogBg.lineTo(40, dialogH / 2);
     dialogBg.strokePath();
 
     const dialogText = this.add.text(0, -15, '', {
@@ -109,13 +109,13 @@ export class ConclusionScene extends Phaser.Scene {
       align: 'center'
     }).setOrigin(0.5);
 
-    const nextBtn = this.add.text(dialogW/2 - 20, dialogH/2 - 15, 'Lanjut ➔', {
+    const nextBtn = this.add.text(dialogW / 2 - 20, dialogH / 2 - 15, 'Lanjut ➔', {
       fontFamily: 'monospace',
       fontSize: '22px',
       color: '#4ade80',
       fontStyle: 'bold'
     }).setOrigin(1, 1).setInteractive({ useHandCursor: true });
-    
+
     nextBtn.on('pointerover', () => nextBtn.setColor('#22c55e'));
     nextBtn.on('pointerout', () => nextBtn.setColor('#4ade80'));
 
@@ -128,21 +128,21 @@ export class ConclusionScene extends Phaser.Scene {
     // ==========================================
     // Posisi di kanan
     const modalContainer = this.add.container(width * 0.65, height / 2);
-    
+
     const modalWidth = 1200;
     const modalHeight = 850;
 
     const shadow = this.add.graphics();
     shadow.fillStyle(0x000000, 0.5);
-    shadow.fillRoundedRect(-modalWidth/2 + 10, -modalHeight/2 + 15, modalWidth, modalHeight, 20);
+    shadow.fillRoundedRect(-modalWidth / 2 + 10, -modalHeight / 2 + 15, modalWidth, modalHeight, 20);
 
     const paper = this.add.graphics();
     paper.fillStyle(0x0f172a, 0.95);
-    paper.fillRoundedRect(-modalWidth/2, -modalHeight/2, modalWidth, modalHeight, 20);
+    paper.fillRoundedRect(-modalWidth / 2, -modalHeight / 2, modalWidth, modalHeight, 20);
     paper.lineStyle(6, 0x3b82f6, 1);
-    paper.strokeRoundedRect(-modalWidth/2, -modalHeight/2, modalWidth, modalHeight, 20);
+    paper.strokeRoundedRect(-modalWidth / 2, -modalHeight / 2, modalWidth, modalHeight, 20);
 
-    const title = this.add.text(0, -modalHeight/2 + 60, 'LAPORAN INVESTIGASI', {
+    const title = this.add.text(0, -modalHeight / 2 + 60, 'LAPORAN INVESTIGASI', {
       fontFamily: 'Fredoka One, Arial, sans-serif',
       fontSize: '42px',
       color: '#ffffff',
@@ -155,21 +155,21 @@ export class ConclusionScene extends Phaser.Scene {
     const lineTop = this.add.graphics();
     lineTop.lineStyle(4, 0x3b82f6, 0.8);
     lineTop.beginPath();
-    lineTop.moveTo(-modalWidth/2 + 50, -modalHeight/2 + 120);
-    lineTop.lineTo(modalWidth/2 - 50, -modalHeight/2 + 120);
+    lineTop.moveTo(-modalWidth / 2 + 50, -modalHeight / 2 + 120);
+    lineTop.lineTo(modalWidth / 2 - 50, -modalHeight / 2 + 120);
     lineTop.strokePath();
 
     const lineVert = this.add.graphics();
     lineVert.lineStyle(4, 0x3b82f6, 0.8);
     lineVert.beginPath();
-    lineVert.moveTo(0, -modalHeight/2 + 120);
-    lineVert.lineTo(0, modalHeight/2 - 50);
+    lineVert.moveTo(0, -modalHeight / 2 + 120);
+    lineVert.lineTo(0, modalHeight / 2 - 50);
     lineVert.strokePath();
     lineVert.setAlpha(0); // Hide initially
 
     // Kolom Kiri
     const leftColumn = this.add.container(0, 0);
-    const cluesTitle = this.add.text(-modalWidth/2 + 50, -modalHeight/2 + 150, 'Bukti Ditemukan:', {
+    const cluesTitle = this.add.text(-modalWidth / 2 + 50, -modalHeight / 2 + 150, 'Bukti Ditemukan:', {
       fontFamily: 'Fredoka One, Arial, sans-serif',
       fontSize: '28px',
       color: '#60a5fa',
@@ -183,47 +183,47 @@ export class ConclusionScene extends Phaser.Scene {
       { img: 'clue_botol', text: 'Botol plastik dibuang sembarangan di halaman.' },
       { img: 'clue_pisang', text: 'Kulit pisang dibiarkan begitu saja.' },
       { img: 'clue_daun', text: 'Daun gugur itu alami dan bisa menyatu dengan tanah.' },
-      { img: 'clue_bin', text: 'Tempat sampah hijau & kuning KOSONG!' }
+      { img: 'clue_bin', text: 'Tempat sampah masih tersedia, tapi KOSONG!' }
     ];
 
-    let clueY = -modalHeight/2 + 250;
+    let clueY = -modalHeight / 2 + 250;
     const clueContainers: Phaser.GameObjects.Container[] = [];
 
     clueData.forEach((clue) => {
       const clueCont = this.add.container(0, 0);
-      const img = this.add.image(-modalWidth/2 + 110, clueY, clue.img);
+      const img = this.add.image(-modalWidth / 2 + 110, clueY, clue.img);
       const maxImgSize = 90;
       const scale = Math.min(maxImgSize / img.width, maxImgSize / img.height);
       img.setScale(scale);
-      
-      const text = this.add.text(-modalWidth/2 + 180, clueY, clue.text, {
+
+      const text = this.add.text(-modalWidth / 2 + 180, clueY, clue.text, {
         fontFamily: 'Fredoka One, Arial, sans-serif',
-        fontSize: '20px',
+        fontSize: '28px',
         color: '#e2e8f0',
-        wordWrap: { width: (modalWidth/2) - 210 },
-        lineSpacing: 5
+        wordWrap: { width: (modalWidth / 2) - 210 },
+        lineSpacing: 8
       }).setOrigin(0, 0.5);
 
       clueCont.add([img, text]);
       clueCont.setAlpha(0); // Hide initially
       clueContainers.push(clueCont);
       leftColumn.add(clueCont);
-      clueY += 130;
+      clueY += 150;
     });
 
     // Kolom Kanan
     const rightColumn = this.add.container(0, 0);
-    const question = this.add.text(modalWidth/4, -modalHeight/2 + 230, 'Dari bukti-bukti tersebut,\napa yang dapat kamu\nsimpulkan?', {
+    const question = this.add.text(modalWidth / 4, -modalHeight / 2 + 220, 'Dari bukti-bukti tersebut,\napa yang dapat kamu\nsimpulkan?', {
       fontFamily: 'Fredoka One, Arial, sans-serif',
-      fontSize: '28px',
+      fontSize: '34px',
       color: '#facc15',
       fontStyle: 'bold',
       align: 'center',
-      wordWrap: { width: (modalWidth/2) - 80 },
+      wordWrap: { width: (modalWidth / 2) - 80 },
       stroke: '#000000',
-      strokeThickness: 4,
+      strokeThickness: 5,
       shadow: { offsetX: 2, offsetY: 2, color: '#000000', blur: 0, fill: true },
-      lineSpacing: 8
+      lineSpacing: 10
     }).setOrigin(0.5);
 
     const options = [
@@ -232,12 +232,12 @@ export class ConclusionScene extends Phaser.Scene {
       { id: 'C', text: 'Ada orang yang membuang\nsampah sembarangan', isCorrect: true }
     ];
 
-    let optionY = -modalHeight/2 + 370;
+    let optionY = -modalHeight / 2 + 370;
     const optionBtns: Phaser.GameObjects.Container[] = [];
 
-    const errorText = this.add.text(modalWidth/4, optionY + 360, '❌ Coba perhatikan lagi petunjuk\nyang sudah kamu temukan.', {
+    const errorText = this.add.text(modalWidth / 4, optionY + 360, '❌ Perhatikan lagi petunjuk\nyang sudah kamu temukan.', {
       fontFamily: 'Fredoka One, Arial, sans-serif',
-      fontSize: '22px',
+      fontSize: '25px',
       color: '#ef4444',
       fontStyle: 'bold',
       align: 'center',
@@ -247,27 +247,30 @@ export class ConclusionScene extends Phaser.Scene {
     errorText.setAlpha(0);
 
     options.forEach((opt) => {
-      const btnW = (modalWidth/2) - 80;
-      const btn = this.createOptionButton(modalWidth/4, optionY, opt.id, opt.text, btnW, (bg, prefixBg) => {
+      const btnW = (modalWidth / 2) - 80;
+      const btn = this.createOptionButton(modalWidth / 4, optionY, opt.id, opt.text, btnW, (bg, prefixBg) => {
         this.input.setDefaultCursor('default');
         this.sound.play('btn_click', { seek: 0.8 });
-        
+
         if (opt.isCorrect) {
           this.sound.play('correct_sfx');
           
+          this.tweens.killTweensOf(errorText);
+          errorText.setAlpha(0);
+
           // Visual Feedback: Ubah warna tombol jadi Hijau
           bg.clear();
           bg.fillStyle(0x22c55e, 1);
-          bg.fillRoundedRect(-btnW/2, -40, btnW, 80, 15);
+          bg.fillRoundedRect(-btnW / 2, -55, btnW, 110, 15);
           bg.lineStyle(4, 0xffffff, 0.8);
-          bg.strokeRoundedRect(-btnW/2 + 2, -40 + 2, btnW - 4, 80 - 4, 13);
-          
+          bg.strokeRoundedRect(-btnW / 2 + 2, -55 + 2, btnW - 4, 110 - 4, 13);
+
           prefixBg.clear();
           prefixBg.fillStyle(0x16a34a, 1);
-          prefixBg.fillRoundedRect(-btnW/2, -40, 60, 80, { tl: 15, bl: 15, tr: 0, br: 0 });
+          prefixBg.fillRoundedRect(-btnW / 2, -55, 60, 110, { tl: 15, bl: 15, tr: 0, br: 0 });
 
           // Visual Feedback: Teks BENAR popup
-          const correctText = this.add.text(modalWidth/4, optionY, 'BENAR! ✅', {
+          const correctText = this.add.text(modalWidth / 4, optionY, 'BENAR!', {
             fontFamily: 'Fredoka One, Arial, sans-serif',
             fontSize: '42px',
             color: '#4ade80',
@@ -278,11 +281,11 @@ export class ConclusionScene extends Phaser.Scene {
           }).setOrigin(0.5).setScale(0);
 
           rightColumn.add(correctText);
-          
+
           this.tweens.add({
             targets: correctText,
             scale: 1.2,
-            y: optionY - 40,
+            y: optionY - 10,
             duration: 400,
             ease: 'Back.easeOut',
             onComplete: () => {
@@ -299,18 +302,18 @@ export class ConclusionScene extends Phaser.Scene {
             if (this.bgMusic) this.bgMusic.stop();
             this.scene.start('SolutionScene', { caseId: this.caseId });
           });
-          
+
         } else {
           // Extra volume for wrong sound as requested
           this.sound.play('wrong_sfx', { volume: 1.5 });
           errorText.setAlpha(1);
           this.tweens.add({
             targets: errorText,
-            x: modalWidth/4 + 10,
+            x: modalWidth / 4 + 10,
             duration: 50,
             yoyo: true,
             repeat: 3,
-            onComplete: () => errorText.setX(modalWidth/4)
+            onComplete: () => errorText.setX(modalWidth / 4)
           });
           this.time.delayedCall(3000, () => {
             this.tweens.add({ targets: errorText, alpha: 0, duration: 300 });
@@ -318,14 +321,14 @@ export class ConclusionScene extends Phaser.Scene {
         }
       });
       optionBtns.push(btn);
-      optionY += 105;
+      optionY += 125;
     });
 
     rightColumn.add([question, ...optionBtns, errorText]);
     rightColumn.setAlpha(0); // Hide initially
 
     modalContainer.add([shadow, paper, title, lineTop, lineVert, leftColumn, rightColumn]);
-    
+
     const targetScale = 0.82;
     modalContainer.setScale(targetScale);
     modalContainer.setAlpha(0);
@@ -340,11 +343,11 @@ export class ConclusionScene extends Phaser.Scene {
       dialogText.text = '';
       let charIndex = 0;
       nextBtn.setVisible(false);
-      
+
       if (this.typingSound && !this.typingSound.isPlaying) {
         this.typingSound.play();
       }
-      
+
       typeWriterEvent = this.time.addEvent({
         delay: 35,
         repeat: text.length - 1,
@@ -370,12 +373,12 @@ export class ConclusionScene extends Phaser.Scene {
             startTyping("Kamu sudah mengumpulkan 4 bukti. Sekarang, cermati semua bukti yang kamu temukan.");
           }
         });
-      } 
+      }
       else if (currentStep === 1) {
         // Step 1: Show modal and clues one by one
         nextBtn.setVisible(false);
         this.sound.play('modal_sfx', { seek: 0.651 });
-        
+
         this.tweens.add({
           targets: modalContainer,
           alpha: 1,
@@ -396,7 +399,7 @@ export class ConclusionScene extends Phaser.Scene {
                 });
               });
             });
-            
+
             // Proceed to next teacher dialog after clues are shown
             this.time.delayedCall(clueContainers.length * 700 + 500, () => {
               currentStep++;
@@ -426,12 +429,12 @@ export class ConclusionScene extends Phaser.Scene {
     nextBtn.on('pointerout', () => nextBtn.setColor('#4ade80'));
     nextBtn.on('pointerdown', () => {
       this.sound.play('btn_click', { seek: 0.8 });
-      
+
       // If typing, finish typing immediately
       if (typeWriterEvent && typeWriterEvent.getProgress() < 1) {
         typeWriterEvent.remove();
         if (this.typingSound) this.typingSound.stop();
-        
+
         if (currentStep === 0) {
           dialogText.text = "Kamu sudah mengumpulkan 4 bukti. Sekarang, cermati semua bukti yang kamu temukan.";
         } else if (currentStep === 2) {
@@ -451,29 +454,29 @@ export class ConclusionScene extends Phaser.Scene {
 
   private createOptionButton(x: number, y: number, prefix: string, text: string, width: number, onClick: (bg: Phaser.GameObjects.Graphics, prefixBg: Phaser.GameObjects.Graphics) => void) {
     const container = this.add.container(x, y);
-    const height = 80;
+    const height = 110;
 
     const shadow = this.add.graphics();
     shadow.fillStyle(0x000000, 0.4);
-    shadow.fillRoundedRect(-width/2 + 4, -height/2 + 6, width, height, 15);
+    shadow.fillRoundedRect(-width / 2 + 4, -height / 2 + 6, width, height, 15);
 
     const bg = this.add.graphics();
     bg.fillStyle(0x1e3a8a, 1);
-    bg.fillRoundedRect(-width/2, -height/2, width, height, 15);
+    bg.fillRoundedRect(-width / 2, -height / 2, width, height, 15);
     bg.lineStyle(4, 0xffffff, 0.2);
-    bg.strokeRoundedRect(-width/2 + 2, -height/2 + 2, width - 4, height - 4, 13);
+    bg.strokeRoundedRect(-width / 2 + 2, -height / 2 + 2, width - 4, height - 4, 13);
     bg.lineStyle(3, 0x000000, 1);
-    bg.strokeRoundedRect(-width/2, -height/2, width, height, 15);
+    bg.strokeRoundedRect(-width / 2, -height / 2, width, height, 15);
 
     const prefixBg = this.add.graphics();
     prefixBg.fillStyle(0x3b82f6, 1);
-    prefixBg.fillRoundedRect(-width/2, -height/2, 60, height, { tl: 15, bl: 15, tr: 0, br: 0 });
+    prefixBg.fillRoundedRect(-width / 2, -height / 2, 60, height, { tl: 15, bl: 15, tr: 0, br: 0 });
     prefixBg.lineStyle(3, 0x000000, 1);
-    prefixBg.strokeRoundedRect(-width/2, -height/2, 60, height, { tl: 15, bl: 15, tr: 0, br: 0 });
+    prefixBg.strokeRoundedRect(-width / 2, -height / 2, 60, height, { tl: 15, bl: 15, tr: 0, br: 0 });
 
-    const prefixText = this.add.text(-width/2 + 30, 0, prefix, {
+    const prefixText = this.add.text(-width / 2 + 30, 0, prefix, {
       fontFamily: 'Fredoka One, Arial, sans-serif',
-      fontSize: '28px',
+      fontSize: '32px',
       color: '#ffffff',
       fontStyle: 'bold',
       stroke: '#000000',
@@ -481,18 +484,19 @@ export class ConclusionScene extends Phaser.Scene {
       shadow: { offsetX: 2, offsetY: 2, color: '#000000', blur: 0, fill: true }
     }).setOrigin(0.5);
 
-    const labelText = this.add.text(-width/2 + 75, 0, text, {
+    const labelText = this.add.text(-width / 2 + 75, 0, text, {
       fontFamily: 'Fredoka One, Arial, sans-serif',
-      fontSize: '20px',
+      fontSize: '26px',
       color: '#ffffff',
       fontStyle: 'bold',
       stroke: '#000000',
-      strokeThickness: 3
+      strokeThickness: 3,
+      lineSpacing: 5
     }).setOrigin(0, 0.5);
 
     container.add([shadow, bg, prefixBg, prefixText, labelText]);
 
-    const hitArea = new Phaser.Geom.Rectangle(-width/2, -height/2, width, height);
+    const hitArea = new Phaser.Geom.Rectangle(-width / 2, -height / 2, width, height);
     container.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
 
     let isClicking = false;
@@ -502,11 +506,11 @@ export class ConclusionScene extends Phaser.Scene {
       this.input.setDefaultCursor('pointer');
       bg.clear();
       bg.fillStyle(0x3b82f6, 1);
-      bg.fillRoundedRect(-width/2, -height/2, width, height, 15);
+      bg.fillRoundedRect(-width / 2, -height / 2, width, height, 15);
       bg.lineStyle(4, 0xffffff, 0.5);
-      bg.strokeRoundedRect(-width/2 + 2, -height/2 + 2, width - 4, height - 4, 13);
+      bg.strokeRoundedRect(-width / 2 + 2, -height / 2 + 2, width - 4, height - 4, 13);
       bg.lineStyle(3, 0x000000, 1);
-      bg.strokeRoundedRect(-width/2, -height/2, width, height, 15);
+      bg.strokeRoundedRect(-width / 2, -height / 2, width, height, 15);
       container.y -= 2;
       shadow.y = 2;
     });
@@ -516,11 +520,11 @@ export class ConclusionScene extends Phaser.Scene {
       this.input.setDefaultCursor('default');
       bg.clear();
       bg.fillStyle(0x1e3a8a, 1);
-      bg.fillRoundedRect(-width/2, -height/2, width, height, 15);
+      bg.fillRoundedRect(-width / 2, -height / 2, width, height, 15);
       bg.lineStyle(4, 0xffffff, 0.2);
-      bg.strokeRoundedRect(-width/2 + 2, -height/2 + 2, width - 4, height - 4, 13);
+      bg.strokeRoundedRect(-width / 2 + 2, -height / 2 + 2, width - 4, height - 4, 13);
       bg.lineStyle(3, 0x000000, 1);
-      bg.strokeRoundedRect(-width/2, -height/2, width, height, 15);
+      bg.strokeRoundedRect(-width / 2, -height / 2, width, height, 15);
       container.y = y;
       shadow.y = 0;
     });

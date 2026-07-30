@@ -2,12 +2,11 @@ import * as Phaser from 'phaser';
 import { CoverScene } from './scenes/CoverScene';
 import { IntroScene } from './scenes/IntroScene';
 import { BootScene } from './scenes/BootScene';
-import { MenuScene } from './scenes/MenuScene';
 import { CaseSelectScene } from './scenes/CaseSelectScene';
 import { InvestigationScene } from './scenes/InvestigationScene';
 import { ConclusionScene } from './scenes/ConclusionScene';
 import { SolutionScene } from './scenes/SolutionScene';
-import { ResultScene } from './scenes/ResultScene';
+
 import { CleanUpScene } from './scenes/CleanUpScene';
 import { Case1TransitionScene } from './scenes/Case1TransitionScene';
 import { Case1BriefingScene } from './scenes/Case1BriefingScene';
@@ -44,12 +43,11 @@ export default function initGame(parentContainerId: string, startScene?: string)
     CoverScene,
     IntroScene,
     BootScene,
-    MenuScene,
     CaseSelectScene,
     InvestigationScene,
     ConclusionScene,
     SolutionScene,
-    ResultScene,
+
     CleanUpScene,
     Case1TransitionScene,
     Case1BriefingScene,

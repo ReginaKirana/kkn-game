@@ -193,7 +193,7 @@ export class Case1BriefingScene extends Phaser.Scene {
     btnBg.fillStyle(0x3b82f6, 1);
     btnBg.fillRoundedRect(-90, -25, 180, 50, 15);
     
-    const btnText = this.add.text(0, 0, 'INVESTIGASI ➔', {
+    const btnText = this.add.text(0, 0, 'INVESTIGASI', {
       fontFamily: 'monospace',
       fontSize: '20px',
       color: '#ffffff',

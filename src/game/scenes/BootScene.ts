@@ -16,7 +16,7 @@ export class BootScene extends Phaser.Scene {
     
     // Jump to Menu after short delay
     this.time.delayedCall(1000, () => {
-      this.scene.start('MenuScene');
+      this.scene.start('CoverScene');
     });
   }
 }

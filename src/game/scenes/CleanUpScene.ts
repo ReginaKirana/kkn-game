@@ -21,6 +21,7 @@ import girlIdle from '../../assets/characters/girl/girl-idle.png';
 import bgGameplay from '../../assets/audio/case1/bg-gameplay.mp3';
 import misiMulai from '../../assets/audio/case1/misi-mulai.wav';
 import masukSampah from '../../assets/audio/case1/masuk-sampah-gameplay.mp3';
+import btnClickUrl from '../../assets/audio/button_click.mp3';
 export class CleanUpScene extends Phaser.Scene {
   private caseId!: string;
   private trashItemsRemaining: number = 0;
@@ -51,6 +52,7 @@ export class CleanUpScene extends Phaser.Scene {
     this.load.audio('bg_gameplay', bgGameplay);
     this.load.audio('misi_mulai', misiMulai);
     this.load.audio('masuk_sampah', masukSampah);
+    this.load.audio('button_click', btnClickUrl);
   }
 
   create(data: { caseId: string }) {
@@ -346,34 +348,20 @@ export class CleanUpScene extends Phaser.Scene {
     dialogContainer.add([dialogBg, nameBg, nameText, dialogText]);
 
     // 3. Tombol Mulai Misi
-    const btnWidth = 240; 
-    const btnHeight = 55;
-    const nextBtnY = dialogHeight / 2 - 45;
-    const nextBtnContainer = this.add.container(dialogWidth / 2 - 150, nextBtnY);
-
-    const shadow = this.add.graphics();
-    shadow.fillStyle(0x000000, 0.4);
-    shadow.fillRoundedRect(-btnWidth / 2 + 3, -btnHeight / 2 + 4, btnWidth, btnHeight, 15);
+    const nextBtnContainer = this.add.container(dialogWidth / 2 - 90, dialogHeight / 2 - 40);
 
     const nextBtnBg = this.add.graphics();
-    nextBtnBg.fillStyle(0x22c55e, 1); // Green
-    nextBtnBg.fillRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
-    nextBtnBg.lineStyle(4, 0xffffff, 0.3);
-    nextBtnBg.strokeRoundedRect(-btnWidth / 2 + 2, -btnHeight / 2 + 2, btnWidth - 4, btnHeight - 4, 13);
-    nextBtnBg.lineStyle(3, 0x000000, 1);
-    nextBtnBg.strokeRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
-
-    const nextBtnText = this.add.text(0, 0, 'MULAI ➔', {
-      fontFamily: 'Fredoka One, Arial, sans-serif',
+    nextBtnBg.fillStyle(0x3b82f6, 1);
+    nextBtnBg.fillRoundedRect(-70, -25, 140, 50, 15);
+    
+    const nextBtnText = this.add.text(0, 0, 'Mulai ➔', {
+      fontFamily: 'monospace',
       fontSize: '24px',
       color: '#ffffff',
-      fontStyle: 'bold',
-      stroke: '#000000',
-      strokeThickness: 4,
-      shadow: { offsetX: 2, offsetY: 2, color: '#000000', blur: 0, fill: true }
+      fontStyle: 'bold'
     }).setOrigin(0.5);
 
-    nextBtnContainer.add([shadow, nextBtnBg, nextBtnText]);
+    nextBtnContainer.add([nextBtnBg, nextBtnText]);
     nextBtnContainer.setAlpha(0);
     dialogContainer.add(nextBtnContainer);
 
@@ -381,36 +369,26 @@ export class CleanUpScene extends Phaser.Scene {
     this.time.delayedCall(fullText.length * 30 + 500, () => {
       this.tweens.add({ targets: nextBtnContainer, alpha: 1, duration: 300 });
       
-      nextBtnContainer.setInteractive(new Phaser.Geom.Rectangle(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight), Phaser.Geom.Rectangle.Contains);
+      const btnHitArea = new Phaser.Geom.Rectangle(-70, -25, 140, 50);
+      nextBtnContainer.setInteractive(btnHitArea, Phaser.Geom.Rectangle.Contains);
       
       nextBtnContainer.on('pointerover', () => {
         this.input.setDefaultCursor('pointer');
         nextBtnBg.clear();
-        nextBtnBg.fillStyle(0x4ade80, 1); // Lighter green
-        nextBtnBg.fillRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
-        nextBtnBg.lineStyle(4, 0xffffff, 0.5);
-        nextBtnBg.strokeRoundedRect(-btnWidth / 2 + 2, -btnHeight / 2 + 2, btnWidth - 4, btnHeight - 4, 13);
-        nextBtnBg.lineStyle(3, 0x000000, 1);
-        nextBtnBg.strokeRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
-        nextBtnContainer.y = nextBtnY - 2;
-        shadow.y = 2;
+        nextBtnBg.fillStyle(0x2563eb, 1);
+        nextBtnBg.fillRoundedRect(-70, -25, 140, 50, 15);
       });
 
       nextBtnContainer.on('pointerout', () => {
         this.input.setDefaultCursor('default');
         nextBtnBg.clear();
-        nextBtnBg.fillStyle(0x22c55e, 1);
-        nextBtnBg.fillRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
-        nextBtnBg.lineStyle(4, 0xffffff, 0.3);
-        nextBtnBg.strokeRoundedRect(-btnWidth / 2 + 2, -btnHeight / 2 + 2, btnWidth - 4, btnHeight - 4, 13);
-        nextBtnBg.lineStyle(3, 0x000000, 1);
-        nextBtnBg.strokeRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
-        nextBtnContainer.y = nextBtnY;
-        shadow.y = 0;
+        nextBtnBg.fillStyle(0x3b82f6, 1);
+        nextBtnBg.fillRoundedRect(-70, -25, 140, 50, 15);
       });
 
       nextBtnContainer.on('pointerdown', () => {
         this.input.setDefaultCursor('default');
+        this.sound.play('button_click', { volume: 0.7 });
         isTutorialActive = false; // Stop cursor loop
         
         // Animasi keluar

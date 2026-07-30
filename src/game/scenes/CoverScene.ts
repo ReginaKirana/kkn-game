@@ -587,6 +587,9 @@ export class CoverScene extends Phaser.Scene {
       localStorage.setItem('kkn-game-playerName', inputName.value.trim());
       localStorage.setItem('kkn-game-schoolName', inputSchool.value.trim());
       localStorage.setItem('kkn-game-startTime', Date.now().toString());
+      // Reset unlocks and progress for a fresh start
+      localStorage.removeItem('kkn-game-unlocks');
+      localStorage.removeItem('detektif_progress');
 
       this.sound.play('click_sfx', { volume: 1, seek: 0.7 });
 

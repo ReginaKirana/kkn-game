@@ -30,10 +30,21 @@ export class CaseSelectScene extends Phaser.Scene {
     const unlock2FromUrl = urlParams.get('unlockCase2') === 'true';
     const unlock3FromUrl = urlParams.get('unlockCase3') === 'true';
     
+    // Read previous unlocks from local storage
+    const savedState = JSON.parse(localStorage.getItem('kkn-game-unlocks') || '{}');
+
     const isUnlocking2 = data.unlockCase2 || unlock2FromUrl;
     const isUnlocking3 = data.unlockCase3 || unlock3FromUrl;
-    const isCase3Unlocked = data.case3Unlocked || urlParams.get('case3Unlocked') === 'true' || isUnlocking3;
-    const isCase2Unlocked = data.case2Unlocked || urlParams.get('case2Unlocked') === 'true' || isUnlocking2 || isCase3Unlocked;
+    
+    // Check if case is unlocked either by this scene transition, previous save, or URL
+    const isCase3Unlocked = data.case3Unlocked || savedState.case3Unlocked || urlParams.get('case3Unlocked') === 'true' || isUnlocking3;
+    const isCase2Unlocked = data.case2Unlocked || savedState.case2Unlocked || urlParams.get('case2Unlocked') === 'true' || isUnlocking2 || isCase3Unlocked;
+
+    // Save back to local storage to persist the unlocked state
+    localStorage.setItem('kkn-game-unlocks', JSON.stringify({
+      case2Unlocked: isCase2Unlocked,
+      case3Unlocked: isCase3Unlocked
+    }));
 
     this.bgMusic = this.sound.add('investigasi_bgm', { loop: true, volume: 1 });
     this.bgMusic.play();
@@ -243,16 +254,30 @@ export class CaseSelectScene extends Phaser.Scene {
 
       selidikiBtn.on('pointerdown', () => {
         this.input.setDefaultCursor('default');
-        this.sound.play('btn_click', { seek: 0.8 });
-        if (caseId === 'kasus_sampah') {
-          this.scene.start('Case2BriefingScene');
-        } else if (caseId === 'kasus_selokan') {
-          this.scene.start('Case3BriefingScene');
-        } else if (caseId === 'kasus_halaman') {
-          this.scene.start('Case1BriefingScene');
-        } else {
-          this.scene.start('InvestigationScene', { caseId: caseId });
+        this.sound.play('btn_click', { seek: 0.8, volume: 0.9 });
+        
+        this.cameras.main.fadeOut(500, 0, 0, 0);
+
+        if (this.bgMusic) {
+          this.tweens.add({
+            targets: this.bgMusic,
+            volume: 0,
+            duration: 500
+          });
         }
+
+        this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+          if (this.bgMusic) this.bgMusic.stop();
+          if (caseId === 'kasus_sampah') {
+            this.scene.start('Case2BriefingScene');
+          } else if (caseId === 'kasus_selokan') {
+            this.scene.start('Case3BriefingScene');
+          } else if (caseId === 'kasus_halaman') {
+            this.scene.start('Case1BriefingScene');
+          } else {
+            this.scene.start('InvestigationScene', { caseId: caseId });
+          }
+        });
       });
     }
     
@@ -313,11 +338,24 @@ export class CaseSelectScene extends Phaser.Scene {
 
     backBtn.on('pointerdown', () => {
       this.input.setDefaultCursor('default');
+      this.sound.play('btn_click', { seek: 0.8, volume: 0.9 });
       backBtn.y = y + 4;
       shadow.y = -4;
-      setTimeout(() => {
+      
+      this.cameras.main.fadeOut(500, 0, 0, 0);
+
+      if (this.bgMusic) {
+        this.tweens.add({
+          targets: this.bgMusic,
+          volume: 0,
+          duration: 500
+        });
+      }
+
+      this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+        if (this.bgMusic) this.bgMusic.stop();
         this.scene.start('CoverScene');
-      }, 150);
+      });
     });
   }
 }
