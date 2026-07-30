@@ -21,6 +21,7 @@ export class Case1BriefingScene extends Phaser.Scene {
   private textObj!: Phaser.GameObjects.Text;
   private typeWriterEvent!: Phaser.Time.TimerEvent;
   private nextBtn!: Phaser.GameObjects.Text;
+  private investigasiBtn!: Phaser.GameObjects.Container;
 
   private currentDialogIndex = 0;
   private isTyping = false;
@@ -33,6 +34,12 @@ export class Case1BriefingScene extends Phaser.Scene {
 
   constructor() {
     super('Case1BriefingScene');
+  }
+
+  init() {
+    this.currentDialogIndex = 0;
+    this.isTyping = false;
+    this.isClicking = false;
   }
 
   preload() {
@@ -85,7 +92,7 @@ export class Case1BriefingScene extends Phaser.Scene {
     this.createDialogUI(width, height);
 
     // Start Sequence
-    this.bgMusic = this.sound.add('case_briefing_bgm', { loop: true, volume: 0.3 });
+    this.bgMusic = this.sound.add('case_briefing_bgm', { loop: true, volume: 1.0 });
     this.bgMusic.play();
     this.typingSound = this.sound.add('typing_sfx', { loop: true, volume: 1 });
 
@@ -180,6 +187,41 @@ export class Case1BriefingScene extends Phaser.Scene {
       fontStyle: 'bold'
     }).setOrigin(1, 1).setInteractive({ useHandCursor: true }).setAlpha(0);
 
+    // Investigasi Button
+    this.investigasiBtn = this.add.container(dialogWidth / 2 - 110, dialogHeight / 2 - 40);
+    const btnBg = this.add.graphics();
+    btnBg.fillStyle(0x3b82f6, 1);
+    btnBg.fillRoundedRect(-90, -25, 180, 50, 15);
+    
+    const btnText = this.add.text(0, 0, 'INVESTIGASI ➔', {
+      fontFamily: 'monospace',
+      fontSize: '20px',
+      color: '#ffffff',
+      fontStyle: 'bold'
+    }).setOrigin(0.5);
+    
+    this.investigasiBtn.add([btnBg, btnText]);
+    
+    const btnHitArea = new Phaser.Geom.Rectangle(-90, -25, 180, 50);
+    this.investigasiBtn.setInteractive(btnHitArea, Phaser.Geom.Rectangle.Contains);
+    
+    this.investigasiBtn.on('pointerover', () => {
+      this.input.setDefaultCursor('pointer');
+      btnBg.clear();
+      btnBg.fillStyle(0x2563eb, 1);
+      btnBg.fillRoundedRect(-90, -25, 180, 50, 15);
+    });
+    
+    this.investigasiBtn.on('pointerout', () => {
+      this.input.setDefaultCursor('default');
+      btnBg.clear();
+      btnBg.fillStyle(0x3b82f6, 1);
+      btnBg.fillRoundedRect(-90, -25, 180, 50, 15);
+    });
+
+    this.investigasiBtn.setVisible(false);
+    this.investigasiBtn.setAlpha(0);
+
     this.nextBtn.on('pointerdown', () => {
       this.sound.play('btn_click', { seek: 0.8 });
       if (this.isTyping) {
@@ -193,11 +235,27 @@ export class Case1BriefingScene extends Phaser.Scene {
           this.currentDialogIndex++;
           this.startTyping(dialogues, dialogWidth, dialogHeight, nameBg, nameText);
           if (this.currentDialogIndex === dialogues.length - 1) {
-            this.nextBtn.text = 'INVESTIGASI ➔';
+            this.nextBtn.setVisible(false);
+            this.investigasiBtn.setVisible(true);
+            this.investigasiBtn.setAlpha(1);
           }
-        } else {
+        }
+      }
+    });
+
+    this.investigasiBtn.on('pointerdown', () => {
+      this.sound.play('btn_click', { seek: 0.8 });
+      if (this.isTyping) {
+        if (this.typeWriterEvent) this.typeWriterEvent.remove();
+        this.textObj.text = dialogues[this.currentDialogIndex].text;
+        this.isTyping = false;
+        if (this.typingSound) this.typingSound.stop();
+        this.investigasiBtn.setAlpha(1);
+      } else {
+        if (this.currentDialogIndex === dialogues.length - 1) {
           if (this.isClicking) return;
           this.isClicking = true;
+          this.input.setDefaultCursor('default');
           this.cameras.main.fadeOut(500, 0, 0, 0);
           setTimeout(() => {
             this.scene.start('InvestigationScene', { caseId: 'kasus_halaman' });
@@ -209,7 +267,7 @@ export class Case1BriefingScene extends Phaser.Scene {
     this.nextBtn.on('pointerover', () => this.nextBtn.setColor('#22c55e'));
     this.nextBtn.on('pointerout', () => this.nextBtn.setColor('#4ade80'));
 
-    this.dialogContainer.add([dialogBg, nameBg, nameText, this.textObj, this.nextBtn]);
+    this.dialogContainer.add([dialogBg, nameBg, nameText, this.textObj, this.nextBtn, this.investigasiBtn]);
 
     // Setup startTyping closure
     this.startTyping = (dialoguesArr: any[], dWidth: number, dHeight: number, nBg: Phaser.GameObjects.Graphics, nText: Phaser.GameObjects.Text) => {

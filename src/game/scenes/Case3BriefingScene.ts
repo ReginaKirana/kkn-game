@@ -36,6 +36,7 @@ export class Case3BriefingScene extends Phaser.Scene {
   private dialogContainer!: Phaser.GameObjects.Container;
   private textObj!: Phaser.GameObjects.Text;
   private typeWriterEvent!: Phaser.Time.TimerEvent;
+  private lanjutText!: Phaser.GameObjects.Text;
   private nextBtnContainer!: Phaser.GameObjects.Container;
   private nextBtnText!: Phaser.GameObjects.Text;
 
@@ -236,6 +237,15 @@ export class Case3BriefingScene extends Phaser.Scene {
       }
     ];
 
+    this.lanjutText = this.add.text(dialogWidth / 2 - 30, dialogHeight / 2 - 20, 'Lanjut ➔', {
+      fontFamily: 'monospace',
+      fontSize: '26px',
+      color: '#4ade80',
+      fontStyle: 'bold'
+    }).setOrigin(1, 1).setAlpha(0).setInteractive({ useHandCursor: true });
+    this.lanjutText.on("pointerover", () => this.lanjutText.setColor("#22c55e"));
+    this.lanjutText.on("pointerout", () => this.lanjutText.setColor("#4ade80"));
+
     // Tombol Lanjut (Gaming Style)
     const btnWidth = 240;
     const btnHeight = 55;
@@ -254,7 +264,7 @@ export class Case3BriefingScene extends Phaser.Scene {
     nextBtnBg.lineStyle(3, 0x000000, 1);
     nextBtnBg.strokeRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
 
-    this.nextBtnText = this.add.text(0, 0, 'LANJUT ➔', {
+    this.nextBtnText = this.add.text(0, 0, 'INVESTIGASI ➔', {
       fontFamily: 'Fredoka One, Arial, sans-serif',
       fontSize: '20px',
       color: '#ffffff',
@@ -265,7 +275,10 @@ export class Case3BriefingScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     this.nextBtnContainer.add([shadow, nextBtnBg, this.nextBtnText]);
-    this.nextBtnContainer.setAlpha(0);
+    this.nextBtnContainer.setVisible(false);
+
+    const hitArea = new Phaser.Geom.Rectangle(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight);
+    this.nextBtnContainer.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
 
     this.nextBtnContainer.on('pointerover', () => {
       if (this.isClicking) return;
@@ -296,37 +309,48 @@ export class Case3BriefingScene extends Phaser.Scene {
     });
 
     this.nextBtnContainer.on('pointerdown', () => {
+      if (this.isClicking) return;
       this.input.setDefaultCursor('default');
       this.sound.play('btn_click', { seek: 0.8 });
+      this.isClicking = true;
+      this.nextBtnContainer.y = nextBtnY + 4;
+      shadow.y = -4;
+      setTimeout(() => {
+        this.scene.start('InvestigationScene', { caseId: 'kasus_selokan' });
+      }, 150);
+    });
+
+    const clickArea = this.add.zone(0, 0, width, height).setOrigin(0).setInteractive();
+    const handleNextDialog = () => {
+      if (this.isClicking) return;
       if (this.isTyping) {
         if (this.typeWriterEvent) this.typeWriterEvent.remove();
         this.textObj.text = dialogues[this.currentDialogIndex].text;
         this.isTyping = false;
         if (this.typingSound) this.typingSound.stop();
+        if (this.currentDialogIndex === dialogues.length - 1) {
+            this.nextBtnContainer.setVisible(true);
+            this.lanjutText.setVisible(false);
+        } else {
+            this.lanjutText.setAlpha(1);
+        }
       } else {
         if (this.currentDialogIndex < dialogues.length - 1) {
           this.currentDialogIndex++;
           this.startTyping(dialogues, dialogWidth, dialogHeight, nameBg, nameText);
-          if (this.currentDialogIndex === dialogues.length - 1) {
-            this.nextBtnText.text = 'INVESTIGASI ➔';
-          }
-        } else {
-          if (this.isClicking) return;
-          this.isClicking = true;
-          this.nextBtnContainer.y = nextBtnY + 4;
-          shadow.y = -4;
-          setTimeout(() => {
-            this.scene.start('InvestigationScene', { caseId: 'kasus_selokan' });
-          }, 150);
         }
       }
-    });
+    };
+    clickArea.on('pointerdown', handleNextDialog);
+    this.lanjutText.on('pointerdown', handleNextDialog);
 
-    this.dialogContainer.add([dialogBg, nameBg, nameText, this.textObj, this.nextBtnContainer]);
+    this.dialogContainer.add([dialogBg, nameBg, nameText, this.textObj, this.lanjutText, this.nextBtnContainer]);
 
     // Setup startTyping closure
     this.startTyping = (dialoguesArr: any[], dWidth: number, dHeight: number, nBg: Phaser.GameObjects.Graphics, nText: Phaser.GameObjects.Text) => {
       this.isTyping = true;
+      this.lanjutText.setAlpha(0);
+      this.nextBtnContainer.setVisible(false);
       this.textObj.text = '';
       const currentDialog = dialoguesArr[this.currentDialogIndex];
       const isTeacher = currentDialog.speaker === 'Ibu Guru';
@@ -382,6 +406,11 @@ export class Case3BriefingScene extends Phaser.Scene {
           if (charIndex === currentDialog.text.length) {
             this.isTyping = false;
             if (this.typingSound) this.typingSound.stop();
+            if (this.currentDialogIndex === dialoguesArr.length - 1) {
+              this.nextBtnContainer.setVisible(true);
+            } else {
+              this.lanjutText.setAlpha(1);
+            }
           }
         }
       });
@@ -432,12 +461,6 @@ export class Case3BriefingScene extends Phaser.Scene {
             const nText = this.registry.get('c3b_nText');
             this.startTyping(dialogues, dWidth, dHeight, nBg, nText);
 
-            // Show next btn
-            this.time.delayedCall(dialogues[0].text.length * 30 + 500, () => {
-              this.tweens.add({ targets: this.nextBtnContainer, alpha: 1, duration: 300 });
-              const hitArea = new Phaser.Geom.Rectangle(-120, -27.5, 240, 55);
-              this.nextBtnContainer.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
-            });
           }
         });
       }

@@ -47,6 +47,11 @@ export class Case3TransitionScene extends Phaser.Scene {
     super('Case3TransitionScene');
   }
 
+  init() {
+    this.currentDialogIndex = 0;
+    this.isTyping = false;
+  }
+
   preload() {
     this.load.image('selokan_bg', selokanBg);
     this.load.image('selokan_transisi1', selokanTransisi1);
@@ -147,14 +152,14 @@ export class Case3TransitionScene extends Phaser.Scene {
     bg.lineStyle(4, 0x3b82f6, 1);
     bg.strokeRoundedRect(-bannerWidth/2, -bannerHeight/2, bannerWidth, bannerHeight, 20);
 
-    const winText = this.add.text(0, 0, 'SELOKAN TERLIHAT BERSIH!', {
+    const winText = this.add.text(0, 0, 'SELOKAN TERLIHAT BERSIH! ✨', {
       fontFamily: 'Fredoka One, Arial, sans-serif',
-      fontSize: '32px',
-      color: '#4ade80',
+      fontSize: '36px',
+      color: '#ffffff',
       fontStyle: 'bold',
-      stroke: '#000000',
-      strokeThickness: 4,
-      shadow: { offsetX: 2, offsetY: 2, color: '#000000', blur: 0, fill: true }
+      stroke: '#16a34a',
+      strokeThickness: 10,
+      shadow: { offsetX: 3, offsetY: 3, color: '#000000', blur: 8, fill: true }
     }).setOrigin(0.5);
 
     container.add([bg, winText]);
@@ -169,6 +174,28 @@ export class Case3TransitionScene extends Phaser.Scene {
       ease: 'Elastic.easeOut',
       onStart: () => {
         this.sound.play('sparkle', { volume: 0.8 });
+        
+        const { width, height } = this.cameras.main;
+        const createSparkle = () => {
+            const angle = Phaser.Math.Between(0, 360) * Math.PI / 180;
+            const radius = Phaser.Math.Between(100, 250);
+            const sparkle = this.add.text(width/2, height/2, '✨', { fontSize: '50px' })
+                .setOrigin(0.5).setDepth(101).setAlpha(0);
+            this.tweens.add({
+                targets: sparkle,
+                x: width/2 + Math.cos(angle) * radius,
+                y: height/2 + Math.sin(angle) * radius,
+                alpha: { from: 1, to: 0 },
+                scale: { from: 0.5, to: 1.5 },
+                duration: 800 + Phaser.Math.Between(0, 400),
+                ease: 'Power2',
+                onComplete: () => sparkle.destroy()
+            });
+        };
+        for (let i = 0; i < 20; i++) {
+            this.time.delayedCall(i * 50, createSparkle);
+        }
+
         // Menghentikan sparkle setelah 2 detik sesuai request sebelumnya (0-2 detik)
         this.time.delayedCall(2000, () => {
           this.sound.stopByKey('sparkle');
@@ -220,24 +247,18 @@ export class Case3TransitionScene extends Phaser.Scene {
       fontSize: '26px',
       color: '#4ade80',
       fontStyle: 'bold'
-    }).setOrigin(1, 1).setInteractive({ useHandCursor: true }).setAlpha(0);
+    }).setOrigin(1, 1).setAlpha(0);
 
-    const clickArea = this.add.zone(0, 0, dialogWidth, dialogHeight)
-      .setRectangleDropZone(dialogWidth, dialogHeight)
-      .setInteractive({ useHandCursor: true });
-    
-    this.nextBtn.on('pointerover', () => this.nextBtn.setColor('#22c55e'));
-    this.nextBtn.on('pointerout', () => this.nextBtn.setColor('#4ade80'));
+    const clickArea = this.add.zone(0, 0, width, height).setOrigin(0).setInteractive();
 
     const advanceDialog = () => {
       this.sound.play('btn_click', { seek: 0.8 });
       this.handleDialogClick();
     };
 
-    clickArea.on('pointerdown', () => this.handleDialogClick());
-    this.nextBtn.on('pointerdown', advanceDialog);
+    clickArea.on('pointerdown', advanceDialog);
 
-    this.dialogContainer.add([dialogBg, nameBg, nameText, this.textObj, clickArea, this.nextBtn]);
+    this.dialogContainer.add([dialogBg, nameBg, nameText, this.textObj, this.nextBtn]);
   }
 
   private showEndingSequence() {

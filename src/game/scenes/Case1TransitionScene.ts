@@ -72,14 +72,35 @@ export class Case1TransitionScene extends Phaser.Scene {
                 const flash = this.add.rectangle(0, 0, width, height, 0xffffff, 1).setOrigin(0).setDepth(22);
                 this.tweens.add({ targets: flash, alpha: 0, duration: 1000, onComplete: () => flash.destroy() });
 
+                // Sparkle burst
+                const createSparkle = () => {
+                    const angle = Phaser.Math.Between(0, 360) * Math.PI / 180;
+                    const radius = Phaser.Math.Between(100, 250);
+                    const sparkle = this.add.text(width/2, height/2 - 50, '✨', { fontSize: '60px' })
+                        .setOrigin(0.5).setDepth(22).setAlpha(0);
+                    this.tweens.add({
+                        targets: sparkle,
+                        x: width/2 + Math.cos(angle) * radius,
+                        y: height/2 - 50 + Math.sin(angle) * radius,
+                        alpha: { from: 1, to: 0 },
+                        scale: { from: 0.5, to: 1.5 },
+                        duration: 800 + Phaser.Math.Between(0, 400),
+                        ease: 'Power2',
+                        onComplete: () => sparkle.destroy()
+                    });
+                };
+                for (let i = 0; i < 20; i++) {
+                    this.time.delayedCall(i * 50, createSparkle);
+                }
+
                 // BERSIH text
                 const bersihText = this.add.text(width / 2, height / 2 - 50, 'BERSIH! ✨', {
                     fontFamily: 'Fredoka One, Arial, sans-serif',
-                    fontSize: '80px',
-                    color: '#4ade80', // Green
-                    stroke: '#ffffff',
-                    strokeThickness: 12,
-                    shadow: { offsetX: 4, offsetY: 4, color: '#000000', blur: 5, fill: true }
+                    fontSize: '90px',
+                    color: '#ffffff',
+                    stroke: '#16a34a',
+                    strokeThickness: 16,
+                    shadow: { offsetX: 4, offsetY: 4, color: '#000000', blur: 10, fill: true }
                 }).setOrigin(0.5).setAlpha(0).setScale(0).setDepth(23);
 
                 this.tweens.add({
@@ -170,7 +191,7 @@ export class Case1TransitionScene extends Phaser.Scene {
       fontSize: '26px',
       color: '#4ade80',
       fontStyle: 'bold'
-    }).setOrigin(1, 1).setInteractive({ useHandCursor: true }).setAlpha(0);
+    }).setOrigin(1, 1).setAlpha(0);
 
     const startTyping = () => {
       textObj.text = "";
@@ -196,17 +217,13 @@ export class Case1TransitionScene extends Phaser.Scene {
     };
     startTyping();
 
-    const clickArea = this.add.zone(0, 0, dialogWidth, dialogHeight)
-      .setRectangleDropZone(dialogWidth, dialogHeight)
-      .setInteractive({ useHandCursor: true });
+    const clickArea = this.add.zone(0, 0, width, height).setOrigin(0).setInteractive();
 
-    dialogContainer.add([dialogBg, nameBg, nameText, textObj, clickArea, nextBtn]);
+    dialogContainer.add([dialogBg, nameBg, nameText, textObj, nextBtn]);
     dialogContainer.setAlpha(0);
     dialogContainer.y += 50;
     this.tweens.add({ targets: dialogContainer, alpha: 1, y: height - 150, duration: 500, delay: 400, ease: 'Power2' });
 
-    nextBtn.on('pointerover', () => nextBtn.setColor('#22c55e'));
-    nextBtn.on('pointerout', () => nextBtn.setColor('#4ade80'));
 
     const advanceDialog = () => {
       if (isTyping) {
@@ -235,8 +252,7 @@ export class Case1TransitionScene extends Phaser.Scene {
       }
     };
 
-    clickArea.on('pointerdown', advanceDialog);
-    nextBtn.on('pointerdown', () => {
+    clickArea.on('pointerdown', () => {
       this.sound.play('btn_click', { seek: 0.8 });
       advanceDialog();
     });

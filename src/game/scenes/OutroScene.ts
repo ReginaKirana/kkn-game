@@ -4,6 +4,7 @@ import { supabase } from '../../lib/supabaseClient';
 import papanBg from '../../assets/backgrounds/papan-kasus3.png';
 import thumbUpTeacher from '../../assets/characters/teachers/thumb-up.png';
 import smileTeacher from '../../assets/characters/teachers/smile.png';
+import outroAudioUrl from '../../assets/audio/outro.mp3';
 
 export class OutroScene extends Phaser.Scene {
   private teacher!: Phaser.GameObjects.Image;
@@ -15,6 +16,7 @@ export class OutroScene extends Phaser.Scene {
   private currentDialogIndex = 0;
   private isTyping = false;
   private currentTextContent = "";
+  private bgMusic!: Phaser.Sound.BaseSound;
 
   private dialogs = [
     {
@@ -44,10 +46,16 @@ export class OutroScene extends Phaser.Scene {
     super('OutroScene');
   }
 
+  init() {
+    this.currentDialogIndex = 0;
+    this.isTyping = false;
+  }
+
   preload() {
     this.load.image('papan_kasus3', papanBg);
     this.load.image('teacher_thumbup', thumbUpTeacher);
     this.load.image('teacher_smile', smileTeacher);
+    this.load.audio('outro_music', outroAudioUrl);
   }
 
   create() {
@@ -57,6 +65,13 @@ export class OutroScene extends Phaser.Scene {
     // Background (Papan Investigasi with all checks)
     const bg = this.add.image(width / 2, height / 2, 'papan_kasus3');
     bg.setScale(Math.max(width / bg.width, height / bg.height));
+
+    this.bgMusic = this.sound.add('outro_music', { loop: true, volume: 0.5 });
+    this.bgMusic.play();
+
+    this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
+      if (this.bgMusic) this.bgMusic.stop();
+    });
 
     this.submitToSupabase();
     this.time.delayedCall(1000, () => this.showEndingSequence(width, height));
@@ -177,14 +192,9 @@ export class OutroScene extends Phaser.Scene {
       fontSize: '26px',
       color: '#4ade80',
       fontStyle: 'bold'
-    }).setOrigin(1, 1).setInteractive({ useHandCursor: true }).setAlpha(0);
+    }).setOrigin(1, 1).setAlpha(0);
 
-    const clickArea = this.add.zone(0, 0, dialogWidth, dialogHeight)
-      .setRectangleDropZone(dialogWidth, dialogHeight)
-      .setInteractive({ useHandCursor: true });
-    
-    this.nextBtn.on('pointerover', () => this.nextBtn.setColor('#22c55e'));
-    this.nextBtn.on('pointerout', () => this.nextBtn.setColor('#4ade80'));
+    const clickArea = this.add.zone(0, 0, width, height).setOrigin(0).setInteractive();
 
     const advanceDialog = () => {
       this.sound.play('btn_click', { seek: 0.8 });
@@ -192,9 +202,8 @@ export class OutroScene extends Phaser.Scene {
     };
 
     clickArea.on('pointerdown', () => this.handleDialogClick());
-    this.nextBtn.on('pointerdown', advanceDialog);
 
-    this.dialogContainer.add([dialogBg, nameBg, nameText, this.textObj, clickArea, this.nextBtn]);
+    this.dialogContainer.add([dialogBg, nameBg, nameText, this.textObj, this.nextBtn]);
 
     // Animate in
     this.dialogContainer.setAlpha(0);

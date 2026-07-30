@@ -20,9 +20,11 @@ export class IntroScene extends Phaser.Scene {
   private currentDialogIndex: number = 0;
 
   private textObj!: Phaser.GameObjects.Text;
-  private nextBtn!: Phaser.GameObjects.Text;
+  private lanjutText!: Phaser.GameObjects.Text;
+  private mulaiBtn!: Phaser.GameObjects.Container;
   private typewriterEvent: Phaser.Time.TimerEvent | null = null;
   private isTyping: boolean = false;
+  private isClicking: boolean = false;
 
   private typingSound!: Phaser.Sound.BaseSound;
   private bgMusic!: Phaser.Sound.BaseSound;
@@ -30,6 +32,13 @@ export class IntroScene extends Phaser.Scene {
 
   constructor() {
     super('IntroScene');
+  }
+
+  init() {
+    this.currentDialogIndex = 0;
+    this.isTyping = false;
+    this.isClicking = false;
+    this.typewriterEvent = null;
   }
 
   preload() {
@@ -176,59 +185,93 @@ export class IntroScene extends Phaser.Scene {
       lineSpacing: 10
     });
 
-    container.add([dialogBg, nameBg, nameText, this.textObj]);
-
-    // Next Button (Simple text)
-    this.nextBtn = this.add.text(dialogWidth / 2 - 30, dialogHeight / 2 - 20, 'Lanjut ➔', {
+    this.lanjutText = this.add.text(dialogWidth / 2 - 30, dialogHeight / 2 - 20, 'Lanjut ➔', {
       fontFamily: 'monospace',
       fontSize: '26px',
       color: '#4ade80',
       fontStyle: 'bold'
-    }).setOrigin(1, 1).setInteractive({ useHandCursor: true }).setVisible(false);
+    }).setOrigin(1, 1).setAlpha(0).setInteractive({ useHandCursor: true });
 
-    this.nextBtn.on('pointerdown', () => {
-      if (!this.isTyping) {
+    this.lanjutText.on('pointerover', () => this.lanjutText.setColor('#22c55e'));
+    this.lanjutText.on('pointerout', () => this.lanjutText.setColor('#4ade80'));
+
+    container.add([dialogBg, nameBg, nameText, this.textObj, this.lanjutText]);
+
+    // Mulai Button
+    this.mulaiBtn = this.add.container(dialogWidth / 2 - 90, dialogHeight / 2 - 40);
+    
+    const btnBg = this.add.graphics();
+    btnBg.fillStyle(0x3b82f6, 1);
+    btnBg.fillRoundedRect(-70, -25, 140, 50, 15);
+    
+    const btnText = this.add.text(0, 0, 'Mulai ➔', {
+      fontFamily: 'monospace',
+      fontSize: '24px',
+      color: '#ffffff',
+      fontStyle: 'bold'
+    }).setOrigin(0.5);
+    
+    this.mulaiBtn.add([btnBg, btnText]);
+    
+    const btnHitArea = new Phaser.Geom.Rectangle(-70, -25, 140, 50);
+    this.mulaiBtn.setInteractive(btnHitArea, Phaser.Geom.Rectangle.Contains);
+    
+    this.mulaiBtn.on('pointerover', () => {
+      this.input.setDefaultCursor('pointer');
+      btnBg.clear();
+      btnBg.fillStyle(0x2563eb, 1);
+      btnBg.fillRoundedRect(-70, -25, 140, 50, 15);
+    });
+    
+    this.mulaiBtn.on('pointerout', () => {
+      this.input.setDefaultCursor('default');
+      btnBg.clear();
+      btnBg.fillStyle(0x3b82f6, 1);
+      btnBg.fillRoundedRect(-70, -25, 140, 50, 15);
+    });
+
+    this.mulaiBtn.setVisible(false);
+
+    this.mulaiBtn.on('pointerdown', () => {
+      if (!this.isTyping && this.currentDialogIndex === this.dialogues.length - 1) {
+        this.input.setDefaultCursor('default');
         this.sound.play('btn_click', { seek: 0.8 });
-        if (this.currentDialogIndex < this.dialogues.length - 1) {
-          this.currentDialogIndex++;
-          this.showDialog();
-        } else {
-          // Last dialog, go to next scene
-          this.cameras.main.fadeOut(500, 0, 0, 0);
+        
+        // Go to next scene
+        this.cameras.main.fadeOut(500, 0, 0, 0);
 
-          if (this.bgMusic) {
-            this.tweens.add({
-              targets: this.bgMusic,
-              volume: 0,
-              duration: 500
-            });
-          }
-
-          this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
-            if (this.typingSound) this.typingSound.stop();
-            if (this.bgMusic) this.bgMusic.stop();
-            this.scene.start('CaseSelectScene');
+        if (this.bgMusic) {
+          this.tweens.add({
+            targets: this.bgMusic,
+            volume: 0,
+            duration: 500
           });
         }
+
+        this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+          if (this.typingSound) this.typingSound.stop();
+          if (this.bgMusic) this.bgMusic.stop();
+          this.scene.start('CaseSelectScene');
+        });
       }
     });
 
-    this.nextBtn.on('pointerover', () => this.nextBtn.setColor('#22c55e'));
-    this.nextBtn.on('pointerout', () => this.nextBtn.setColor('#4ade80'));
+    container.add(this.mulaiBtn);
 
-    container.add(this.nextBtn);
-
-    // Optional: click anywhere on dialog to skip typing
+    // Click anywhere on dialog to skip typing or proceed to next dialog
     const hitArea = new Phaser.Geom.Rectangle(-dialogWidth / 2, -dialogHeight / 2, dialogWidth, dialogHeight);
     const interactiveBg = this.add.zone(0, 0, dialogWidth, dialogHeight);
     interactiveBg.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
-    container.add(interactiveBg);
-    
-    interactiveBg.on('pointerdown', () => {
-      if (this.isTyping) {
-        this.finishTyping();
+    // Show pointer cursor for dialog background so user knows they can click
+    interactiveBg.on('pointerover', () => {
+      if (this.currentDialogIndex < this.dialogues.length - 1 || this.isTyping) {
+        this.input.setDefaultCursor('pointer');
       }
     });
+    interactiveBg.on('pointerout', () => {
+      this.input.setDefaultCursor('default');
+    });
+    container.add(interactiveBg);
 
     // Pop-in animation for bubble
     container.setAlpha(0);
@@ -240,6 +283,25 @@ export class IntroScene extends Phaser.Scene {
       duration: 400,
       ease: 'Back.easeOut'
     });
+    
+    
+    const handleNextDialog = () => {
+      if (this.isTyping) {
+        this.finishTyping();
+      } else {
+        if (this.currentDialogIndex < this.dialogues.length - 1) {
+          this.sound.play('btn_click', { seek: 0.8 });
+          this.currentDialogIndex++;
+          this.showDialog();
+          if (this.currentDialogIndex === this.dialogues.length - 1) {
+            this.input.setDefaultCursor('default');
+          }
+        }
+      }
+    };
+    
+    interactiveBg.on('pointerdown', handleNextDialog);
+    this.lanjutText.on('pointerdown', handleNextDialog);
   }
 
   private showDialog() {
@@ -247,7 +309,8 @@ export class IntroScene extends Phaser.Scene {
 
     const text = this.dialogues[this.currentDialogIndex];
     this.textObj.setText('');
-    this.nextBtn.setVisible(false);
+    this.mulaiBtn.setVisible(false);
+    this.lanjutText.setAlpha(0);
     this.isTyping = true;
 
     // Reset posisi awal setiap kali dialog berganti
@@ -327,10 +390,9 @@ export class IntroScene extends Phaser.Scene {
     this.typingSound.stop();
     
     if (this.currentDialogIndex === this.dialogues.length - 1) {
-      this.nextBtn.setText('Mulai ➔');
+      this.mulaiBtn.setVisible(true);
     } else {
-      this.nextBtn.setText('Lanjut ➔');
+      this.lanjutText.setAlpha(1);
     }
-    this.nextBtn.setVisible(true);
   }
 }

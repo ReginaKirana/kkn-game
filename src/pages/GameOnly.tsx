@@ -25,6 +25,7 @@ export default function GameOnly() {
       document.title = originalTitle; // Restore original title on unmount
       if (gameInstanceRef.current) {
         gameInstanceRef.current.destroy(true);
+        gameInstanceRef.current = null;
       }
     };
   }, []);

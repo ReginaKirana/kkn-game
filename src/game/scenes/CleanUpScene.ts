@@ -242,10 +242,10 @@ export class CleanUpScene extends Phaser.Scene {
 
       this.tweens.add({
         targets: bonusText,
-        y: '-=60',
-        alpha: 0,
-        duration: 1500,
-        ease: 'Power2',
+        y: '-=80',
+        alpha: { from: 1, to: 0 },
+        duration: 2500,
+        ease: 'Sine.easeOut',
         onComplete: () => bonusText.destroy()
       });
 

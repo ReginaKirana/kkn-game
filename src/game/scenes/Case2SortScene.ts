@@ -257,10 +257,10 @@ export class Case2SortScene extends Phaser.Scene {
 
         this.tweens.add({
           targets: bonusText,
-          y: '-=50',
-          alpha: 0,
-          duration: 1000,
-          ease: 'Power2',
+          y: '-=80',
+          alpha: { from: 1, to: 0 },
+          duration: 2500,
+          ease: 'Sine.easeOut',
           onComplete: () => bonusText.destroy()
         });
 
@@ -282,7 +282,7 @@ export class Case2SortScene extends Phaser.Scene {
         });
       } else {
         // SALAH
-        this.sound.play('wrong');
+        this.sound.play('wrong', { volume: 1.5 });
         gameObject.setTint(0xff5555);
         const xMark = this.add.text(gameObject.x, gameObject.y - 50, '❌', { fontSize: '64px' }).setOrigin(0.5);
         xMark.setDepth(20);
@@ -299,10 +299,10 @@ export class Case2SortScene extends Phaser.Scene {
 
         this.tweens.add({
           targets: [xMark, penaltyText],
-          y: '-=30',
-          alpha: 0,
-          duration: 1200,
-          ease: 'Power2',
+          y: '-=50',
+          alpha: { from: 1, to: 0 },
+          duration: 2500,
+          ease: 'Sine.easeOut',
           onComplete: () => {
             xMark.destroy();
             penaltyText.destroy();
@@ -395,21 +395,16 @@ export class Case2SortScene extends Phaser.Scene {
       lineSpacing: 10
     });
 
-    const clickArea = this.add.zone(0, 0, dialogWidth, dialogHeight)
-      .setRectangleDropZone(dialogWidth, dialogHeight)
-      .setInteractive({ useHandCursor: true });
+    const clickArea = this.add.zone(0, 0, width, height).setOrigin(0).setInteractive();
     
     const nextBtn = this.add.text(dialogWidth / 2 - 30, dialogHeight / 2 - 20, 'Selesai ➔', {
       fontFamily: 'monospace',
       fontSize: '26px',
       color: '#4ade80',
       fontStyle: 'bold'
-    }).setOrigin(1, 1).setInteractive({ useHandCursor: true }).setAlpha(0);
+    }).setOrigin(1, 1).setAlpha(0);
 
-    nextBtn.on('pointerover', () => nextBtn.setColor('#22c55e'));
-    nextBtn.on('pointerout', () => nextBtn.setColor('#4ade80'));
-
-    dialogContainer.add([dialogBg, nameBg, nameText, textObj, clickArea, nextBtn]);
+    dialogContainer.add([dialogBg, nameBg, nameText, textObj, nextBtn]);
     dialogContainer.setAlpha(0);
     dialogContainer.y += 50;
 
@@ -469,8 +464,7 @@ export class Case2SortScene extends Phaser.Scene {
               }
             };
 
-            clickArea.on('pointerdown', advanceDialog);
-            nextBtn.on('pointerdown', () => {
+            clickArea.on('pointerdown', () => {
               this.sound.play('btn_click', { seek: 0.8 });
               advanceDialog();
             });
@@ -498,6 +492,27 @@ export class Case2SortScene extends Phaser.Scene {
       stroke: '#000000',
       strokeThickness: 6
     }).setOrigin(0.5);
+
+    // Sparkles
+    const createSparkle = () => {
+        const angle = Phaser.Math.Between(0, 360) * Math.PI / 180;
+        const radius = Phaser.Math.Between(80, 200);
+        const sparkle = this.add.text(width/2, height/2 - 100, '✨', { fontSize: '40px' })
+            .setOrigin(0.5).setDepth(41).setAlpha(0);
+        this.tweens.add({
+            targets: sparkle,
+            x: width/2 + Math.cos(angle) * radius,
+            y: height/2 - 100 + Math.sin(angle) * radius,
+            alpha: { from: 1, to: 0 },
+            scale: { from: 0.5, to: 1.5 },
+            duration: 800 + Phaser.Math.Between(0, 400),
+            ease: 'Power2',
+            onComplete: () => sparkle.destroy()
+        });
+    };
+    for (let i = 0; i < 15; i++) {
+        this.time.delayedCall(i * 100, createSparkle);
+    }
 
     const score = this.add.text(0, -10, 'Eco Point +10', {
       fontFamily: 'Fredoka One, Arial, sans-serif',

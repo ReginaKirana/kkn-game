@@ -109,13 +109,16 @@ export class ConclusionScene extends Phaser.Scene {
       align: 'center'
     }).setOrigin(0.5);
 
-    // Next Button inside Dialog
     const nextBtn = this.add.text(dialogW/2 - 20, dialogH/2 - 15, 'Lanjut ➔', {
       fontFamily: 'monospace',
       fontSize: '22px',
       color: '#4ade80',
       fontStyle: 'bold'
     }).setOrigin(1, 1).setInteractive({ useHandCursor: true });
+    
+    nextBtn.on('pointerover', () => nextBtn.setColor('#22c55e'));
+    nextBtn.on('pointerout', () => nextBtn.setColor('#4ade80'));
+
     nextBtn.setVisible(false);
 
     dialogContainer.add([dialogBg, dialogText, nextBtn]);

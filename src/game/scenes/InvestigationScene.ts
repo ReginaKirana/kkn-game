@@ -145,7 +145,7 @@ export class InvestigationScene extends Phaser.Scene {
     }
     
     // Play BGM for all cases
-    this.bgMusic = this.sound.add('investigation_bgm', { loop: true, volume: 0.4 });
+    this.bgMusic = this.sound.add('investigation_bgm', { loop: true, volume: 1.0 });
     this.bgMusic.play();
 
     // Title / Instructions (Hidden initially, shown after intro)
@@ -223,7 +223,7 @@ export class InvestigationScene extends Phaser.Scene {
     boxBg.strokeRoundedRect(-boxWidth/2, -boxHeight/2, boxWidth, boxHeight, 20);
 
     // Text "Quest dimulai!"
-    const text = this.add.text(0, 0, `🎉 Temukan ${this.totalClues} Bukti! 🎉`, {
+    const text = this.add.text(0, 0, `Temukan ${this.totalClues} Bukti!`, {
       fontFamily: 'Fredoka One, Arial, sans-serif',
       fontSize: '36px',
       color: '#ffffff',
@@ -372,7 +372,18 @@ export class InvestigationScene extends Phaser.Scene {
       this.sound.play('collect_sfx');
       
       const onClueShown = () => {
-        this.showDialog(text, hasPov);
+        this.showDialog(text, hasPov, () => {
+          if (this.cluesFound >= this.totalClues && this.nextBtn.alpha === 0) {
+            this.nextBtn.setVisible(true);
+            this.tweens.add({
+              targets: this.nextBtn,
+              alpha: 1,
+              y: this.cameras.main.height - 100,
+              duration: 500,
+              ease: 'Back.easeOut'
+            });
+          }
+        });
         
         if (!isFound) {
           isFound = true;
@@ -393,15 +404,6 @@ export class InvestigationScene extends Phaser.Scene {
           if (this.cluesFound >= this.totalClues) {
             this.bannerText.text = '✨ Investigasi Selesai! ✨';
             this.bannerText.setColor('#4ade80'); // Green color for success
-            
-            this.nextBtn.setVisible(true);
-            this.tweens.add({
-              targets: this.nextBtn,
-              alpha: 1,
-              y: this.cameras.main.height - 100,
-              duration: 500,
-              ease: 'Back.easeOut'
-            });
           } else {
             this.bannerText.text = `Bukti Ditemukan: ${this.cluesFound} / ${this.totalClues}`;
           }
@@ -427,7 +429,7 @@ export class InvestigationScene extends Phaser.Scene {
     });
   }
 
-  private showDialog(text: string, hasPov: boolean) {
+  private showDialog(text: string, hasPov: boolean, onClose?: () => void) {
     const { width, height } = this.cameras.main;
     
     // Dim background
@@ -570,8 +572,11 @@ export class InvestigationScene extends Phaser.Scene {
                 duration: 500,
                 onComplete: () => {
                   this.binBg.setVisible(false);
+                  if (onClose) onClose();
                 }
               });
+            } else {
+              if (onClose) onClose();
             }
           }
         });
@@ -691,10 +696,10 @@ export class InvestigationScene extends Phaser.Scene {
     // Dim background
     const overlay = this.add.rectangle(0, 0, width, height, 0x000000, 0.7).setOrigin(0, 0);
     overlay.setInteractive();
-    overlay.setDepth(200);
+    overlay.setDepth(300);
 
     const dialogContainer = this.add.container(width / 2, height - 150);
-    dialogContainer.setDepth(201);
+    dialogContainer.setDepth(302);
 
     const dialogWidth = width * 0.8;
     const dialogHeight = 220;
@@ -728,7 +733,7 @@ export class InvestigationScene extends Phaser.Scene {
     const teacherScale = teacherMaxHeight / teacher.height;
     teacher.setScale(teacherScale);
     teacher.setFlipX(true);
-    teacher.setDepth(199); // behind dialog box
+    teacher.setDepth(301); // above overlay, below dialog box
 
     const dialogues = [
       { text: "Kerja bagus! Kamu berhasil mengumpulkan semua bukti.", img: 'teacher_happy' },
@@ -739,18 +744,24 @@ export class InvestigationScene extends Phaser.Scene {
     let isTyping = false;
     let typeWriterEvent: Phaser.Time.TimerEvent;
 
-    // Simple next button
+    // Simple next button (hidden interactively)
     const nextDialogBtn = this.add.text(dialogWidth / 2 - 30, dialogHeight / 2 - 20, 'Lanjut ➔', {
       fontFamily: 'monospace',
       fontSize: '26px',
       color: '#4ade80',
       fontStyle: 'bold'
-    }).setOrigin(1, 1).setInteractive({ useHandCursor: true });
+    }).setOrigin(1, 1).setAlpha(0).setInteractive({ useHandCursor: true });
+
+    nextDialogBtn.on('pointerover', () => nextDialogBtn.setColor('#22c55e'));
+    nextDialogBtn.on('pointerout', () => nextDialogBtn.setColor('#4ade80'));
+
+    const clickArea = this.add.zone(0, 0, width, height).setOrigin(0).setInteractive();
 
     dialogContainer.add([dialogBg, nameBg, nameText, textObj, nextDialogBtn]);
 
     const startTyping = () => {
       isTyping = true;
+      nextDialogBtn.setAlpha(0);
       textObj.text = '';
       teacher.setTexture(dialogues[currentDialogIndex].img);
       
@@ -765,17 +776,19 @@ export class InvestigationScene extends Phaser.Scene {
           charIndex++;
           if (charIndex === textToType.length) {
             isTyping = false;
+            nextDialogBtn.setAlpha(1);
           }
         }
       });
     };
 
-    nextDialogBtn.on('pointerdown', () => {
+    const handleDialogClick = () => {
       this.sound.play('btn_click', { seek: 0.8 });
       if (isTyping) {
         if (typeWriterEvent) typeWriterEvent.remove();
         textObj.text = dialogues[currentDialogIndex].text;
         isTyping = false;
+        nextDialogBtn.setAlpha(1);
       } else {
         if (currentDialogIndex < dialogues.length - 1) {
           currentDialogIndex++;
@@ -788,10 +801,10 @@ export class InvestigationScene extends Phaser.Scene {
           }, 500);
         }
       }
-    });
+    };
 
-    nextDialogBtn.on('pointerover', () => nextDialogBtn.setColor('#22c55e'));
-    nextDialogBtn.on('pointerout', () => nextDialogBtn.setColor('#4ade80'));
+    clickArea.on('pointerdown', handleDialogClick);
+    nextDialogBtn.on('pointerdown', handleDialogClick);
 
     // initial fade in
     dialogContainer.setAlpha(0);
