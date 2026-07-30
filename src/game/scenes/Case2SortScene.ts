@@ -493,26 +493,7 @@ export class Case2SortScene extends Phaser.Scene {
       strokeThickness: 6
     }).setOrigin(0.5);
 
-    // Sparkles
-    const createSparkle = () => {
-        const angle = Phaser.Math.Between(0, 360) * Math.PI / 180;
-        const radius = Phaser.Math.Between(80, 200);
-        const sparkle = this.add.text(width/2, height/2 - 100, '✨', { fontSize: '40px' })
-            .setOrigin(0.5).setDepth(41).setAlpha(0);
-        this.tweens.add({
-            targets: sparkle,
-            x: width/2 + Math.cos(angle) * radius,
-            y: height/2 - 100 + Math.sin(angle) * radius,
-            alpha: { from: 1, to: 0 },
-            scale: { from: 0.5, to: 1.5 },
-            duration: 800 + Phaser.Math.Between(0, 400),
-            ease: 'Power2',
-            onComplete: () => sparkle.destroy()
-        });
-    };
-    for (let i = 0; i < 15; i++) {
-        this.time.delayedCall(i * 100, createSparkle);
-    }
+
 
     const score = this.add.text(0, -10, 'Eco Point +10', {
       fontFamily: 'Fredoka One, Arial, sans-serif',
