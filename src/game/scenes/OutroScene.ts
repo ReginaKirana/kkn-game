@@ -5,6 +5,10 @@ import papanBg from '../../assets/backgrounds/papan-kasus3.png';
 import thumbUpTeacher from '../../assets/characters/teachers/thumb-up.png';
 import smileTeacher from '../../assets/characters/teachers/smile.png';
 import outroAudioUrl from '../../assets/audio/outro.mp3';
+import keyboardTypingUrl from '../../assets/audio/keyboard-typing.wav';
+import btnClickUrl from '../../assets/audio/button_click.mp3';
+import finishCaseUrl from '../../assets/audio/case1/finish-case.wav';
+import levelUpUrl from '../../assets/audio/level-up.mp3';
 
 export class OutroScene extends Phaser.Scene {
   private teacher!: Phaser.GameObjects.Image;
@@ -17,6 +21,7 @@ export class OutroScene extends Phaser.Scene {
   private isTyping = false;
   private currentTextContent = "";
   private bgMusic!: Phaser.Sound.BaseSound;
+  private typingSound!: Phaser.Sound.BaseSound;
 
   private dialogs = [
     {
@@ -56,6 +61,10 @@ export class OutroScene extends Phaser.Scene {
     this.load.image('teacher_thumbup', thumbUpTeacher);
     this.load.image('teacher_smile', smileTeacher);
     this.load.audio('outro_music', outroAudioUrl);
+    this.load.audio('keyboard_typing', keyboardTypingUrl);
+    this.load.audio('btn_click', btnClickUrl);
+    this.load.audio('finish_case', finishCaseUrl);
+    this.load.audio('level_up', levelUpUrl);
   }
 
   create() {
@@ -68,9 +77,11 @@ export class OutroScene extends Phaser.Scene {
 
     this.bgMusic = this.sound.add('outro_music', { loop: true, volume: 0.5 });
     this.bgMusic.play();
+    this.typingSound = this.sound.add('keyboard_typing', { loop: true, volume: 1 });
 
     this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
       if (this.bgMusic) this.bgMusic.stop();
+      if (this.typingSound) this.typingSound.stop();
     });
 
     this.submitToSupabase();
@@ -125,7 +136,7 @@ export class OutroScene extends Phaser.Scene {
       duration: 800,
       onComplete: () => {
         // Munculkan Guru
-        this.teacher = this.add.image(width * 0.2, height + 80, 'teacher_thumbup').setOrigin(0.5, 1);
+        this.teacher = this.add.image(width * 0.2 + 20, height + 40, 'teacher_thumbup').setOrigin(0.5, 1);
         this.teacher.setFlipX(true);
         const teacherMaxHeight = height * 0.82;
         this.teacher.setScale(teacherMaxHeight / this.teacher.height);
@@ -201,7 +212,7 @@ export class OutroScene extends Phaser.Scene {
       this.handleDialogClick();
     };
 
-    clickArea.on('pointerdown', () => this.handleDialogClick());
+    clickArea.on('pointerdown', advanceDialog);
 
     this.dialogContainer.add([dialogBg, nameBg, nameText, this.textObj, this.nextBtn]);
 
@@ -221,6 +232,18 @@ export class OutroScene extends Phaser.Scene {
     const dialogData = this.dialogs[this.currentDialogIndex];
     
     this.teacher.setTexture(dialogData.teacherKey);
+
+    let baseTeacherX = this.cameras.main.width * 0.2;
+    let baseTeacherY = this.cameras.main.height + 40; // Naikkan sedikit
+
+    if (dialogData.teacherKey === 'teacher_smile') {
+       baseTeacherX += 60; // Geser ke kanan cukup banyak
+    } else if (dialogData.teacherKey === 'teacher_thumbup') {
+       baseTeacherX += 20; // Geser sedikit ke kanan
+    }
+
+    this.teacher.setPosition(baseTeacherX, baseTeacherY);
+
     const teacherMaxHeight = this.cameras.main.height * 0.82;
     this.teacher.setScale((teacherMaxHeight / this.teacher.height) * (dialogData.teacherScale || 1));
 
@@ -240,10 +263,12 @@ export class OutroScene extends Phaser.Scene {
       delay: 30,
       repeat: this.currentTextContent.length - 1,
       callback: () => {
+        if (this.typingSound && !this.typingSound.isPlaying) this.typingSound.play();
         this.textObj.text += this.currentTextContent[i];
         i++;
         if (i === this.currentTextContent.length) {
           this.isTyping = false;
+          if (this.typingSound) this.typingSound.stop();
           this.nextBtn.setAlpha(1);
           if (this.currentDialogIndex === this.dialogs.length - 1) {
             this.nextBtn.setText('Selesai ➔');
@@ -260,6 +285,7 @@ export class OutroScene extends Phaser.Scene {
       if (this.typeWriterEvent) this.typeWriterEvent.remove();
       this.textObj.text = this.currentTextContent;
       this.isTyping = false;
+      if (this.typingSound) this.typingSound.stop();
       this.nextBtn.setAlpha(1);
       if (this.currentDialogIndex === this.dialogs.length - 1) {
         this.nextBtn.setText('Selesai ➔');
@@ -294,6 +320,8 @@ export class OutroScene extends Phaser.Scene {
           shadow: { offsetX: 4, offsetY: 4, color: '#000000', blur: 5, fill: true }
         }).setOrigin(0.5).setAlpha(0).setScale(0.5);
 
+        this.sound.play('finish_case', { volume: 0.8 });
+
         this.tweens.add({
           targets: missionCompleteText,
           alpha: 1,
@@ -317,6 +345,8 @@ export class OutroScene extends Phaser.Scene {
                 const badgeIcon = this.add.text(width / 2, height / 2, '🏆', {
                   fontSize: '150px'
                 }).setOrigin(0.5).setAlpha(0).setScale(0);
+
+                this.sound.play('level_up', { volume: 0.8 });
 
                 this.tweens.add({
                   targets: badgeIcon,

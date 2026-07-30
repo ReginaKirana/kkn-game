@@ -90,7 +90,7 @@ export class Case3TransitionScene extends Phaser.Scene {
     this.overlay.setAlpha(0);
     this.overlay.setDepth(10);
 
-    this.teacher = this.add.image(width * 0.2, height + 80, 'teacher_smile').setOrigin(0.5, 1);
+    this.teacher = this.add.image(width * 0.2 + 60, height + 40, 'teacher_smile').setOrigin(0.5, 1);
     const teacherMaxHeight = height * 0.82;
     this.teacher.setScale(teacherMaxHeight / this.teacher.height);
     this.teacher.setFlipX(true);
@@ -142,7 +142,7 @@ export class Case3TransitionScene extends Phaser.Scene {
     const container = this.add.container(width / 2, height / 2);
     container.setDepth(100);
 
-    const bannerWidth = 550;
+    const bannerWidth = 650;
     const bannerHeight = 100;
 
     // Background Panel
@@ -157,8 +157,6 @@ export class Case3TransitionScene extends Phaser.Scene {
       fontSize: '36px',
       color: '#ffffff',
       fontStyle: 'bold',
-      stroke: '#16a34a',
-      strokeThickness: 10,
       shadow: { offsetX: 3, offsetY: 3, color: '#000000', blur: 8, fill: true }
     }).setOrigin(0.5);
 
@@ -292,6 +290,18 @@ export class Case3TransitionScene extends Phaser.Scene {
     const dialogData = this.dialogs[this.currentDialogIndex];
     
     this.teacher.setTexture(dialogData.teacherKey);
+
+    let baseTeacherX = this.cameras.main.width * 0.2;
+    let baseTeacherY = this.cameras.main.height + 40; // Naikkan sedikit
+
+    if (dialogData.teacherKey === 'teacher_smile') {
+       baseTeacherX += 60; // Geser ke kanan (cukup banyak agar tidak terlalu kiri)
+    } else if (dialogData.teacherKey === 'teacher_thumbup') {
+       baseTeacherX += 20; // Geser ke kanan (tapi tidak sebanyak smile)
+    }
+
+    this.teacher.setPosition(baseTeacherX, baseTeacherY);
+
     const teacherMaxHeight = this.cameras.main.height * 0.82;
     this.teacher.setScale((teacherMaxHeight / this.teacher.height) * (dialogData.teacherScale || 1));
 

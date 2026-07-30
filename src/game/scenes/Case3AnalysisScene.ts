@@ -27,7 +27,8 @@ export class Case3AnalysisScene extends Phaser.Scene {
   private textObj!: Phaser.GameObjects.Text;
   private optionsContainer!: Phaser.GameObjects.Container;
   private typeWriterEvent!: Phaser.Time.TimerEvent;
-  private nextBtnContainer!: Phaser.GameObjects.Container;
+  private lanjutText!: Phaser.GameObjects.Text;
+  private misiBtnContainer!: Phaser.GameObjects.Container;
   private nextBtnText!: Phaser.GameObjects.Text;
   
   private currentDialogIndex = 0;
@@ -79,7 +80,7 @@ export class Case3AnalysisScene extends Phaser.Scene {
     this.tweens.add({ targets: overlay, alpha: 0.7, duration: 600 });
 
     // Teacher Character
-    this.teacher = this.add.image(width * 0.2, height + 80, 'teacher_thinking').setOrigin(0.5, 1);
+    this.teacher = this.add.image(width * 0.2 + 20, height + 40, 'teacher_thinking').setOrigin(0.5, 1);
     this.teacher.setFlipX(true);
     const teacherMaxHeight = height * 0.82;
     this.teacherMaxScale = teacherMaxHeight / this.teacher.height;
@@ -203,6 +204,8 @@ export class Case3AnalysisScene extends Phaser.Scene {
     dialogBg.strokeRoundedRect(-dialogWidth/2, -dialogHeight/2, dialogWidth, dialogHeight, 20);
 
     const nameBg = this.add.graphics();
+    nameBg.fillStyle(0x3b82f6, 1);
+    nameBg.fillRoundedRect(-dialogWidth/2 + 30, -dialogHeight/2 - 25, 200, 50, 10);
     const nameText = this.add.text(-dialogWidth/2 + 130, -dialogHeight/2, 'Ibu Guru', {
       fontFamily: 'monospace',
       fontSize: '28px',
@@ -218,68 +221,57 @@ export class Case3AnalysisScene extends Phaser.Scene {
       lineSpacing: 10
     });
 
-    // Tombol Lanjut
-    const btnWidth = 240; 
-    const btnHeight = 55;
-    const nextBtnY = dialogHeight/2 - 45;
-    this.nextBtnContainer = this.add.container(dialogWidth/2 - 150, nextBtnY);
-
-    const shadow = this.add.graphics();
-    shadow.fillStyle(0x000000, 0.4);
-    shadow.fillRoundedRect(-btnWidth/2 + 3, -btnHeight/2 + 4, btnWidth, btnHeight, 15);
-
-    const nextBtnBg = this.add.graphics();
-    nextBtnBg.fillStyle(0x16a34a, 1);
-    nextBtnBg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
-    nextBtnBg.lineStyle(4, 0xffffff, 0.3);
-    nextBtnBg.strokeRoundedRect(-btnWidth/2 + 2, -btnHeight/2 + 2, btnWidth - 4, btnHeight - 4, 13);
-    nextBtnBg.lineStyle(3, 0x000000, 1);
-    nextBtnBg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
-
-    this.nextBtnText = this.add.text(0, 0, 'LANJUT ➔', {
-      fontFamily: 'Fredoka One, Arial, sans-serif',
-      fontSize: '20px',
-      color: '#ffffff',
-      fontStyle: 'bold',
-      stroke: '#000000',
-      strokeThickness: 3,
-      shadow: { offsetX: 2, offsetY: 2, color: '#000000', blur: 0, fill: true }
-    }).setOrigin(0.5);
-
-    this.nextBtnContainer.add([shadow, nextBtnBg, this.nextBtnText]);
-    this.nextBtnContainer.setAlpha(0);
-
-    const hitArea = new Phaser.Geom.Rectangle(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight);
+    // Tombol Lanjut (Teks saja)
+    this.lanjutText = this.add.text(dialogWidth / 2 - 30, dialogHeight / 2 - 20, 'Lanjut ➔', {
+      fontFamily: 'monospace',
+      fontSize: '26px',
+      color: '#4ade80',
+      fontStyle: 'bold'
+    }).setOrigin(1, 1).setAlpha(0).setInteractive({ useHandCursor: true });
     
-    this.nextBtnContainer.on('pointerover', () => {
+    this.lanjutText.on('pointerover', () => {
+      if (this.isClicking) return;
+      this.lanjutText.setColor('#22c55e');
+    });
+
+    this.lanjutText.on('pointerout', () => {
+      if (this.isClicking) return;
+      this.lanjutText.setColor('#4ade80');
+    });
+
+    // Tombol Misi (Kotak Biru)
+    this.misiBtnContainer = this.add.container(dialogWidth / 2 - 130, dialogHeight / 2 - 35);
+    const misiBtnBg = this.add.graphics();
+    misiBtnBg.fillStyle(0x3b82f6, 1);
+    misiBtnBg.fillRoundedRect(-90, -25, 180, 50, 15);
+    const misiBtnText = this.add.text(0, 0, 'Bersihkan ➔', {
+      fontFamily: 'monospace',
+      fontSize: '24px',
+      color: '#ffffff',
+      fontStyle: 'bold'
+    }).setOrigin(0.5);
+    this.misiBtnContainer.add([misiBtnBg, misiBtnText]);
+    const misiHitArea = new Phaser.Geom.Rectangle(-90, -25, 180, 50);
+    this.misiBtnContainer.setInteractive(misiHitArea, Phaser.Geom.Rectangle.Contains);
+    this.misiBtnContainer.setAlpha(0);
+
+    this.misiBtnContainer.on('pointerover', () => {
       if (this.isClicking) return;
       this.input.setDefaultCursor('pointer');
-      nextBtnBg.clear();
-      nextBtnBg.fillStyle(0x22c55e, 1);
-      nextBtnBg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
-      nextBtnBg.lineStyle(4, 0xffffff, 0.5);
-      nextBtnBg.strokeRoundedRect(-btnWidth/2 + 2, -btnHeight/2 + 2, btnWidth - 4, btnHeight - 4, 13);
-      nextBtnBg.lineStyle(3, 0x000000, 1);
-      nextBtnBg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
-      this.nextBtnContainer.y = nextBtnY - 2;
-      shadow.y = 2;
+      misiBtnBg.clear();
+      misiBtnBg.fillStyle(0x2563eb, 1);
+      misiBtnBg.fillRoundedRect(-90, -25, 180, 50, 15);
     });
 
-    this.nextBtnContainer.on('pointerout', () => {
+    this.misiBtnContainer.on('pointerout', () => {
       if (this.isClicking) return;
       this.input.setDefaultCursor('default');
-      nextBtnBg.clear();
-      nextBtnBg.fillStyle(0x16a34a, 1);
-      nextBtnBg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
-      nextBtnBg.lineStyle(4, 0xffffff, 0.3);
-      nextBtnBg.strokeRoundedRect(-btnWidth/2 + 2, -btnHeight/2 + 2, btnWidth - 4, btnHeight - 4, 13);
-      nextBtnBg.lineStyle(3, 0x000000, 1);
-      nextBtnBg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
-      this.nextBtnContainer.y = nextBtnY;
-      shadow.y = 0;
+      misiBtnBg.clear();
+      misiBtnBg.fillStyle(0x3b82f6, 1);
+      misiBtnBg.fillRoundedRect(-90, -25, 180, 50, 15);
     });
 
-    this.nextBtnContainer.on('pointerdown', () => {
+    const handleNext = () => {
       this.input.setDefaultCursor('default');
       this.sound.play('btn_click', { seek: 0.8 });
       const dialogs = this.registry.get('c3a_dialogs');
@@ -291,16 +283,14 @@ export class Case3AnalysisScene extends Phaser.Scene {
         if (dialogs[this.currentDialogIndex].showOptions) {
           this.showOptions();
         } else {
-           this.tweens.add({ targets: this.nextBtnContainer, alpha: 1, duration: 100 });
-           this.nextBtnContainer.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
+           this.tweens.add({ targets: this.lanjutText, alpha: 1, duration: 100 });
+           this.lanjutText.setInteractive();
         }
       } else {
         if (!dialogs[this.currentDialogIndex].showOptions) {
           if (dialogs[this.currentDialogIndex].isEnd) {
             if (this.isClicking) return;
             this.isClicking = true;
-            this.nextBtnContainer.y = nextBtnY + 4;
-            shadow.y = -4;
 
             this.sound.play('misi_mulai');
             if (this.bgMusic) {
@@ -364,21 +354,37 @@ export class Case3AnalysisScene extends Phaser.Scene {
           }
         }
       }
-    });
+    };
 
-    this.dialogContainer.add([dialogBg, nameBg, nameText, this.textObj, this.nextBtnContainer]);
+    this.lanjutText.on('pointerdown', handleNext);
+    this.misiBtnContainer.on('pointerdown', handleNext);
+
+    this.dialogContainer.add([dialogBg, nameBg, nameText, this.textObj, this.lanjutText, this.misiBtnContainer]);
 
     // Setup closure
     this.startTyping = (dialoguesArr: any[], dWidth: number, dHeight: number, nBg: Phaser.GameObjects.Graphics, nText: Phaser.GameObjects.Text) => {
       this.isTyping = true;
       this.textObj.text = '';
-      this.nextBtnContainer.setAlpha(0);
-      this.nextBtnContainer.disableInteractive();
+      this.lanjutText.setAlpha(0);
+      this.lanjutText.disableInteractive();
+      this.misiBtnContainer.setAlpha(0);
+      this.misiBtnContainer.disableInteractive();
       
       const currentDialog = dialoguesArr[this.currentDialogIndex];
       const isTeacher = currentDialog.speaker === 'Ibu Guru';
 
       this.teacher.setTexture(currentDialog.teacherKey);
+
+      let baseTeacherX = this.cameras.main.width * 0.2;
+      let baseTeacherY = this.cameras.main.height + 40; // Naik ke atas sedikit
+      
+      if (currentDialog.teacherKey === 'teacher_thinking' || currentDialog.teacherKey === 'teacher_thumbup') {
+         baseTeacherX += 20; // Geser sedikit ke kanan
+      } else if (currentDialog.teacherKey === 'teacher_smile') {
+         baseTeacherX += 80; // Geser ke kanan tapi jangan banyak-banyak
+      }
+      this.teacher.setPosition(baseTeacherX, baseTeacherY);
+
       const teacherMaxHeight = this.cameras.main.height * 0.82;
       this.teacherMaxScale = teacherMaxHeight / this.teacher.height;
 
@@ -432,12 +438,12 @@ export class Case3AnalysisScene extends Phaser.Scene {
               this.showOptions();
             } else {
               if (currentDialog.isEnd) {
-                this.nextBtnText.text = 'BERSIHKAN ➔';
+                this.tweens.add({ targets: this.misiBtnContainer, alpha: 1, duration: 300 });
+                this.misiBtnContainer.setInteractive();
               } else {
-                this.nextBtnText.text = 'LANJUT ➔';
+                this.tweens.add({ targets: this.lanjutText, alpha: 1, duration: 300 });
+                this.lanjutText.setInteractive();
               }
-              this.tweens.add({ targets: this.nextBtnContainer, alpha: 1, duration: 300 });
-              this.nextBtnContainer.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
             }
           }
         }
@@ -485,7 +491,7 @@ export class Case3AnalysisScene extends Phaser.Scene {
 
       const btnText = this.add.text(0, 0, opt.text, {
         fontFamily: 'Nunito, sans-serif',
-        fontSize: '22px',
+        fontSize: '26px',
         color: '#ffffff',
         fontStyle: 'bold'
       }).setOrigin(0.5);
@@ -536,10 +542,10 @@ export class Case3AnalysisScene extends Phaser.Scene {
           btnBg.lineStyle(3, 0x000000, 1);
           btnBg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
           
-          this.registry.set('ecoPoints', (this.registry.get('ecoPoints') || 0) + 5);
+          this.registry.set('ecoPoints', (this.registry.get('ecoPoints') || 0) + 100);
           
-          // UI Point Animation (+5 EP)
-          const epText = this.add.text(this.cameras.main.width / 2, this.cameras.main.height / 2 - 100 + yPos, '+5 EP', {
+          // UI Point Animation (+100 EP)
+          const epText = this.add.text(this.cameras.main.width / 2, this.cameras.main.height / 2 - 100 + yPos, '+100 EP', {
             fontFamily: 'Fredoka One, Arial, sans-serif',
             fontSize: '32px',
             color: '#facc15', // Yellow
@@ -550,13 +556,20 @@ export class Case3AnalysisScene extends Phaser.Scene {
           this.tweens.add({
             targets: epText,
             y: '-=50',
-            alpha: 0,
-            duration: 1200,
+            duration: 500,
             ease: 'Power2',
-            onComplete: () => epText.destroy()
+            onComplete: () => {
+              this.tweens.add({
+                targets: epText,
+                alpha: 0,
+                delay: 1500,
+                duration: 500,
+                onComplete: () => epText.destroy()
+              });
+            }
           });
 
-          setTimeout(() => {
+          this.time.delayedCall(2500, () => {
             this.hideOptions();
             this.currentDialogIndex++;
             const dialogs = this.registry.get('c3a_dialogs');
@@ -565,7 +578,7 @@ export class Case3AnalysisScene extends Phaser.Scene {
             const nBg = this.registry.get('c3a_nBg');
             const nText = this.registry.get('c3a_nText');
             this.startTyping(dialogs, dWidth, dHeight, nBg, nText);
-          }, 1200);
+          });
         } else {
           // Salah
           this.sound.play('wrong');

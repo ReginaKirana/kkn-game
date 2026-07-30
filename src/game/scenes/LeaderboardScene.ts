@@ -213,17 +213,17 @@ export class LeaderboardScene extends Phaser.Scene {
 
     if (fromHome) {
       // Tombol Beranda di Tengah
-      createBtn(width / 2, yPos, 'KEMBALI KE BERANDA', 0x3b82f6, 0x60a5fa, () => {
+      createBtn(width / 2, yPos, 'BERANDA', 0x3b82f6, 0x60a5fa, () => {
         this.scene.start('CoverScene');
       });
     } else {
       // Tombol Papan Kasus di Kiri
-      createBtn(width / 2 - 180, yPos, 'KEMBALI KE PAPAN KASUS', 0x3b82f6, 0x60a5fa, () => {
+      createBtn(width / 2 - 180, yPos, 'PAPAN KASUS', 0x3b82f6, 0x60a5fa, () => {
         this.scene.start('CaseSelectScene', { case2Unlocked: true, case3Unlocked: true });
       });
 
       // Tombol Beranda di Kanan
-      createBtn(width / 2 + 180, yPos, 'KEMBALI KE BERANDA', 0x10b981, 0x34d399, () => {
+      createBtn(width / 2 + 180, yPos, 'BERANDA', 0x10b981, 0x34d399, () => {
         this.scene.start('CoverScene');
       });
     }

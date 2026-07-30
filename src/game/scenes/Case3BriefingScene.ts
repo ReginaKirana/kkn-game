@@ -37,7 +37,7 @@ export class Case3BriefingScene extends Phaser.Scene {
   private textObj!: Phaser.GameObjects.Text;
   private typeWriterEvent!: Phaser.Time.TimerEvent;
   private lanjutText!: Phaser.GameObjects.Text;
-  private nextBtnContainer!: Phaser.GameObjects.Container;
+  private misiBtnContainer!: Phaser.GameObjects.Container;
   private nextBtnText!: Phaser.GameObjects.Text;
 
   private currentDialogIndex = 0;
@@ -246,75 +246,43 @@ export class Case3BriefingScene extends Phaser.Scene {
     this.lanjutText.on("pointerover", () => this.lanjutText.setColor("#22c55e"));
     this.lanjutText.on("pointerout", () => this.lanjutText.setColor("#4ade80"));
 
-    // Tombol Lanjut (Gaming Style)
-    const btnWidth = 240;
-    const btnHeight = 55;
-    const nextBtnY = dialogHeight / 2 - 45;
-    this.nextBtnContainer = this.add.container(dialogWidth / 2 - 150, nextBtnY);
-
-    const shadow = this.add.graphics();
-    shadow.fillStyle(0x000000, 0.4);
-    shadow.fillRoundedRect(-btnWidth / 2 + 3, -btnHeight / 2 + 4, btnWidth, btnHeight, 15);
-
-    const nextBtnBg = this.add.graphics();
-    nextBtnBg.fillStyle(0x16a34a, 1);
-    nextBtnBg.fillRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
-    nextBtnBg.lineStyle(4, 0xffffff, 0.3);
-    nextBtnBg.strokeRoundedRect(-btnWidth / 2 + 2, -btnHeight / 2 + 2, btnWidth - 4, btnHeight - 4, 13);
-    nextBtnBg.lineStyle(3, 0x000000, 1);
-    nextBtnBg.strokeRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
-
-    this.nextBtnText = this.add.text(0, 0, 'INVESTIGASI ➔', {
-      fontFamily: 'Fredoka One, Arial, sans-serif',
-      fontSize: '20px',
+    // Tombol Misi (Kotak Biru)
+    this.misiBtnContainer = this.add.container(dialogWidth / 2 - 100, dialogHeight / 2 - 35);
+    const misiBtnBg = this.add.graphics();
+    misiBtnBg.fillStyle(0x3b82f6, 1);
+    misiBtnBg.fillRoundedRect(-100, -25, 200, 50, 15);
+    const misiBtnText = this.add.text(0, 0, 'Investigasi ➔', {
+      fontFamily: 'monospace',
+      fontSize: '24px',
       color: '#ffffff',
-      fontStyle: 'bold',
-      stroke: '#000000',
-      strokeThickness: 3,
-      shadow: { offsetX: 2, offsetY: 2, color: '#000000', blur: 0, fill: true }
+      fontStyle: 'bold'
     }).setOrigin(0.5);
+    this.misiBtnContainer.add([misiBtnBg, misiBtnText]);
+    const misiHitArea = new Phaser.Geom.Rectangle(-100, -25, 200, 50);
+    this.misiBtnContainer.setInteractive(misiHitArea, Phaser.Geom.Rectangle.Contains);
+    this.misiBtnContainer.setVisible(false);
 
-    this.nextBtnContainer.add([shadow, nextBtnBg, this.nextBtnText]);
-    this.nextBtnContainer.setVisible(false);
-
-    const hitArea = new Phaser.Geom.Rectangle(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight);
-    this.nextBtnContainer.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
-
-    this.nextBtnContainer.on('pointerover', () => {
+    this.misiBtnContainer.on('pointerover', () => {
       if (this.isClicking) return;
       this.input.setDefaultCursor('pointer');
-      nextBtnBg.clear();
-      nextBtnBg.fillStyle(0x22c55e, 1);
-      nextBtnBg.fillRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
-      nextBtnBg.lineStyle(4, 0xffffff, 0.5);
-      nextBtnBg.strokeRoundedRect(-btnWidth / 2 + 2, -btnHeight / 2 + 2, btnWidth - 4, btnHeight - 4, 13);
-      nextBtnBg.lineStyle(3, 0x000000, 1);
-      nextBtnBg.strokeRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
-      this.nextBtnContainer.y = nextBtnY - 2;
-      shadow.y = 2;
+      misiBtnBg.clear();
+      misiBtnBg.fillStyle(0x2563eb, 1);
+      misiBtnBg.fillRoundedRect(-100, -25, 200, 50, 15);
     });
 
-    this.nextBtnContainer.on('pointerout', () => {
+    this.misiBtnContainer.on('pointerout', () => {
       if (this.isClicking) return;
       this.input.setDefaultCursor('default');
-      nextBtnBg.clear();
-      nextBtnBg.fillStyle(0x16a34a, 1);
-      nextBtnBg.fillRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
-      nextBtnBg.lineStyle(4, 0xffffff, 0.3);
-      nextBtnBg.strokeRoundedRect(-btnWidth / 2 + 2, -btnHeight / 2 + 2, btnWidth - 4, btnHeight - 4, 13);
-      nextBtnBg.lineStyle(3, 0x000000, 1);
-      nextBtnBg.strokeRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
-      this.nextBtnContainer.y = nextBtnY;
-      shadow.y = 0;
+      misiBtnBg.clear();
+      misiBtnBg.fillStyle(0x3b82f6, 1);
+      misiBtnBg.fillRoundedRect(-100, -25, 200, 50, 15);
     });
 
-    this.nextBtnContainer.on('pointerdown', () => {
+    this.misiBtnContainer.on('pointerdown', () => {
       if (this.isClicking) return;
       this.input.setDefaultCursor('default');
       this.sound.play('btn_click', { seek: 0.8 });
       this.isClicking = true;
-      this.nextBtnContainer.y = nextBtnY + 4;
-      shadow.y = -4;
       setTimeout(() => {
         this.scene.start('InvestigationScene', { caseId: 'kasus_selokan' });
       }, 150);
@@ -329,7 +297,7 @@ export class Case3BriefingScene extends Phaser.Scene {
         this.isTyping = false;
         if (this.typingSound) this.typingSound.stop();
         if (this.currentDialogIndex === dialogues.length - 1) {
-            this.nextBtnContainer.setVisible(true);
+            this.misiBtnContainer.setVisible(true);
             this.lanjutText.setVisible(false);
         } else {
             this.lanjutText.setAlpha(1);
@@ -344,13 +312,13 @@ export class Case3BriefingScene extends Phaser.Scene {
     clickArea.on('pointerdown', handleNextDialog);
     this.lanjutText.on('pointerdown', handleNextDialog);
 
-    this.dialogContainer.add([dialogBg, nameBg, nameText, this.textObj, this.lanjutText, this.nextBtnContainer]);
+    this.dialogContainer.add([dialogBg, nameBg, nameText, this.textObj, this.lanjutText, this.misiBtnContainer]);
 
     // Setup startTyping closure
     this.startTyping = (dialoguesArr: any[], dWidth: number, dHeight: number, nBg: Phaser.GameObjects.Graphics, nText: Phaser.GameObjects.Text) => {
       this.isTyping = true;
       this.lanjutText.setAlpha(0);
-      this.nextBtnContainer.setVisible(false);
+      this.misiBtnContainer.setVisible(false);
       this.textObj.text = '';
       const currentDialog = dialoguesArr[this.currentDialogIndex];
       const isTeacher = currentDialog.speaker === 'Ibu Guru';
@@ -381,13 +349,11 @@ export class Case3BriefingScene extends Phaser.Scene {
       if (isTeacher) {
         nBg.fillRoundedRect(-dWidth / 2 + 30, -dHeight / 2 - 25, 200, 50, 10);
         nText.x = -dWidth / 2 + 130;
-        this.sound.play('karakter_muncul', { volume: 0.5 });
         this.tweens.add({ targets: this.teacher, scale: this.teacherMaxScale, alpha: 1, duration: 300 });
         this.tweens.add({ targets: this.player, scale: this.playerMaxScale * 0.9, alpha: 0.6, duration: 300 });
       } else {
         nBg.fillRoundedRect(dWidth / 2 - 230, -dHeight / 2 - 25, 200, 50, 10);
         nText.x = dWidth / 2 - 130;
-        this.sound.play('karakter_muncul', { volume: 0.5 });
         this.tweens.add({ targets: this.player, scale: this.playerMaxScale, alpha: 1, duration: 300 });
         this.tweens.add({ targets: this.teacher, scale: this.teacherMaxScale * 0.9, alpha: 0.6, duration: 300 });
       }
@@ -407,7 +373,7 @@ export class Case3BriefingScene extends Phaser.Scene {
             this.isTyping = false;
             if (this.typingSound) this.typingSound.stop();
             if (this.currentDialogIndex === dialoguesArr.length - 1) {
-              this.nextBtnContainer.setVisible(true);
+              this.misiBtnContainer.setVisible(true);
             } else {
               this.lanjutText.setAlpha(1);
             }
