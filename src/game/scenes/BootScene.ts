@@ -10,7 +10,7 @@ import boySupprised from '../../assets/characters/boy/boy-supprised.png';
 import girlIdle from '../../assets/characters/girl/girl-idle.png';
 import girlSupprised from '../../assets/characters/girl/girl-supprised.png';
 import caseBriefingUrl from '../../assets/audio/case-briefing.mp3';
-import typingAudioUrl from '../../assets/audio/keyboard-typing.wav';
+import typingAudioUrl from '../../assets/audio/keyboard-typing.mp3';
 import btnClickUrl from '../../assets/audio/button_click.mp3';
 import case1GameBg from '../../assets/backgrounds/case1-game.png';
 import halamanKotor2Bg from '../../assets/backgrounds/Halaman-kotor2.png';
