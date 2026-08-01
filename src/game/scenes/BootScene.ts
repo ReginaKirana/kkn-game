@@ -17,7 +17,7 @@ import halamanKotor2Bg from '../../assets/backgrounds/Halaman-kotor2.png';
 import halamanBg from '../../assets/backgrounds/halaman.png';
 import teacherThumbUp from '../../assets/characters/teachers/thumb-up.png';
 import teacherSmile from '../../assets/characters/teachers/smile.png';
-import sparkleSound from '../../assets/audio/case1/sparkle.wav';
+import sparkleSound from '../../assets/audio/case1/sparkle.mp3';
 import finishCase from '../../assets/audio/case1/finish-case.wav';
 import bgGameplay from '../../assets/audio/case1/bg-gameplay.mp3';
 import investigasiBgmUrl from '../../assets/audio/investigasi.mp3';
