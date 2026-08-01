@@ -2,9 +2,9 @@ import { Link } from 'react-router-dom';
 import { Gamepad2, BookOpen, Trophy, Leaf, ArrowRight, Loader2, Play, Maximize2, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
-import coverImg from '../assets/backgrounds/cover.png';
+import coverImg from '../assets/backgrounds/cover.webp';
 import judulImg from '../assets/fonts/judul.png';
-import boyImg from '../assets/characters/boy/boy-senang.png';
+import boyImg from '../assets/characters/boy/boy-senang.webp';
 
 export default function Home() {
   const [leaderboardData, setLeaderboardData] = useState<any[]>([]);
