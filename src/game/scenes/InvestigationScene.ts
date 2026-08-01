@@ -1,28 +1,6 @@
 import * as Phaser from 'phaser';
-import halamanKotorBg from '../../assets/backgrounds/halaman-kotor.png';
-import binKosongBg from '../../assets/backgrounds/bin-kosong.png';
-import case1GameBg from '../../assets/backgrounds/case1-game.png';
-import botolImg from '../../assets/objects/botol.png';
-import pisangImg from '../../assets/objects/pisang.png';
-import kalengImg from '../../assets/objects/kaleng.png';
-import kertasImg from '../../assets/objects/kertas.png';
-import case2InvestigationBg from '../../assets/backgrounds/case2-investigation.png';
-import binOranyeImg from '../../assets/objects/bin-oranye.png';
-import appleImg from '../../assets/objects/apple.png';
-import daunImg from '../../assets/objects/daun.png';
-import gelasImg from '../../assets/objects/gelas.png';
-import plastikImg from '../../assets/objects/plastik.png';
-import rantingImg from '../../assets/objects/ranting.png';
-import selokanBg from '../../assets/backgrounds/selokan-tinngi.png';
 import { Case3TrashConfig } from '../config/Case3TrashConfig';
-import teacherHappyImg from '../../assets/characters/teachers/happy.png';
-import teacherSmileImg from '../../assets/characters/teachers/smile.png';
 import { createBackButton } from '../utils/UIUtils';
-import case1ModalVoiceUrl from '../../assets/audio/case1-modal-investigasi.wav';
-import dingModalUrl from '../../assets/audio/case1/ding-modal.wav';
-import investigationBgUrl from '../../assets/audio/case1/investigation-bg.mp3';
-import btnClickUrl from '../../assets/audio/button_click.mp3';
-import collectUrl from '../../assets/audio/case1/investigation-collect.wav';
 
 export class InvestigationScene extends Phaser.Scene {
   private cluesFound: number = 0;
@@ -36,31 +14,6 @@ export class InvestigationScene extends Phaser.Scene {
 
   constructor() {
     super('InvestigationScene');
-  }
-
-  preload() {
-    this.load.image('halaman_kotor_bg', halamanKotorBg);
-    this.load.image('bin_kosong_bg', binKosongBg);
-    this.load.image('case1_game_bg', case1GameBg);
-    this.load.audio('case1_modal_voice', case1ModalVoiceUrl);
-    this.load.audio('ding_modal', dingModalUrl);
-    this.load.audio('investigation_bgm', investigationBgUrl);
-    this.load.audio('btn_click', btnClickUrl);
-    this.load.audio('collect_sfx', collectUrl);
-    this.load.image('teacher_happy', teacherHappyImg);
-    this.load.image('teacher_smile', teacherSmileImg);
-    this.load.image('botol', botolImg);
-    this.load.image('pisang', pisangImg);
-    this.load.image('kaleng', kalengImg);
-    this.load.image('kertas', kertasImg);
-    this.load.image('case2_investigation_bg', case2InvestigationBg);
-    this.load.image('bin_oranye', binOranyeImg);
-    this.load.image('apple', appleImg);
-    this.load.image('daun', daunImg);
-    this.load.image('gelas', gelasImg);
-    this.load.image('plastik', plastikImg);
-    this.load.image('ranting', rantingImg);
-    this.load.image('selokan_bg', selokanBg);
   }
 
   create(data: { caseId: string }) {

@@ -1,25 +1,6 @@
 import * as Phaser from 'phaser';
 
-import case1GameBg from '../../assets/backgrounds/case1-game.png';
-import organikBin from '../../assets/objects/organik.png';
-import anorganikBin from '../../assets/objects/anorganik.png';
-import appleImg from '../../assets/objects/apple.png';
-import botolImg from '../../assets/objects/botol.png';
-import daunImg from '../../assets/objects/daun.png';
-import kalengImg from '../../assets/objects/kaleng.png';
-import kertasImg from '../../assets/objects/kertas.png';
-import pisangImg from '../../assets/objects/pisang.png';
-import binOranyeImg from '../../assets/objects/bin-oranye.png';
 import { createBackButton } from '../utils/UIUtils';
-import teacherThumbUp from '../../assets/characters/teachers/thumb-up.png';
-import bgGameplayUrl from '../../assets/audio/case1/bg-gameplay.mp3';
-import correctUrl from '../../assets/audio/case1/correct.wav';
-import wrongUrl from '../../assets/audio/case1/wrong.wav';
-import karakterMunculUrl from '../../assets/audio/sfx/karakter-muncul.wav';
-import keyboardTypingUrl from '../../assets/audio/keyboard-typing.wav';
-import btnClickUrl from '../../assets/audio/button_click.mp3';
-import misiMulaiUrl from '../../assets/audio/case1/misi-mulai.wav';
-import finishCaseUrl from '../../assets/audio/case1/finish-case.wav';
 
 export class Case2SortScene extends Phaser.Scene {
   private trashItemsRemaining: number = 0;
@@ -29,27 +10,6 @@ export class Case2SortScene extends Phaser.Scene {
 
   constructor() {
     super('Case2SortScene');
-  }
-
-  preload() {
-    this.load.image('game_bg', case1GameBg);
-    this.load.image('bin_organik', organikBin);
-    this.load.image('bin_anorganik', anorganikBin);
-    this.load.image('apple', appleImg);
-    this.load.image('botol', botolImg);
-    this.load.image('daun', daunImg);
-    this.load.image('kaleng', kalengImg);
-    this.load.image('kertas', kertasImg);
-    this.load.image('pisang', pisangImg);
-    this.load.image('teacher_thumbup', teacherThumbUp);
-    this.load.audio('bg_gameplay', bgGameplayUrl);
-    this.load.audio('correct', correctUrl);
-    this.load.audio('wrong', wrongUrl);
-    this.load.audio('karakter_muncul', karakterMunculUrl);
-    this.load.audio('keyboard_typing', keyboardTypingUrl);
-    this.load.audio('btn_click', btnClickUrl);
-    this.load.audio('misi_mulai', misiMulaiUrl);
-    this.load.audio('finish_case', finishCaseUrl);
   }
 
   create() {
@@ -493,8 +453,6 @@ export class Case2SortScene extends Phaser.Scene {
       strokeThickness: 6
     }).setOrigin(0.5);
 
-
-
     const score = this.add.text(0, -10, 'Eco Point +10', {
       fontFamily: 'Fredoka One, Arial, sans-serif',
       fontSize: '38px',
@@ -612,10 +570,12 @@ export class Case2SortScene extends Phaser.Scene {
     // 1. Munculkan karakter player di KIRI bawah
     const gender = this.registry.get('playerGender') || 'boy';
     const playerAsset = gender === 'boy' ? 'boy_idle' : 'girl_idle';
-    const player = this.add.image(width * 0.2, height + 150, playerAsset).setOrigin(0.5, 1);
+    const playerYOffset = gender === 'girl' ? 100 : 150;
+    const player = this.add.image(width * 0.2, height + playerYOffset, playerAsset).setOrigin(0.5, 1);
     const playerMaxHeight = height * 0.97;
     const playerMaxScale = playerMaxHeight / player.height;
-    player.setScale(playerMaxScale);
+    const initialPlayerScale = gender === 'girl' ? 1.07 : 1.0;
+    player.setScale(playerMaxScale * initialPlayerScale);
     player.setFlipX(true);
     player.setAlpha(0);
     player.setDepth(150);

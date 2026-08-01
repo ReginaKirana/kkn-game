@@ -46,13 +46,6 @@ export default function About() {
           </div>
         </div>
       </section>
-
-      <section style={{ textAlign: 'center', marginTop: '16px' }}>
-        <p style={{ color: '#94a3b8', fontSize: '1.1rem', fontWeight: '500' }}>
-          Ada saran atau masukan? Silakan hubungi kami melalui pihak sekolah setempat.
-        </p>
-      </section>
-
     </div>
   );
 }

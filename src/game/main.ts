@@ -38,11 +38,11 @@ const config: Phaser.Types.Core.GameConfig = {
   }
 };
 
-export default function initGame(parentContainerId: string, startScene?: string) {
+export default function initGame(parentContainerId: string, startScene?: string, forceGender?: string) {
   let scenes = [
+    BootScene,
     CoverScene,
     IntroScene,
-    BootScene,
     CaseSelectScene,
     InvestigationScene,
     ConclusionScene,
@@ -72,5 +72,11 @@ export default function initGame(parentContainerId: string, startScene?: string)
   }
 
   const gameConfig = { ...config, parent: parentContainerId, scene: scenes };
-  return new Phaser.Game(gameConfig);
+  const game = new Phaser.Game(gameConfig);
+  
+  if (forceGender) {
+    game.registry.set('playerGender', forceGender);
+  }
+
+  return game;
 }

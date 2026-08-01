@@ -1,24 +1,6 @@
 import * as Phaser from 'phaser';
 
-import selokanBg from '../../assets/backgrounds/selokan-tinngi.png';
-import thumbUpTeacher from '../../assets/characters/teachers/thumb-up.png';
-import surprisedTeacher from '../../assets/characters/teachers/suprised.png';
-import smileTeacher from '../../assets/characters/teachers/smile.png';
-import thinkingTeacher from '../../assets/characters/teachers/thinking.png';
-import boyIdle from '../../assets/characters/boy/boy-idle.png';
-import girlIdle from '../../assets/characters/girl/girl-idle.png';
 import { createBackButton } from '../utils/UIUtils';
-import boyBingung from '../../assets/characters/boy/boy-bingung.png';
-import boySurprised from '../../assets/characters/boy/boy-supprised.png';
-import girlBingung from '../../assets/characters/girl/girl-bingung.png';
-
-import investigasiBgmUrl from '../../assets/audio/investigasi.mp3';
-import karakterMunculUrl from '../../assets/audio/sfx/karakter-muncul.wav';
-import keyboardTypingUrl from '../../assets/audio/keyboard-typing.wav';
-import btnClickUrl from '../../assets/audio/button_click.mp3';
-import wrongUrl from '../../assets/audio/case1/wrong.wav';
-import correctUrl from '../../assets/audio/case1/correct.wav';
-import misiMulaiUrl from '../../assets/audio/case1/misi-mulai.wav';
 
 export class Case3AnalysisScene extends Phaser.Scene {
   private teacher!: Phaser.GameObjects.Image;
@@ -30,11 +12,11 @@ export class Case3AnalysisScene extends Phaser.Scene {
   private lanjutText!: Phaser.GameObjects.Text;
   private misiBtnContainer!: Phaser.GameObjects.Container;
   private nextBtnText!: Phaser.GameObjects.Text;
-  
+
   private currentDialogIndex = 0;
   private isTyping = false;
   private isClicking = false;
-  
+
   private teacherMaxScale = 1;
   private playerMaxScale = 1;
 
@@ -43,27 +25,6 @@ export class Case3AnalysisScene extends Phaser.Scene {
 
   constructor() {
     super('Case3AnalysisScene');
-  }
-
-  preload() {
-    this.load.image('selokan_bg', selokanBg);
-    this.load.image('teacher_thumbup', thumbUpTeacher);
-    this.load.image('teacher_surprised', surprisedTeacher);
-    this.load.image('teacher_smile', smileTeacher);
-    this.load.image('teacher_thinking', thinkingTeacher);
-    this.load.image('boy_idle', boyIdle);
-    this.load.image('girl_idle', girlIdle);
-    this.load.image('boy_bingung', boyBingung);
-    this.load.image('boy_surprised', boySurprised);
-    this.load.image('girl_bingung', girlBingung);
-    
-    this.load.audio('investigasi_bgm', investigasiBgmUrl);
-    this.load.audio('karakter_muncul', karakterMunculUrl);
-    this.load.audio('keyboard_typing', keyboardTypingUrl);
-    this.load.audio('btn_click', btnClickUrl);
-    this.load.audio('wrong', wrongUrl);
-    this.load.audio('correct', correctUrl);
-    this.load.audio('misi_mulai', misiMulaiUrl);
   }
 
   create() {
@@ -80,7 +41,7 @@ export class Case3AnalysisScene extends Phaser.Scene {
     this.tweens.add({ targets: overlay, alpha: 0.7, duration: 600 });
 
     // Teacher Character
-    this.teacher = this.add.image(width * 0.2 + 20, height + 40, 'teacher_thinking').setOrigin(0.5, 1);
+    this.teacher = this.add.image(width * 0.21, height + 10, 'teacher_thinking').setOrigin(0.5, 1);
     this.teacher.setFlipX(true);
     const teacherMaxHeight = height * 0.82;
     this.teacherMaxScale = teacherMaxHeight / this.teacher.height;
@@ -90,12 +51,14 @@ export class Case3AnalysisScene extends Phaser.Scene {
     // Player Character
     const gender = this.registry.get('playerGender') || 'boy';
     const playerAsset = gender === 'boy' ? 'boy_idle' : 'girl_idle';
-    this.player = this.add.image(width * 0.8, height + 180, playerAsset).setOrigin(0.5, 1);
+    const playerYOffset = gender === 'girl' ? 100 : 135;
+    this.player = this.add.image(width * 0.8, height + playerYOffset, playerAsset).setOrigin(0.5, 1);
     const playerMaxHeight = height * 0.97;
     this.playerMaxScale = playerMaxHeight / this.player.height;
-    this.player.setScale(this.playerMaxScale); 
+    const initialPlayerScale = gender === 'girl' ? 1.07 : 1.0;
+    this.player.setScale(this.playerMaxScale * initialPlayerScale);
     this.player.setFlipX(false);
-    this.player.setAlpha(0); 
+    this.player.setAlpha(0);
 
     const playerName = this.registry.get('playerName') || 'Detektif';
 
@@ -107,7 +70,8 @@ export class Case3AnalysisScene extends Phaser.Scene {
         teacherKey: 'teacher_thinking',
         playerKey: 'boy_idle',
         teacherScale: 1.0,
-        showOptions: true
+        showOptions: true,
+        playerScale: { boy: 0.9625, girl: 0.962 }
       },
       {
         speaker: playerName,
@@ -123,7 +87,8 @@ export class Case3AnalysisScene extends Phaser.Scene {
         color: 0x3b82f6,
         teacherKey: 'teacher_thumbup',
         playerKey: 'boy_idle',
-        teacherScale: 1.0
+        teacherScale: 1.0,
+        playerScale: { boy: 0.9625, girl: 0.962 }
       },
       {
         speaker: 'Ibu Guru',
@@ -132,6 +97,7 @@ export class Case3AnalysisScene extends Phaser.Scene {
         teacherKey: 'teacher_smile',
         playerKey: 'boy_idle',
         teacherScale: 1.0,
+        playerScale: { boy: 0.9625, girl: 0.962 },
         isEnd: true
       }
     ];
@@ -151,9 +117,13 @@ export class Case3AnalysisScene extends Phaser.Scene {
     this.time.delayedCall(500, () => {
       this.sound.play('karakter_muncul', { volume: 0.8 });
       this.tweens.add({ targets: this.teacher, alpha: 1, duration: 800, ease: 'Power2' });
+
+      const gender = this.registry.get('playerGender') || 'boy';
+      const initialPlayerScale = gender === 'girl' ? 1.0 : 1.0;
+
       this.tweens.add({
         targets: this.player,
-        scale: this.playerMaxScale * 0.9,
+        scale: this.playerMaxScale * initialPlayerScale * 0.962,
         alpha: 0.6,
         duration: 800,
         ease: 'Power2',
@@ -161,23 +131,23 @@ export class Case3AnalysisScene extends Phaser.Scene {
           this.sound.play('karakter_muncul', { volume: 0.8 });
         },
         onComplete: () => {
-        this.dialogContainer.y += 50;
-        this.tweens.add({
-          targets: this.dialogContainer,
-          alpha: 1,
-          y: height - 150,
-          duration: 400,
-          ease: 'Power2',
-          onComplete: () => {
-            const dWidth = this.registry.get('c3a_dWidth');
-            const dHeight = this.registry.get('c3a_dHeight');
-            const nBg = this.registry.get('c3a_nBg');
-            const nText = this.registry.get('c3a_nText');
-            this.startTyping(dialogs, dWidth, dHeight, nBg, nText);
-          }
-        });
-      }
-    });
+          this.dialogContainer.y += 50;
+          this.tweens.add({
+            targets: this.dialogContainer,
+            alpha: 1,
+            y: height - 150,
+            duration: 400,
+            ease: 'Power2',
+            onComplete: () => {
+              const dWidth = this.registry.get('c3a_dWidth');
+              const dHeight = this.registry.get('c3a_dHeight');
+              const nBg = this.registry.get('c3a_nBg');
+              const nText = this.registry.get('c3a_nText');
+              this.startTyping(dialogs, dWidth, dHeight, nBg, nText);
+            }
+          });
+        }
+      });
     });
 
     this.createDialogUI(width, height);
@@ -199,21 +169,21 @@ export class Case3AnalysisScene extends Phaser.Scene {
 
     const dialogBg = this.add.graphics();
     dialogBg.fillStyle(0x0f172a, 0.85); // Slate 900
-    dialogBg.fillRoundedRect(-dialogWidth/2, -dialogHeight/2, dialogWidth, dialogHeight, 20);
+    dialogBg.fillRoundedRect(-dialogWidth / 2, -dialogHeight / 2, dialogWidth, dialogHeight, 20);
     dialogBg.lineStyle(4, 0x3b82f6, 1); // Blue border
-    dialogBg.strokeRoundedRect(-dialogWidth/2, -dialogHeight/2, dialogWidth, dialogHeight, 20);
+    dialogBg.strokeRoundedRect(-dialogWidth / 2, -dialogHeight / 2, dialogWidth, dialogHeight, 20);
 
     const nameBg = this.add.graphics();
     nameBg.fillStyle(0x3b82f6, 1);
-    nameBg.fillRoundedRect(-dialogWidth/2 + 30, -dialogHeight/2 - 25, 200, 50, 10);
-    const nameText = this.add.text(-dialogWidth/2 + 130, -dialogHeight/2, 'Ibu Guru', {
+    nameBg.fillRoundedRect(-dialogWidth / 2 + 30, -dialogHeight / 2 - 25, 200, 50, 10);
+    const nameText = this.add.text(-dialogWidth / 2 + 130, -dialogHeight / 2, 'Ibu Guru', {
       fontFamily: 'monospace',
       fontSize: '28px',
       color: '#ffffff',
       fontStyle: 'bold'
     }).setOrigin(0.5);
 
-    this.textObj = this.add.text(-dialogWidth/2 + 50, -dialogHeight/2 + 40, '', {
+    this.textObj = this.add.text(-dialogWidth / 2 + 50, -dialogHeight / 2 + 40, '', {
       fontFamily: 'monospace',
       fontSize: '32px',
       color: '#f8fafc',
@@ -228,7 +198,7 @@ export class Case3AnalysisScene extends Phaser.Scene {
       color: '#4ade80',
       fontStyle: 'bold'
     }).setOrigin(1, 1).setAlpha(0).setInteractive({ useHandCursor: true });
-    
+
     this.lanjutText.on('pointerover', () => {
       if (this.isClicking) return;
       this.lanjutText.setColor('#22c55e');
@@ -283,8 +253,8 @@ export class Case3AnalysisScene extends Phaser.Scene {
         if (dialogs[this.currentDialogIndex].showOptions) {
           this.showOptions();
         } else {
-           this.tweens.add({ targets: this.lanjutText, alpha: 1, duration: 100 });
-           this.lanjutText.setInteractive();
+          this.tweens.add({ targets: this.lanjutText, alpha: 1, duration: 100 });
+          this.lanjutText.setInteractive();
         }
       } else {
         if (!dialogs[this.currentDialogIndex].showOptions) {
@@ -369,19 +339,19 @@ export class Case3AnalysisScene extends Phaser.Scene {
       this.lanjutText.disableInteractive();
       this.misiBtnContainer.setAlpha(0);
       this.misiBtnContainer.disableInteractive();
-      
+
       const currentDialog = dialoguesArr[this.currentDialogIndex];
       const isTeacher = currentDialog.speaker === 'Ibu Guru';
 
       this.teacher.setTexture(currentDialog.teacherKey);
 
       let baseTeacherX = this.cameras.main.width * 0.2;
-      let baseTeacherY = this.cameras.main.height + 40; // Naik ke atas sedikit
-      
+      let baseTeacherY = this.cameras.main.height + 10; // Naik ke atas sedikit
+
       if (currentDialog.teacherKey === 'teacher_thinking' || currentDialog.teacherKey === 'teacher_thumbup') {
-         baseTeacherX += 20; // Geser sedikit ke kanan
+        baseTeacherX += 20; // Geser sedikit ke kanan
       } else if (currentDialog.teacherKey === 'teacher_smile') {
-         baseTeacherX += 80; // Geser ke kanan tapi jangan banyak-banyak
+        baseTeacherX += 80; // Geser ke kanan tapi jangan banyak-banyak
       }
       this.teacher.setPosition(baseTeacherX, baseTeacherY);
 
@@ -389,35 +359,49 @@ export class Case3AnalysisScene extends Phaser.Scene {
       this.teacherMaxScale = teacherMaxHeight / this.teacher.height;
 
       // Update player texture
+      const gender = this.registry.get('playerGender') || 'boy';
       if (currentDialog.playerKey) {
         let actualKey = currentDialog.playerKey;
-        const gender = this.registry.get('playerGender') || 'boy';
         if (gender === 'girl') {
-           if (actualKey === 'boy_bingung') actualKey = 'girl_bingung';
-           if (actualKey === 'boy_surprised') actualKey = 'girl_bingung'; // fallback
-           if (actualKey === 'boy_idle') actualKey = 'girl_idle';
+          if (actualKey === 'boy_bingung') actualKey = 'girl_bingung';
+          if (actualKey === 'boy_surprised') actualKey = 'girl_surprised'; // fallback
+          if (actualKey === 'boy_idle') actualKey = 'girl_idle';
         }
         this.player.setTexture(actualKey);
         const playerMaxHeight = this.cameras.main.height * 0.97;
         this.playerMaxScale = playerMaxHeight / this.player.height;
       }
 
+      let customPlayerScale = 1.0;
+      if (currentDialog.playerScale !== undefined) {
+        if (typeof currentDialog.playerScale === 'number') {
+          customPlayerScale = currentDialog.playerScale;
+        } else {
+          customPlayerScale = currentDialog.playerScale[gender] || 1.0;
+        }
+      } else {
+        customPlayerScale = (gender === 'girl') ? 1.0 : 1.0;
+      }
+
+      const isTeacherDimmed = this.teacher.alpha < 1;
+      this.teacher.setScale(this.teacherMaxScale * (isTeacherDimmed ? 0.95 : 1));
+
       nText.text = currentDialog.speaker;
       nBg.clear();
       nBg.fillStyle(currentDialog.color, 1);
 
       if (isTeacher) {
-        nBg.fillRoundedRect(-dWidth/2 + 30, -dHeight/2 - 25, 200, 50, 10);
-        nText.x = -dWidth/2 + 130;
+        nBg.fillRoundedRect(-dWidth / 2 + 30, -dHeight / 2 - 25, 200, 50, 10);
+        nText.x = -dWidth / 2 + 130;
         this.sound.play('karakter_muncul', { volume: 0.5 });
         this.tweens.add({ targets: this.teacher, scale: this.teacherMaxScale, alpha: 1, duration: 300 });
-        this.tweens.add({ targets: this.player, scale: this.playerMaxScale * 0.9, alpha: 0.6, duration: 300 });
+        this.tweens.add({ targets: this.player, scale: this.playerMaxScale * customPlayerScale * 1.0, alpha: 0.6, duration: 300 });
       } else {
-        nBg.fillRoundedRect(dWidth/2 - 230, -dHeight/2 - 25, 200, 50, 10);
-        nText.x = dWidth/2 - 130;
+        nBg.fillRoundedRect(dWidth / 2 - 230, -dHeight / 2 - 25, 200, 50, 10);
+        nText.x = dWidth / 2 - 130;
         this.sound.play('karakter_muncul', { volume: 0.5 });
-        this.tweens.add({ targets: this.player, scale: this.playerMaxScale, alpha: 1, duration: 300 });
-        this.tweens.add({ targets: this.teacher, scale: this.teacherMaxScale * 0.9, alpha: 0.6, duration: 300 });
+        this.tweens.add({ targets: this.player, scale: this.playerMaxScale * customPlayerScale, alpha: 1, duration: 300 });
+        this.tweens.add({ targets: this.teacher, scale: this.teacherMaxScale * 0.95, alpha: 0.6, duration: 300 });
       }
 
       if (this.typingSound && !this.typingSound.isPlaying) {
@@ -472,22 +456,22 @@ export class Case3AnalysisScene extends Phaser.Scene {
       const btnWidth = 550;
       const btnHeight = 70;
       const yPos = index * (btnHeight + 20);
-      
+
       const btnContainer = this.add.container(0, yPos);
 
       // Shadow
       const shadow = this.add.graphics();
       shadow.fillStyle(0x000000, 0.4);
-      shadow.fillRoundedRect(-btnWidth/2 + 3, -btnHeight/2 + 4, btnWidth, btnHeight, 15);
+      shadow.fillRoundedRect(-btnWidth / 2 + 3, -btnHeight / 2 + 4, btnWidth, btnHeight, 15);
 
       // Button background
       const btnBg = this.add.graphics();
       btnBg.fillStyle(0x2563eb, 1); // Blue
-      btnBg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
+      btnBg.fillRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
       btnBg.lineStyle(4, 0xffffff, 0.3);
-      btnBg.strokeRoundedRect(-btnWidth/2 + 2, -btnHeight/2 + 2, btnWidth - 4, btnHeight - 4, 13);
+      btnBg.strokeRoundedRect(-btnWidth / 2 + 2, -btnHeight / 2 + 2, btnWidth - 4, btnHeight - 4, 13);
       btnBg.lineStyle(3, 0x000000, 1);
-      btnBg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
+      btnBg.strokeRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
 
       const btnText = this.add.text(0, 0, opt.text, {
         fontFamily: 'Nunito, sans-serif',
@@ -497,18 +481,18 @@ export class Case3AnalysisScene extends Phaser.Scene {
       }).setOrigin(0.5);
 
       btnContainer.add([shadow, btnBg, btnText]);
-      const hitArea = new Phaser.Geom.Rectangle(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight);
+      const hitArea = new Phaser.Geom.Rectangle(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight);
       btnContainer.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
 
       btnContainer.on('pointerover', () => {
         this.input.setDefaultCursor('pointer');
         btnBg.clear();
         btnBg.fillStyle(0x3b82f6, 1);
-        btnBg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
+        btnBg.fillRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
         btnBg.lineStyle(4, 0xffffff, 0.5);
-        btnBg.strokeRoundedRect(-btnWidth/2 + 2, -btnHeight/2 + 2, btnWidth - 4, btnHeight - 4, 13);
+        btnBg.strokeRoundedRect(-btnWidth / 2 + 2, -btnHeight / 2 + 2, btnWidth - 4, btnHeight - 4, 13);
         btnBg.lineStyle(3, 0x000000, 1);
-        btnBg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
+        btnBg.strokeRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
         btnContainer.y = yPos - 2;
         shadow.y = 2;
       });
@@ -517,11 +501,11 @@ export class Case3AnalysisScene extends Phaser.Scene {
         this.input.setDefaultCursor('default');
         btnBg.clear();
         btnBg.fillStyle(0x2563eb, 1);
-        btnBg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
+        btnBg.fillRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
         btnBg.lineStyle(4, 0xffffff, 0.3);
-        btnBg.strokeRoundedRect(-btnWidth/2 + 2, -btnHeight/2 + 2, btnWidth - 4, btnHeight - 4, 13);
+        btnBg.strokeRoundedRect(-btnWidth / 2 + 2, -btnHeight / 2 + 2, btnWidth - 4, btnHeight - 4, 13);
         btnBg.lineStyle(3, 0x000000, 1);
-        btnBg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
+        btnBg.strokeRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
         btnContainer.y = yPos;
         shadow.y = 0;
       });
@@ -536,14 +520,14 @@ export class Case3AnalysisScene extends Phaser.Scene {
           this.sound.play('correct');
           btnBg.clear();
           btnBg.fillStyle(0x16a34a, 1); // Green
-          btnBg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
+          btnBg.fillRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
           btnBg.lineStyle(4, 0xffffff, 0.3);
-          btnBg.strokeRoundedRect(-btnWidth/2 + 2, -btnHeight/2 + 2, btnWidth - 4, btnHeight - 4, 13);
+          btnBg.strokeRoundedRect(-btnWidth / 2 + 2, -btnHeight / 2 + 2, btnWidth - 4, btnHeight - 4, 13);
           btnBg.lineStyle(3, 0x000000, 1);
-          btnBg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
-          
+          btnBg.strokeRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
+
           this.registry.set('ecoPoints', (this.registry.get('ecoPoints') || 0) + 100);
-          
+
           // UI Point Animation (+100 EP)
           const epText = this.add.text(this.cameras.main.width / 2, this.cameras.main.height / 2 - 100 + yPos, '+100 EP', {
             fontFamily: 'Fredoka One, Arial, sans-serif',
@@ -584,12 +568,12 @@ export class Case3AnalysisScene extends Phaser.Scene {
           this.sound.play('wrong');
           btnBg.clear();
           btnBg.fillStyle(0xdc2626, 1); // Red
-          btnBg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
+          btnBg.fillRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
           btnBg.lineStyle(4, 0xffffff, 0.3);
-          btnBg.strokeRoundedRect(-btnWidth/2 + 2, -btnHeight/2 + 2, btnWidth - 4, btnHeight - 4, 13);
+          btnBg.strokeRoundedRect(-btnWidth / 2 + 2, -btnHeight / 2 + 2, btnWidth - 4, btnHeight - 4, 13);
           btnBg.lineStyle(3, 0x000000, 1);
-          btnBg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
-          
+          btnBg.strokeRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
+
           this.tweens.add({
             targets: btnContainer,
             x: 10,
@@ -602,11 +586,11 @@ export class Case3AnalysisScene extends Phaser.Scene {
             // Restore visual
             btnBg.clear();
             btnBg.fillStyle(0x2563eb, 1);
-            btnBg.fillRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
+            btnBg.fillRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
             btnBg.lineStyle(4, 0xffffff, 0.3);
-            btnBg.strokeRoundedRect(-btnWidth/2 + 2, -btnHeight/2 + 2, btnWidth - 4, btnHeight - 4, 13);
+            btnBg.strokeRoundedRect(-btnWidth / 2 + 2, -btnHeight / 2 + 2, btnWidth - 4, btnHeight - 4, 13);
             btnBg.lineStyle(3, 0x000000, 1);
-            btnBg.strokeRoundedRect(-btnWidth/2, -btnHeight/2, btnWidth, btnHeight, 15);
+            btnBg.strokeRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
             btnContainer.y = yPos;
             shadow.y = 0;
           }, 400);

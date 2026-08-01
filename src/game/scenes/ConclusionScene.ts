@@ -1,19 +1,6 @@
 import * as Phaser from 'phaser';
-import halamanKotorBg from '../../assets/backgrounds/halaman-kotor.png';
-import botolImg from '../../assets/objects/botol.png';
-import pisangImg from '../../assets/objects/pisang.png';
-import daunImg from '../../assets/objects/daun.png';
-import binImg from '../../assets/objects/bin.png';
-import modalSfxUrl from '../../assets/audio/case1/investigation-modal.wav';
-import investigationBgUrl from '../../assets/audio/case1/investigation-bg.mp3';
-import btnClickUrl from '../../assets/audio/button_click.mp3';
-import correctUrl from '../../assets/audio/case1/correct.wav';
-import wrongUrl from '../../assets/audio/case1/wrong.wav';
 
 // New imports for teacher
-import teacherSurprisedImg from '../../assets/characters/teachers/suprised.png';
-import teacherSmileImg from '../../assets/characters/teachers/smile.png';
-import typingAudioUrl from '../../assets/audio/keyboard-typing.wav';
 
 export class ConclusionScene extends Phaser.Scene {
   private caseId!: string;
@@ -22,24 +9,6 @@ export class ConclusionScene extends Phaser.Scene {
 
   constructor() {
     super('ConclusionScene');
-  }
-
-  preload() {
-    this.load.image('halaman_kotor_bg', halamanKotorBg);
-    this.load.image('clue_botol', botolImg);
-    this.load.image('clue_pisang', pisangImg);
-    this.load.image('clue_daun', daunImg);
-    this.load.image('clue_bin', binImg);
-    this.load.audio('modal_sfx', modalSfxUrl);
-    this.load.audio('investigation_bgm', investigationBgUrl);
-    this.load.audio('btn_click', btnClickUrl);
-    this.load.audio('correct_sfx', correctUrl);
-    this.load.audio('wrong_sfx', wrongUrl);
-
-    // Teacher assets
-    this.load.image('teacher_surprised', teacherSurprisedImg);
-    this.load.image('teacher_smile', teacherSmileImg);
-    this.load.audio('typing_sfx', typingAudioUrl);
   }
 
   create(data: { caseId: string }) {

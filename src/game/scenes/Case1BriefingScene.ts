@@ -1,16 +1,6 @@
 import * as Phaser from 'phaser';
 
-import halamanKotorBg from '../../assets/backgrounds/halaman-kotor.png';
-import surprisedTeacher from '../../assets/characters/teachers/suprised.png';
 import { createBackButton } from '../utils/UIUtils';
-import thinkingTeacher from '../../assets/characters/teachers/thinking.png';
-import boyIdle from '../../assets/characters/boy/boy-idle.png';
-import boySupprised from '../../assets/characters/boy/boy-supprised.png';
-import girlIdle from '../../assets/characters/girl/girl-idle.png';
-import girlBingung from '../../assets/characters/girl/girl-bingung.png';
-import caseBriefingUrl from '../../assets/audio/case-briefing.mp3';
-import typingAudioUrl from '../../assets/audio/keyboard-typing.wav';
-import btnClickUrl from '../../assets/audio/button_click.mp3';
 
 export class Case1BriefingScene extends Phaser.Scene {
   private bg1!: Phaser.GameObjects.Image;
@@ -42,19 +32,6 @@ export class Case1BriefingScene extends Phaser.Scene {
     this.isClicking = false;
   }
 
-  preload() {
-    this.load.image('halaman_kotor_bg', halamanKotorBg);
-    this.load.image('teacher_surprised', surprisedTeacher);
-    this.load.image('teacher_thinking', thinkingTeacher);
-    this.load.image('boy_idle', boyIdle);
-    this.load.image('boy_supprised', boySupprised);
-    this.load.image('girl_idle', girlIdle);
-    this.load.image('girl_bingung', girlBingung);
-    this.load.audio('case_briefing_bgm', caseBriefingUrl);
-    this.load.audio('typing_sfx', typingAudioUrl);
-    this.load.audio('btn_click', btnClickUrl);
-  }
-
   create() {
     const { width, height } = this.cameras.main;
 
@@ -83,11 +60,13 @@ export class Case1BriefingScene extends Phaser.Scene {
     this.player = this.add.image(width * 0.8, height, playerAsset).setOrigin(0.5, 1);
     const playerMaxHeight = height * 0.97;
     this.playerMaxScale = playerMaxHeight / this.player.height;
-    this.player.setScale(this.playerMaxScale * 0.9);
+    const initialPlayerScale = gender === 'girl' ? 0.98 : 1.0;
+    this.player.setScale(this.playerMaxScale * initialPlayerScale * 1.0);
     this.player.setFlipX(false);
     this.player.setAlpha(0);
     this.player.setDepth(20);
-    this.player.y = height + 150;
+    const playerYOffset = gender === 'girl' ? 85 : 150;
+    this.player.y = height + playerYOffset;
 
     this.createDialogUI(width, height);
 
@@ -160,7 +139,8 @@ export class Case1BriefingScene extends Phaser.Scene {
         text: "Ya ampun! Lihatlah halaman sekolah kita, berantakan sekali banyak sampah berserakan.",
         color: 0x3b82f6, // Blue
         teacherKey: 'teacher_surprised',
-        teacherScale: 1.0
+        teacherScale: 1.0,
+        playerScale: { boy: 1.0, girl: 0.98 }
       },
       {
         speaker: playerName,
@@ -168,14 +148,16 @@ export class Case1BriefingScene extends Phaser.Scene {
         color: 0x16a34a, // Green
         teacherKey: 'teacher_surprised',
         teacherScale: 1.0,
-        playerKey: { boy: 'boy_supprised', girl: 'girl_bingung' }
+        playerKey: { boy: 'boy_supprised', girl: 'girl_supprised' },
+          playerScale: { boy: 1.0, girl: 0.9 }
       },
       {
         speaker: 'Ibu Guru',
         text: "Ayo Detektif, selidiki benda apa saja yang dibuang sembarangan di halaman ini!",
         color: 0x3b82f6,
         teacherKey: 'teacher_thinking',
-        teacherScale: 1.0
+        teacherScale: 1.0,
+        playerScale: { boy: 1.0, girl: 0.87 }
       }
     ];
 
@@ -192,26 +174,26 @@ export class Case1BriefingScene extends Phaser.Scene {
     const btnBg = this.add.graphics();
     btnBg.fillStyle(0x3b82f6, 1);
     btnBg.fillRoundedRect(-90, -25, 180, 50, 15);
-    
+
     const btnText = this.add.text(0, 0, 'INVESTIGASI', {
       fontFamily: 'monospace',
       fontSize: '20px',
       color: '#ffffff',
       fontStyle: 'bold'
     }).setOrigin(0.5);
-    
+
     this.investigasiBtn.add([btnBg, btnText]);
-    
+
     const btnHitArea = new Phaser.Geom.Rectangle(-90, -25, 180, 50);
     this.investigasiBtn.setInteractive(btnHitArea, Phaser.Geom.Rectangle.Contains);
-    
+
     this.investigasiBtn.on('pointerover', () => {
       this.input.setDefaultCursor('pointer');
       btnBg.clear();
       btnBg.fillStyle(0x2563eb, 1);
       btnBg.fillRoundedRect(-90, -25, 180, 50, 15);
     });
-    
+
     this.investigasiBtn.on('pointerout', () => {
       this.input.setDefaultCursor('default');
       btnBg.clear();
@@ -283,24 +265,38 @@ export class Case1BriefingScene extends Phaser.Scene {
       const gender = this.registry.get('playerGender') || 'boy';
       if (currentDialog.playerKey) {
         this.player.setTexture(currentDialog.playerKey[gender]);
-      } else {
-        this.player.setTexture(gender === 'boy' ? 'boy_idle' : 'girl_idle');
       }
+
+      // Recalculate max scale in case the new texture has different dimensions
+      const playerMaxHeight = this.cameras.main.height * 0.97;
+      this.playerMaxScale = playerMaxHeight / this.player.height;
 
       nText.text = currentDialog.speaker;
       nBg.clear();
       nBg.fillStyle(currentDialog.color, 1);
 
+      let customPlayerScale = 1.0;
+      if (currentDialog.playerScale !== undefined) {
+        if (typeof currentDialog.playerScale === 'number') {
+          customPlayerScale = currentDialog.playerScale;
+        } else {
+          customPlayerScale = currentDialog.playerScale[gender] || 1.0;
+        }
+      } else {
+        // Fallback based on texture if not specified
+        customPlayerScale = (this.player.texture.key === 'girl_idle') ? 0.98 : 1.0;
+      }
+
       if (isTeacher) {
         nBg.fillRoundedRect(-dWidth / 2 + 30, -dHeight / 2 - 25, 200, 50, 10);
         nText.x = -dWidth / 2 + 130;
         this.tweens.add({ targets: this.teacher, scale: this.teacherMaxScale * currentDialog.teacherScale, alpha: 1, duration: 300 });
-        this.tweens.add({ targets: this.player, scale: this.playerMaxScale * 0.9, alpha: 0.6, duration: 300 });
+        this.tweens.add({ targets: this.player, scale: this.playerMaxScale * customPlayerScale * 1.0, alpha: 0.6, duration: 300 });
       } else {
         nBg.fillRoundedRect(dWidth / 2 - 230, -dHeight / 2 - 25, 200, 50, 10);
         nText.x = dWidth / 2 - 130;
-        this.tweens.add({ targets: this.player, scale: this.playerMaxScale, alpha: 1, duration: 300 });
-        this.tweens.add({ targets: this.teacher, scale: this.teacherMaxScale * 0.9, alpha: 0.6, duration: 300 });
+        this.tweens.add({ targets: this.player, scale: this.playerMaxScale * customPlayerScale, alpha: 1, duration: 300 });
+        this.tweens.add({ targets: this.teacher, scale: this.teacherMaxScale * 0.95, alpha: 0.6, duration: 300 });
       }
 
       if (this.typingSound && !this.typingSound.isPlaying) {

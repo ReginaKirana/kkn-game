@@ -1,9 +1,4 @@
 import * as Phaser from 'phaser';
-import coverBgAsset from '../../assets/backgrounds/cover.png';
-import titleAsset from '../../assets/fonts/judul.png';
-import startBtnAsset from '../../assets/button/mulai.png';
-import coverAudioUrl from '../../assets/audio/cover.mp3';
-import clickAudioUrl from '../../assets/audio/button_click.mp3';
 
 export class CoverScene extends Phaser.Scene {
   private startBtn!: Phaser.GameObjects.Image;
@@ -12,15 +7,6 @@ export class CoverScene extends Phaser.Scene {
 
   constructor() {
     super('CoverScene');
-  }
-
-  preload() {
-    // Load assets properly via Vite imports
-    this.load.image('cover_bg', coverBgAsset);
-    this.load.image('game_title', titleAsset);
-    this.load.image('start_btn', startBtnAsset);
-    this.load.audio('cover_bgm', coverAudioUrl);
-    this.load.audio('click_sfx', clickAudioUrl);
   }
 
   create() {

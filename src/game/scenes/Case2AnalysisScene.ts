@@ -1,19 +1,6 @@
 import * as Phaser from 'phaser';
 
-import case1GameBg from '../../assets/backgrounds/case1-game.png';
-import thumbUpTeacher from '../../assets/characters/teachers/thumb-up.png';
-import surprisedTeacher from '../../assets/characters/teachers/suprised.png';
-import smileTeacher from '../../assets/characters/teachers/smile.png';
-import boyIdle from '../../assets/characters/boy/boy-idle.png';
-import girlIdle from '../../assets/characters/girl/girl-idle.png';
 import { createBackButton } from '../utils/UIUtils';
-import investigasiBgmUrl from '../../assets/audio/investigasi.mp3';
-import karakterMunculUrl from '../../assets/audio/sfx/karakter-muncul.wav';
-import keyboardTypingUrl from '../../assets/audio/keyboard-typing.wav';
-import btnClickUrl from '../../assets/audio/button_click.mp3';
-import wrongUrl from '../../assets/audio/case1/wrong.wav';
-import correctUrl from '../../assets/audio/case1/correct.wav';
-import misiMulaiUrl from '../../assets/audio/case1/misi-mulai.wav';
 
 export class Case2AnalysisScene extends Phaser.Scene {
   private teacher!: Phaser.GameObjects.Image;
@@ -52,7 +39,8 @@ export class Case2AnalysisScene extends Phaser.Scene {
       speaker: 'Detektif',
       text: "Agar dapat diolah kembali sesuai jenisnya!",
       color: 0x16a34a,
-      teacherKey: 'teacher_surprised'
+      teacherKey: 'teacher_surprised',
+      playerScale: {girl: 1.25 }
     },
     {
       speaker: 'Ibu Guru',
@@ -71,22 +59,6 @@ export class Case2AnalysisScene extends Phaser.Scene {
 
   constructor() {
     super('Case2AnalysisScene');
-  }
-
-  preload() {
-    this.load.image('case1_game_bg', case1GameBg);
-    this.load.image('teacher_thumbup', thumbUpTeacher);
-    this.load.image('teacher_surprised', surprisedTeacher);
-    this.load.image('teacher_smile', smileTeacher);
-    this.load.image('boy_idle', boyIdle);
-    this.load.image('girl_idle', girlIdle);
-    this.load.audio('investigasi_bgm', investigasiBgmUrl);
-    this.load.audio('karakter_muncul', karakterMunculUrl);
-    this.load.audio('keyboard_typing', keyboardTypingUrl);
-    this.load.audio('btn_click', btnClickUrl);
-    this.load.audio('wrong', wrongUrl);
-    this.load.audio('correct', correctUrl);
-    this.load.audio('misi_mulai', misiMulaiUrl);
   }
 
   create() {
@@ -118,13 +90,14 @@ export class Case2AnalysisScene extends Phaser.Scene {
     // Player Character
     const gender = this.registry.get('playerGender') || 'boy';
     const playerAsset = gender === 'boy' ? 'boy_idle' : 'girl_idle';
-    this.player = this.add.image(width * 0.8, height, playerAsset).setOrigin(0.5, 1);
+    const playerYOffset = gender === 'girl' ? 100 : 150;
+    this.player = this.add.image(width * 0.8, height + playerYOffset, playerAsset).setOrigin(0.5, 1);
     const playerMaxHeight = height * 0.97;
     this.playerMaxScale = playerMaxHeight / this.player.height;
-    this.player.setScale(this.playerMaxScale * 0.9); // Starts listening
+    const initialPlayerScale = gender === 'girl' ? 0.963 : 1.0;
+    this.player.setScale(this.playerMaxScale * initialPlayerScale); // Starts listening
     this.player.setFlipX(false);
     this.player.setAlpha(0); // Starts transparent for fade in
-    this.player.y = height + 150;
 
     // BGM & Typing sound setup
     this.bgMusic = this.sound.add('investigasi_bgm', { loop: true, volume: 0.3 });
@@ -386,8 +359,20 @@ export class Case2AnalysisScene extends Phaser.Scene {
       // Update player base scale sama dengan cara di atas
       const playerMaxHeight = this.cameras.main.height * 0.97;
       this.playerMaxScale = playerMaxHeight / this.player.height;
+      
+      let customPlayerScale = 1.0;
+      if (currentDialog.playerScale !== undefined) {
+        if (typeof currentDialog.playerScale === 'number') {
+          customPlayerScale = currentDialog.playerScale;
+        } else {
+          customPlayerScale = currentDialog.playerScale[gender] || 1.0;
+        }
+      } else {
+        customPlayerScale = (this.player.texture.key === 'girl_idle') ? 1.07 : 1.0;
+      }
+      
       const isPlayerDimmed = this.player.alpha < 1;
-      this.player.setScale(this.playerMaxScale * (isPlayerDimmed ? 0.9 : 1));
+      this.player.setScale(this.playerMaxScale * customPlayerScale * (isPlayerDimmed ? 0.9 : 1));
 
       nText.text = currentDialog.speaker;
       nBg.clear();
@@ -398,12 +383,12 @@ export class Case2AnalysisScene extends Phaser.Scene {
         nText.x = -dWidth/2 + 130;
         this.sound.play('karakter_muncul', { volume: 0.5 });
         this.tweens.add({ targets: this.teacher, scale: this.teacherMaxScale, alpha: 1, duration: 300 });
-        this.tweens.add({ targets: this.player, scale: this.playerMaxScale * 0.9, alpha: 0.6, duration: 300 });
+        this.tweens.add({ targets: this.player, scale: this.playerMaxScale * customPlayerScale * 0.9, alpha: 0.6, duration: 300 });
       } else {
         nBg.fillRoundedRect(dWidth/2 - 230, -dHeight/2 - 25, 200, 50, 10);
         nText.x = dWidth/2 - 130;
         this.sound.play('karakter_muncul', { volume: 0.5 });
-        this.tweens.add({ targets: this.player, scale: this.playerMaxScale, alpha: 1, duration: 300 });
+        this.tweens.add({ targets: this.player, scale: this.playerMaxScale * customPlayerScale, alpha: 1, duration: 300 });
         this.tweens.add({ targets: this.teacher, scale: this.teacherMaxScale * 0.9, alpha: 0.6, duration: 300 });
       }
 

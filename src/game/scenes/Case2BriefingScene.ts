@@ -1,19 +1,6 @@
 import * as Phaser from 'phaser';
 
-import case1GameBg from '../../assets/backgrounds/case1-game.png';
-import halamanBg from '../../assets/backgrounds/halaman.png';
-import binImg from '../../assets/objects/bin.png';
-import thumbUpTeacher from '../../assets/characters/teachers/thumb-up.png';
-import surprisedTeacher from '../../assets/characters/teachers/suprised.png';
-import thinkingTeacher from '../../assets/characters/teachers/thinking.png';
-import boyIdle from '../../assets/characters/boy/boy-idle.png';
-import girlIdle from '../../assets/characters/girl/girl-idle.png';
 import { createBackButton } from '../utils/UIUtils';
-import investigasiBgmUrl from '../../assets/audio/investigasi.mp3';
-import karakterMunculUrl from '../../assets/audio/sfx/karakter-muncul.wav';
-import keyboardTypingUrl from '../../assets/audio/keyboard-typing.wav';
-import btnClickUrl from '../../assets/audio/button_click.mp3';
-import modalInvestigasiUrl from '../../assets/audio/case1-modal-investigasi.wav';
 
 export class Case2BriefingScene extends Phaser.Scene {
   private bg1!: Phaser.GameObjects.Image;
@@ -47,21 +34,6 @@ export class Case2BriefingScene extends Phaser.Scene {
     this.isClicking = false;
   }
 
-  preload() {
-    this.load.image('brief_case1_bg', case1GameBg);
-    this.load.image('brief_bin', binImg);
-    this.load.image('teacher_thumbup', thumbUpTeacher);
-    this.load.image('teacher_surprised', surprisedTeacher);
-    this.load.image('teacher_thinking', thinkingTeacher);
-    this.load.image('boy_idle', boyIdle);
-    this.load.image('girl_idle', girlIdle);
-    this.load.audio('investigasi_bgm', investigasiBgmUrl);
-    this.load.audio('karakter_muncul', karakterMunculUrl);
-    this.load.audio('keyboard_typing', keyboardTypingUrl);
-    this.load.audio('btn_click', btnClickUrl);
-    this.load.audio('modal_investigasi', modalInvestigasiUrl);
-  }
-
   create() {
     const { width, height } = this.cameras.main;
 
@@ -93,11 +65,13 @@ export class Case2BriefingScene extends Phaser.Scene {
     this.player = this.add.image(width * 0.8, height, playerAsset).setOrigin(0.5, 1);
     const playerMaxHeight = height * 0.97;
     this.playerMaxScale = playerMaxHeight / this.player.height;
-    this.player.setScale(this.playerMaxScale * 0.9); // Zoomed out
+    const initialPlayerScale = gender === 'girl' ? 1.07 : 1.0;
+    this.player.setScale(this.playerMaxScale * initialPlayerScale * 0.9); // Zoomed out
     this.player.setFlipX(false);
     this.player.setDepth(20);
     this.player.setAlpha(0);
-    this.player.y = height + 150;
+    const playerYOffset = gender === 'girl' ? 100 : 150;
+    this.player.y = height + playerYOffset;
 
     this.createDialogUI(width, height);
 
@@ -308,6 +282,17 @@ export class Case2BriefingScene extends Phaser.Scene {
         this.player.setTexture(gender === 'boy' ? 'boy_idle' : 'girl_idle');
       }
 
+      let customPlayerScale = 1.0;
+      if (currentDialog.playerScale !== undefined) {
+        if (typeof currentDialog.playerScale === 'number') {
+          customPlayerScale = currentDialog.playerScale;
+        } else {
+          customPlayerScale = currentDialog.playerScale[gender] || 1.0;
+        }
+      } else {
+        customPlayerScale = (this.player.texture.key === 'girl_idle') ? 1.07 : 1.0;
+      }
+
       nText.text = currentDialog.speaker;
       nBg.clear();
       nBg.fillStyle(currentDialog.color, 1);
@@ -316,11 +301,11 @@ export class Case2BriefingScene extends Phaser.Scene {
         nBg.fillRoundedRect(-dWidth/2 + 30, -dHeight/2 - 25, 200, 50, 10);
         nText.x = -dWidth/2 + 130;
         this.tweens.add({ targets: this.teacher, scale: this.teacherMaxScale * currentDialog.teacherScale, alpha: 1, duration: 300 });
-        this.tweens.add({ targets: this.player, scale: this.playerMaxScale * 0.9, alpha: 0.6, duration: 300 });
+        this.tweens.add({ targets: this.player, scale: this.playerMaxScale * customPlayerScale * 0.9, alpha: 0.6, duration: 300 });
       } else {
         nBg.fillRoundedRect(dWidth/2 - 230, -dHeight/2 - 25, 200, 50, 10);
         nText.x = dWidth/2 - 130;
-        this.tweens.add({ targets: this.player, scale: this.playerMaxScale, alpha: 1, duration: 300 });
+        this.tweens.add({ targets: this.player, scale: this.playerMaxScale * customPlayerScale, alpha: 1, duration: 300 });
         this.tweens.add({ targets: this.teacher, scale: this.teacherMaxScale * 0.9, alpha: 0.6, duration: 300 });
       }
 

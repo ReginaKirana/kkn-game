@@ -1,30 +1,6 @@
 import * as Phaser from 'phaser';
 
-import selokanBg from '../../assets/backgrounds/selokan-tinngi.png';
-import botolImg from '../../assets/objects/botol.png';
-import pisangImg from '../../assets/objects/pisang.png';
-import kalengImg from '../../assets/objects/kaleng.png';
-import plastikImg from '../../assets/objects/plastik.png';
-import appleImg from '../../assets/objects/apple.png';
-import daunImg from '../../assets/objects/daun.png';
-import gelasImg from '../../assets/objects/gelas.png';
-import kertasImg from '../../assets/objects/kertas.png';
-import rantingImg from '../../assets/objects/ranting.png';
-import thumbUpTeacher from '../../assets/characters/teachers/thumb-up.png';
-import smileTeacher from '../../assets/characters/teachers/smile.png';
-import surprisedTeacher from '../../assets/characters/teachers/suprised.png';
-import thinkingTeacher from '../../assets/characters/teachers/thinking.png';
-import boyIdle from '../../assets/characters/boy/boy-idle.png';
-import girlIdle from '../../assets/characters/girl/girl-idle.png';
 import { createBackButton } from '../utils/UIUtils';
-import boyBingung from '../../assets/characters/boy/boy-bingung.png';
-import boySurprised from '../../assets/characters/boy/boy-supprised.png';
-import girlBingung from '../../assets/characters/girl/girl-bingung.png';
-
-import investigasiBgmUrl from '../../assets/audio/investigasi.mp3';
-import karakterMunculUrl from '../../assets/audio/sfx/karakter-muncul.wav';
-import keyboardTypingUrl from '../../assets/audio/keyboard-typing.wav';
-import btnClickUrl from '../../assets/audio/button_click.mp3';
 
 import { Case3TrashConfig } from '../config/Case3TrashConfig';
 
@@ -52,34 +28,6 @@ export class Case3BriefingScene extends Phaser.Scene {
 
   constructor() {
     super('Case3BriefingScene');
-  }
-
-  preload() {
-    this.load.image('selokan_bg', selokanBg);
-    this.load.image('botol', botolImg);
-    this.load.image('pisang', pisangImg);
-    this.load.image('kaleng', kalengImg);
-    this.load.image('plastik', plastikImg);
-    this.load.image('apple', appleImg);
-    this.load.image('daun', daunImg);
-    this.load.image('gelas', gelasImg);
-    this.load.image('kertas', kertasImg);
-    this.load.image('ranting', rantingImg);
-
-    this.load.image('teacher_thumbup', thumbUpTeacher);
-    this.load.image('teacher_smile', smileTeacher);
-    this.load.image('teacher_surprised', surprisedTeacher);
-    this.load.image('teacher_thinking', thinkingTeacher);
-    this.load.image('boy_idle', boyIdle);
-    this.load.image('girl_idle', girlIdle);
-    this.load.image('boy_bingung', boyBingung);
-    this.load.image('boy_surprised', boySurprised);
-    this.load.image('girl_bingung', girlBingung);
-    
-    this.load.audio('investigasi_bgm', investigasiBgmUrl);
-    this.load.audio('karakter_muncul', karakterMunculUrl);
-    this.load.audio('keyboard_typing', keyboardTypingUrl);
-    this.load.audio('btn_click', btnClickUrl);
   }
 
   create() {
@@ -124,14 +72,15 @@ export class Case3BriefingScene extends Phaser.Scene {
     // Player
     const gender = this.registry.get('playerGender') || 'boy';
     const playerAsset = gender === 'boy' ? 'boy_idle' : 'girl_idle';
-    this.player = this.add.image(width * 0.8, height + 180, playerAsset).setOrigin(0.5, 1);
+    const playerYOffset = gender === 'girl' ? 100 : 135;
+    this.player = this.add.image(width * 0.8, height + playerYOffset, playerAsset).setOrigin(0.5, 1);
     const playerMaxHeight = height * 0.97;
     this.playerMaxScale = playerMaxHeight / this.player.height;
-    this.player.setScale(this.playerMaxScale);
+    const initialPlayerScale = gender === 'girl' ? 1.07 : 1.0;
+    this.player.setScale(this.playerMaxScale * initialPlayerScale * 1.0);
     this.player.setFlipX(false);
     this.player.setDepth(20);
     this.player.setAlpha(0);
-    this.player.y = height + 135;
 
     this.bgMusic = this.sound.add('investigasi_bgm', { loop: true, volume: 0.3 });
     this.bgMusic.play();
@@ -201,7 +150,8 @@ export class Case3BriefingScene extends Phaser.Scene {
         color: 0x3b82f6, // Blue
         teacherKey: 'teacher_thumbup',
         playerKey: 'boy_idle',
-        teacherScale: 1.0
+        teacherScale: 1.0,
+        playerScale: { girl: 1.07 }
       },
       {
         speaker: playerName,
@@ -209,7 +159,8 @@ export class Case3BriefingScene extends Phaser.Scene {
         color: 0x16a34a, // Green
         teacherKey: 'teacher_thumbup',
         playerKey: 'boy_bingung',
-        teacherScale: 1.0
+        teacherScale: 1.0,
+        playerScale: { girl: 0.92 }
       },
       {
         speaker: 'Ibu Guru',
@@ -217,7 +168,8 @@ export class Case3BriefingScene extends Phaser.Scene {
         color: 0x3b82f6,
         teacherKey: 'teacher_surprised',
         playerKey: 'boy_bingung',
-        teacherScale: 1.0
+        teacherScale: 1.0,
+        playerScale: { girl: 0.95 }
       },
       {
         speaker: playerName,
@@ -225,15 +177,17 @@ export class Case3BriefingScene extends Phaser.Scene {
         color: 0x16a34a,
         teacherKey: 'teacher_surprised',
         playerKey: 'boy_surprised',
-        teacherScale: 1.0
+        teacherScale: 1.0,
+        playerScale: { girl: 0.92 }
       },
       {
         speaker: 'Ibu Guru',
         text: "Tepat sekali. Sekarang giliranmu untuk selidiki apa penyebabnya",
         color: 0x3b82f6,
         teacherKey: 'teacher_thinking',
-        playerKey: 'boy_idle',
-        teacherScale: 1.0
+        playerKey: 'boy_surprised',
+        teacherScale: 1.0,
+        playerScale: { girl: 0.95 }
       }
     ];
 
@@ -329,17 +283,28 @@ export class Case3BriefingScene extends Phaser.Scene {
       this.teacherMaxScale = teacherMaxHeight / this.teacher.height;
 
       // Update player texture
+      const gender = this.registry.get('playerGender') || 'boy';
       if (currentDialog.playerKey) {
         let actualKey = currentDialog.playerKey;
-        const gender = this.registry.get('playerGender') || 'boy';
         if (gender === 'girl') {
           if (actualKey === 'boy_bingung') actualKey = 'girl_bingung';
-          if (actualKey === 'boy_surprised') actualKey = 'girl_bingung'; // fallback
+          if (actualKey === 'boy_surprised') actualKey = 'girl_surprised'; 
           if (actualKey === 'boy_idle') actualKey = 'girl_idle';
         }
         this.player.setTexture(actualKey);
         const playerMaxHeight = this.cameras.main.height * 0.97;
         this.playerMaxScale = playerMaxHeight / this.player.height;
+      }
+
+      let customPlayerScale = 1.0;
+      if (currentDialog.playerScale !== undefined) {
+        if (typeof currentDialog.playerScale === 'number') {
+          customPlayerScale = currentDialog.playerScale;
+        } else {
+          customPlayerScale = currentDialog.playerScale[gender] || 1.0;
+        }
+      } else {
+        customPlayerScale = (gender === 'girl') ? 0.98 : 1.0;
       }
 
       nText.text = currentDialog.speaker;
@@ -350,11 +315,11 @@ export class Case3BriefingScene extends Phaser.Scene {
         nBg.fillRoundedRect(-dWidth / 2 + 30, -dHeight / 2 - 25, 200, 50, 10);
         nText.x = -dWidth / 2 + 130;
         this.tweens.add({ targets: this.teacher, scale: this.teacherMaxScale, alpha: 1, duration: 300 });
-        this.tweens.add({ targets: this.player, scale: this.playerMaxScale * 0.9, alpha: 0.6, duration: 300 });
+        this.tweens.add({ targets: this.player, scale: this.playerMaxScale * customPlayerScale * 0.9, alpha: 0.6, duration: 300 });
       } else {
         nBg.fillRoundedRect(dWidth / 2 - 230, -dHeight / 2 - 25, 200, 50, 10);
         nText.x = dWidth / 2 - 130;
-        this.tweens.add({ targets: this.player, scale: this.playerMaxScale, alpha: 1, duration: 300 });
+        this.tweens.add({ targets: this.player, scale: this.playerMaxScale * customPlayerScale, alpha: 1, duration: 300 });
         this.tweens.add({ targets: this.teacher, scale: this.teacherMaxScale * 0.9, alpha: 0.6, duration: 300 });
       }
 
@@ -402,9 +367,12 @@ export class Case3BriefingScene extends Phaser.Scene {
       ease: 'Power2'
     });
 
+    const gender = this.registry.get('playerGender') || 'boy';
+    const initialPlayerScale = gender === 'girl' ? 1.07 : 1.0;
+
     this.tweens.add({
       targets: this.player,
-      scale: this.playerMaxScale * 0.9,
+      scale: this.playerMaxScale * initialPlayerScale * 0.9,
       alpha: 0.6,
       duration: 800,
       ease: 'Power2',

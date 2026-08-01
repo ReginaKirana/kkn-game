@@ -34,7 +34,8 @@ export default function GameOnly() {
     if (gameRef.current && !gameInstanceRef.current) {
       const searchParams = new URLSearchParams(window.location.search);
       const sceneParam = searchParams.get('scene') || undefined;
-      gameInstanceRef.current = initGame(gameRef.current.id, sceneParam);
+      const genderParam = searchParams.get('gender') || undefined;
+      gameInstanceRef.current = initGame(gameRef.current.id, sceneParam, genderParam);
     }
   };
 

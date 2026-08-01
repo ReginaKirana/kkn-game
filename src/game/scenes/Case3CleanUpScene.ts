@@ -1,32 +1,6 @@
 import * as Phaser from 'phaser';
 
-import selokanBg from '../../assets/backgrounds/selokan-tinngi.png';
 import { createBackButton } from '../utils/UIUtils';
-import selokanTransisi1 from '../../assets/backgrounds/selokan-transisi1.png';
-import selokanTransisi3 from '../../assets/backgrounds/selokan-transisi3.png';
-import selokanFinal from '../../assets/backgrounds/selokan-final.png';
-
-import botolImg from '../../assets/objects/botol.png';
-import pisangImg from '../../assets/objects/pisang.png';
-import kalengImg from '../../assets/objects/kaleng.png';
-import plastikImg from '../../assets/objects/plastik.png';
-import appleImg from '../../assets/objects/apple.png';
-import daunImg from '../../assets/objects/daun.png';
-import gelasImg from '../../assets/objects/gelas.png';
-import kertasImg from '../../assets/objects/kertas.png';
-import rantingImg from '../../assets/objects/ranting.png';
-
-import thumbUpTeacher from '../../assets/characters/teachers/thumb-up.png';
-import smileTeacher from '../../assets/characters/teachers/smile.png';
-import boyIdle from '../../assets/characters/boy/boy-idle.png';
-import girlIdle from '../../assets/characters/girl/girl-idle.png';
-
-import bgGameplayUrl from '../../assets/audio/case1/bg-gameplay.mp3';
-import misiMulaiUrl from '../../assets/audio/case1/misi-mulai.wav';
-import masukSampahUrl from '../../assets/audio/case1/masuk-sampah-gameplay.mp3';
-import karakterMunculUrl from '../../assets/audio/sfx/karakter-muncul.wav';
-import keyboardTypingUrl from '../../assets/audio/keyboard-typing.wav';
-import btnClickUrl from '../../assets/audio/button_click.mp3';
 
 import { Case3TrashConfig } from '../config/Case3TrashConfig';
 
@@ -41,34 +15,6 @@ export class Case3CleanUpScene extends Phaser.Scene {
 
   constructor() {
     super('Case3CleanUpScene');
-  }
-
-  preload() {
-    this.load.image('selokan_bg', selokanBg);
-    this.load.image('selokan_transisi1', selokanTransisi1);
-    this.load.image('selokan_transisi3', selokanTransisi3);
-    this.load.image('selokan_final', selokanFinal);
-    this.load.image('botol', botolImg);
-    this.load.image('pisang', pisangImg);
-    this.load.image('kaleng', kalengImg);
-    this.load.image('plastik', plastikImg);
-    this.load.image('apple', appleImg);
-    this.load.image('daun', daunImg);
-    this.load.image('gelas', gelasImg);
-    this.load.image('kertas', kertasImg);
-    this.load.image('ranting', rantingImg);
-
-    this.load.image('teacher_thumbup', thumbUpTeacher);
-    this.load.image('teacher_smile', smileTeacher);
-    this.load.image('boy_idle', boyIdle);
-    this.load.image('girl_idle', girlIdle);
-    
-    this.load.audio('bg_gameplay', bgGameplayUrl);
-    this.load.audio('misi_mulai', misiMulaiUrl);
-    this.load.audio('masuk_sampah', masukSampahUrl);
-    this.load.audio('karakter_muncul', karakterMunculUrl);
-    this.load.audio('keyboard_typing', keyboardTypingUrl);
-    this.load.audio('btn_click', btnClickUrl);
   }
 
   create() {
@@ -171,8 +117,8 @@ export class Case3CleanUpScene extends Phaser.Scene {
         this.registry.set('ecoPoints', currentEp + 100);
 
         // Floating +100 EP text
-        const bonusText = this.add.text(img.x, img.y - 40, '+100 EP', { 
-          fontSize: '28px', color: '#4ade80', fontStyle: 'bold', stroke: '#000000', strokeThickness: 4 
+        const bonusText = this.add.text(img.x, img.y - 40, '+100 EP', {
+          fontSize: '28px', color: '#4ade80', fontStyle: 'bold', stroke: '#000000', strokeThickness: 4
         }).setOrigin(0.5).setDepth(20);
 
         this.tweens.add({
@@ -264,8 +210,6 @@ export class Case3CleanUpScene extends Phaser.Scene {
     }
   }
 
-
-
   private showTutorial(width: number, height: number, targetTrash: Phaser.GameObjects.Image) {
     // 1. Overlay gelap untuk fokus
     const overlay = this.add.rectangle(0, 0, width, height, 0x000000, 0.7).setOrigin(0, 0);
@@ -279,9 +223,11 @@ export class Case3CleanUpScene extends Phaser.Scene {
     // 2. Dialog & Karakter Detektif
     const gender = this.registry.get('playerGender') || 'boy';
     const playerAsset = gender === 'boy' ? 'boy_idle' : 'girl_idle';
-    const player = this.add.image(width * 0.2, height + 180, playerAsset).setOrigin(0.5, 1);
+    const playerYOffset = gender === 'girl' ? 110 : 180;
+    const player = this.add.image(width * 0.2, height + playerYOffset, playerAsset).setOrigin(0.5, 1);
     const playerMaxHeight = height * 0.97;
-    player.setScale(playerMaxHeight / player.height);
+    const initialPlayerScale = gender === 'girl' ? 1.07 : 1.07;
+    player.setScale((playerMaxHeight / player.height) * initialPlayerScale);
     player.setFlipX(true);
     player.setDepth(152);
     player.setAlpha(0);
@@ -368,9 +314,9 @@ export class Case3CleanUpScene extends Phaser.Scene {
     dialogContainer.add(nextBtnContainer);
 
     // Fade in player & dialog & overlay
-    this.tweens.add({ 
-      targets: [overlay, player, dialogContainer], 
-      alpha: 1, 
+    this.tweens.add({
+      targets: [overlay, player, dialogContainer],
+      alpha: 1,
       duration: 500,
       onStart: () => {
         this.sound.play('karakter_muncul', { volume: 0.8 });

@@ -1,12 +1,4 @@
 import * as Phaser from 'phaser';
-import introBgAsset from '../../assets/backgrounds/intro.png';
-import teacherSmileAsset from '../../assets/characters/teachers/smile.png';
-import teacherSadAsset from '../../assets/characters/teachers/sad.png';
-import teacherSurprisedAsset from '../../assets/characters/teachers/suprised.png';
-import teacherHappyAsset from '../../assets/characters/teachers/happy.png';
-import typingAudioUrl from '../../assets/audio/keyboard-typing.wav';
-import introAudioUrl from '../../assets/audio/intro.mp3';
-import btnClickUrl from '../../assets/audio/button_click.mp3';
 
 export class IntroScene extends Phaser.Scene {
   private dialogues: string[] = [
@@ -39,17 +31,6 @@ export class IntroScene extends Phaser.Scene {
     this.isTyping = false;
     this.isClicking = false;
     this.typewriterEvent = null;
-  }
-
-  preload() {
-    this.load.image('intro_bg', introBgAsset);
-    this.load.image('teacher_smile', teacherSmileAsset);
-    this.load.image('teacher_sad', teacherSadAsset);
-    this.load.image('teacher_surprised', teacherSurprisedAsset);
-    this.load.image('teacher_happy', teacherHappyAsset);
-    this.load.audio('typing_sfx', typingAudioUrl);
-    this.load.audio('intro_bgm', introAudioUrl);
-    this.load.audio('btn_click', btnClickUrl);
   }
 
   create() {
@@ -283,8 +264,7 @@ export class IntroScene extends Phaser.Scene {
       duration: 400,
       ease: 'Back.easeOut'
     });
-    
-    
+
     const handleNextDialog = () => {
       if (this.isTyping) {
         this.finishTyping();

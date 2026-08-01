@@ -1,15 +1,6 @@
 import * as Phaser from 'phaser';
 import { supabase } from '../../lib/supabaseClient';
 
-import papanBg from '../../assets/backgrounds/papan-kasus3.png';
-import thumbUpTeacher from '../../assets/characters/teachers/thumb-up.png';
-import smileTeacher from '../../assets/characters/teachers/smile.png';
-import outroAudioUrl from '../../assets/audio/outro.mp3';
-import keyboardTypingUrl from '../../assets/audio/keyboard-typing.wav';
-import btnClickUrl from '../../assets/audio/button_click.mp3';
-import finishCaseUrl from '../../assets/audio/case1/finish-case.wav';
-import levelUpUrl from '../../assets/audio/level-up.mp3';
-
 export class OutroScene extends Phaser.Scene {
   private teacher!: Phaser.GameObjects.Image;
   private dialogContainer!: Phaser.GameObjects.Container;
@@ -54,17 +45,6 @@ export class OutroScene extends Phaser.Scene {
   init() {
     this.currentDialogIndex = 0;
     this.isTyping = false;
-  }
-
-  preload() {
-    this.load.image('papan_kasus3', papanBg);
-    this.load.image('teacher_thumbup', thumbUpTeacher);
-    this.load.image('teacher_smile', smileTeacher);
-    this.load.audio('outro_music', outroAudioUrl);
-    this.load.audio('keyboard_typing', keyboardTypingUrl);
-    this.load.audio('btn_click', btnClickUrl);
-    this.load.audio('finish_case', finishCaseUrl);
-    this.load.audio('level_up', levelUpUrl);
   }
 
   create() {

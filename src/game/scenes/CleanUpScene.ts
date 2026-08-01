@@ -1,27 +1,6 @@
 import * as Phaser from 'phaser';
 
-import case1GameBg from '../../assets/backgrounds/case1-game.png';
-import binImg from '../../assets/objects/bin.png';
-import appleImg from '../../assets/objects/apple.png';
-import botolImg from '../../assets/objects/botol.png';
-import daunImg from '../../assets/objects/daun.png';
-import gelasImg from '../../assets/objects/gelas.png';
-import kalengImg from '../../assets/objects/kaleng.png';
-import kertasImg from '../../assets/objects/kertas.png';
-import pisangImg from '../../assets/objects/pisang.png';
-import plastikImg from '../../assets/objects/plastik.png';
-import rantingImg from '../../assets/objects/ranting.png';
 import { createBackButton } from '../utils/UIUtils';
-import halamanKotor from '../../assets/backgrounds/halaman-kotor.png';
-import halamanKotor2Bg from '../../assets/backgrounds/Halaman-kotor2.png';
-import halamanBg from '../../assets/backgrounds/halaman.png';
-import teacherThumbUp from '../../assets/characters/teachers/thumb-up.png';
-import boyIdle from '../../assets/characters/boy/boy-idle.png';
-import girlIdle from '../../assets/characters/girl/girl-idle.png';
-import bgGameplay from '../../assets/audio/case1/bg-gameplay.mp3';
-import misiMulai from '../../assets/audio/case1/misi-mulai.wav';
-import masukSampah from '../../assets/audio/case1/masuk-sampah-gameplay.mp3';
-import btnClickUrl from '../../assets/audio/button_click.mp3';
 export class CleanUpScene extends Phaser.Scene {
   private caseId!: string;
   private trashItemsRemaining: number = 0;
@@ -29,30 +8,6 @@ export class CleanUpScene extends Phaser.Scene {
 
   constructor() {
     super('CleanUpScene');
-  }
-
-  preload() {
-    this.load.image('game_bg', case1GameBg);
-    this.load.image('bin', binImg);
-    this.load.image('apple', appleImg);
-    this.load.image('botol', botolImg);
-    this.load.image('daun', daunImg);
-    this.load.image('gelas', gelasImg);
-    this.load.image('kaleng', kalengImg);
-    this.load.image('kertas', kertasImg);
-    this.load.image('pisang', pisangImg);
-    this.load.image('plastik', plastikImg);
-    this.load.image('ranting', rantingImg);
-    this.load.image('halaman_kotor_bg', halamanKotor);
-    this.load.image('halaman_kotor2_bg', halamanKotor2Bg);
-    this.load.image('halaman_bersih', halamanBg);
-    this.load.image('teacher_thumbup', teacherThumbUp);
-    this.load.image('boy_idle', boyIdle);
-    this.load.image('girl_idle', girlIdle);
-    this.load.audio('bg_gameplay', bgGameplay);
-    this.load.audio('misi_mulai', misiMulai);
-    this.load.audio('masuk_sampah', masukSampah);
-    this.load.audio('button_click', btnClickUrl);
   }
 
   create(data: { caseId: string }) {
@@ -274,8 +229,6 @@ export class CleanUpScene extends Phaser.Scene {
     });
   }
 
-
-
   private showTutorial(width: number, height: number, bin: Phaser.GameObjects.Image, targetTrash: Phaser.GameObjects.Image) {
     // 0. Overlay Gelap (supaya fokus ke tutorial)
     const overlay = this.add.rectangle(0, 0, width, height, 0x000000, 0.6).setOrigin(0, 0);
@@ -290,10 +243,12 @@ export class CleanUpScene extends Phaser.Scene {
     // 1. Munculkan karakter player di KIRI bawah (besar seperti di Briefing)
     const gender = this.registry.get('playerGender') || 'boy';
     const playerAsset = gender === 'boy' ? 'boy_idle' : 'girl_idle';
-    const player = this.add.image(width * 0.2, height + 150, playerAsset).setOrigin(0.5, 1);
+    const playerYOffset = gender === 'girl' ? 97 : 150;
+    const player = this.add.image(width * 0.2, height + playerYOffset, playerAsset).setOrigin(0.5, 1);
     const playerMaxHeight = height * 0.97;
     const playerMaxScale = playerMaxHeight / player.height;
-    player.setScale(playerMaxScale);
+    const initialPlayerScale = gender === 'girl' ? 1.07 : 1.0;
+    player.setScale(playerMaxScale * initialPlayerScale);
     player.setFlipX(true); // Menghadap kanan
     player.setAlpha(0);
     player.setDepth(150);
@@ -331,7 +286,7 @@ export class CleanUpScene extends Phaser.Scene {
       fontSize: '32px',
       color: '#f8fafc',
       wordWrap: { width: dialogWidth - 100 },
-      lineSpacing: 10
+      lineSpacing: 10,
     });
 
     // Typewriter effect

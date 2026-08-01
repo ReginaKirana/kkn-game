@@ -1,19 +1,5 @@
 import * as Phaser from 'phaser';
 
-import selokanBg from '../../assets/backgrounds/selokan-tinngi.png';
-import selokanTransisi1 from '../../assets/backgrounds/selokan-transisi1.png';
-import selokanTransisi3 from '../../assets/backgrounds/selokan-transisi3.png';
-import selokanFinal from '../../assets/backgrounds/selokan-final.png';
-import thumbUpTeacher from '../../assets/characters/teachers/thumb-up.png';
-import smileTeacher from '../../assets/characters/teachers/smile.png';
-
-import bgGameplayUrl from '../../assets/audio/case1/bg-gameplay.mp3';
-import sparkleUrl from '../../assets/audio/case1/sparkle.wav';
-import karakterMunculUrl from '../../assets/audio/sfx/karakter-muncul.wav';
-import keyboardTypingUrl from '../../assets/audio/keyboard-typing.wav';
-import finishCaseUrl from '../../assets/audio/case1/finish-case.wav';
-import btnClickUrl from '../../assets/audio/button_click.mp3';
-
 export class Case3TransitionScene extends Phaser.Scene {
   private bg!: Phaser.GameObjects.Image;
   private teacher!: Phaser.GameObjects.Image;
@@ -50,22 +36,6 @@ export class Case3TransitionScene extends Phaser.Scene {
   init() {
     this.currentDialogIndex = 0;
     this.isTyping = false;
-  }
-
-  preload() {
-    this.load.image('selokan_bg', selokanBg);
-    this.load.image('selokan_transisi1', selokanTransisi1);
-    this.load.image('selokan_transisi3', selokanTransisi3);
-    this.load.image('selokan_final', selokanFinal);
-    this.load.image('teacher_thumbup', thumbUpTeacher);
-    this.load.image('teacher_smile', smileTeacher);
-    
-    this.load.audio('bg_gameplay', bgGameplayUrl);
-    this.load.audio('sparkle', sparkleUrl);
-    this.load.audio('karakter_muncul', karakterMunculUrl);
-    this.load.audio('keyboard_typing', keyboardTypingUrl);
-    this.load.audio('finish_case', finishCaseUrl);
-    this.load.audio('btn_click', btnClickUrl);
   }
 
   create() {

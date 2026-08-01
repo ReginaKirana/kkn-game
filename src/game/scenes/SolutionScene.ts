@@ -1,27 +1,10 @@
 import * as Phaser from 'phaser';
-import halamanKotorBg from '../../assets/backgrounds/halaman-kotor.png';
-import teacherThumbUp from '../../assets/characters/teachers/thumb-up.png';
-import boyIdle from '../../assets/characters/boy/boy-idle.png';
-import girlIdle from '../../assets/characters/girl/girl-idle.png';
-import investigasiBg from '../../assets/audio/investigasi.mp3';
-import keyboardTyping from '../../assets/audio/keyboard-typing.wav';
-import buttonClick from '../../assets/audio/button_click.mp3';
 
 export class SolutionScene extends Phaser.Scene {
   private caseId!: string;
 
   constructor() {
     super('SolutionScene');
-  }
-
-  preload() {
-    this.load.image('halaman_kotor_bg', halamanKotorBg);
-    this.load.image('teacher_thumbup', teacherThumbUp);
-    this.load.image('boy_idle', boyIdle);
-    this.load.image('girl_idle', girlIdle);
-    this.load.audio('investigasi_bg', investigasiBg);
-    this.load.audio('keyboard_typing', keyboardTyping);
-    this.load.audio('button_click', buttonClick);
   }
 
   create(data: { caseId: string }) {
@@ -67,10 +50,12 @@ export class SolutionScene extends Phaser.Scene {
     const player = this.add.image(width * 0.8, height, playerAsset).setOrigin(0.5, 1);
     const playerMaxHeight = height * 0.97; 
     const playerMaxScale = playerMaxHeight / player.height;
-    player.setScale(playerMaxScale * 0.9);
+    const initialPlayerScale = gender === 'girl' ? 0.98 : 1.0;
+    player.setScale(playerMaxScale * initialPlayerScale * 1.0);
     player.setFlipX(false);
     player.setAlpha(0);
-    player.y = height + 150;
+    const playerYOffset = gender === 'girl' ? 100 : 150;
+    player.y = height + playerYOffset;
 
     // Animasi fade in murid
     this.tweens.add({
@@ -109,12 +94,14 @@ export class SolutionScene extends Phaser.Scene {
       {
         speaker: 'Ibu Guru',
         text: "Benar sekali! Tempat sampah masih tersedia, tetapi masih ada orang yang membuang sampah sembarangan. Akibatnya halaman menjadi kotor.",
-        color: 0x3b82f6 // Blue for Teacher
+        color: 0x3b82f6, // Blue for Teacher
+        playerScale: { girl: 1.09 }
       },
       {
         speaker: playerName,
         text: "Wah, kita tidak boleh membiarkan ini, Bu! Ayo teman-teman, bantu aku mengumpulkan sampah-sampah ini dan membuangnya ke tempat sampah!",
-        color: 0x16a34a // Green for Player
+        color: 0x16a34a, // Green for Player
+        playerScale: { girl: 1.05 }
       }
     ];
     let currentDialogIndex = 0;
@@ -144,6 +131,17 @@ export class SolutionScene extends Phaser.Scene {
       const currentDialog = dialogues[currentDialogIndex];
       const isTeacher = currentDialog.speaker === 'Ibu Guru';
       
+      let customPlayerScale = 1.0;
+      if (currentDialog.playerScale !== undefined) {
+        if (typeof currentDialog.playerScale === 'number') {
+          customPlayerScale = currentDialog.playerScale;
+        } else {
+          customPlayerScale = (currentDialog.playerScale as any)[gender] || 1.0;
+        }
+      } else {
+        customPlayerScale = (gender === 'girl') ? 0.98 : 1.0;
+      }
+      
       nameText.text = currentDialog.speaker;
       nameBg.clear();
       nameBg.fillStyle(currentDialog.color, 1);
@@ -154,13 +152,13 @@ export class SolutionScene extends Phaser.Scene {
         
         // Visual Novel Zoom
         this.tweens.add({ targets: teacher, scale: teacherMaxScale, alpha: 1, duration: 300 });
-        this.tweens.add({ targets: player, scale: playerMaxScale * 0.9, alpha: 0.6, duration: 300 });
+        this.tweens.add({ targets: player, scale: playerMaxScale * customPlayerScale * 0.9, alpha: 0.6, duration: 300 });
       } else {
         nameBg.fillRoundedRect(dialogWidth/2 - 230, -dialogHeight/2 - 25, 200, 50, 10);
         nameText.x = dialogWidth/2 - 130;
         
         // Visual Novel Zoom
-        this.tweens.add({ targets: player, scale: playerMaxScale, alpha: 1, duration: 300 });
+        this.tweens.add({ targets: player, scale: playerMaxScale * customPlayerScale, alpha: 1, duration: 300 });
         this.tweens.add({ targets: teacher, scale: teacherMaxScale * 0.9, alpha: 0.6, duration: 300 });
       }
 

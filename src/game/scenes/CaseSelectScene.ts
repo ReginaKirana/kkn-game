@@ -1,26 +1,9 @@
 import * as Phaser from 'phaser';
-import papanKasusBg from '../../assets/backgrounds/papan-kasus.png';
-import papanKasus2Bg from '../../assets/backgrounds/papan-kasus2.png';
-import papanKasus3Bg from '../../assets/backgrounds/papan-kasus3.png';
-import btnClickUrl from '../../assets/audio/button_click.mp3';
-import investigasiUrl from '../../assets/audio/investigasi.mp3';
-import padlockOpenUrl from '../../assets/audio/padlock-open.wav';
-import levelUpUrl from '../../assets/audio/level-up.mp3';
 
 export class CaseSelectScene extends Phaser.Scene {
   private bgMusic!: Phaser.Sound.BaseSound;
   constructor() {
     super('CaseSelectScene');
-  }
-
-  preload() {
-    this.load.image('papan_kasus_bg', papanKasusBg);
-    this.load.image('papan_kasus2_bg', papanKasus2Bg);
-    this.load.image('papan_kasus3_bg', papanKasus3Bg);
-    this.load.audio('btn_click', btnClickUrl);
-    this.load.audio('investigasi_bgm', investigasiUrl);
-    this.load.audio('padlock_open', padlockOpenUrl);
-    this.load.audio('level_up', levelUpUrl);
   }
 
   create(data: { unlockCase2?: boolean, unlockCase3?: boolean, case2Unlocked?: boolean, case3Unlocked?: boolean }) {
