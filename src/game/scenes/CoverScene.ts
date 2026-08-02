@@ -380,11 +380,10 @@ export class CoverScene extends Phaser.Scene {
           pointer-events: auto;
         }
         #name-modal-overlay .name-dialog-panel {
-          width: 90%;
-          max-width: 650px;
-          min-height: 400px;
+          width: min(650px, 90vw);
+          min-height: 420px;
           height: auto;
-          padding: 30px 15px;
+          padding: 40px 20px;
           box-sizing: border-box;
           display: flex;
           flex-direction: column;
@@ -414,8 +413,7 @@ export class CoverScene extends Phaser.Scene {
           border: 3px solid #334155;
           background: #1e293b;
           color: #f8fafc;
-          width: 95%;
-          max-width: 450px;
+          width: min(450px, 80%);
           text-align: center;
           margin: 0 0 15px 0;
           outline: none;
@@ -433,10 +431,8 @@ export class CoverScene extends Phaser.Scene {
           box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3);
         }
         #name-modal-overlay .name-dialog-btn {
-          font-size: clamp(1.1rem, 3.5vw, 1.8rem);
-          padding: 16px 20px;
-          width: 90%;
-          max-width: 350px;
+          font-size: clamp(1.2rem, 3vw, 2rem);
+          padding: 16px 60px;
           border-radius: 40px;
           border: 4px solid #047857;
           background: #10b981;
@@ -446,7 +442,7 @@ export class CoverScene extends Phaser.Scene {
           font-weight: 900;
           box-shadow: 0 8px 0 #047857, 0 15px 20px rgba(0,0,0,0.4);
           text-transform: uppercase;
-          letter-spacing: 1px;
+          letter-spacing: 2px;
           transition: all 0.1s;
           text-shadow: 2px 2px 0px #047857;
           margin: 0;
@@ -464,20 +460,20 @@ export class CoverScene extends Phaser.Scene {
         /* Gender Selection Styles */
         #name-modal-overlay .gender-container {
           display: flex;
-          gap: 10px;
+          gap: 20px;
           margin-bottom: 25px;
-          width: 95%;
-          max-width: 450px;
+          width: min(450px, 80%);
+          box-sizing: border-box;
         }
         #name-modal-overlay .gender-box {
           flex: 1;
-          padding: 12px 5px;
+          padding: 15px;
           border: 3px solid #334155;
           border-radius: 20px;
           background: #1e293b;
           color: #94a3b8;
           font-family: 'Fredoka One', sans-serif;
-          font-size: clamp(0.9rem, 3vw, 1.2rem);
+          font-size: clamp(1rem, 2vw, 1.4rem);
           text-align: center;
           cursor: pointer;
           transition: all 0.2s;
@@ -485,6 +481,7 @@ export class CoverScene extends Phaser.Scene {
           flex-direction: column;
           align-items: center;
           gap: 10px;
+          box-sizing: border-box;
         }
         #name-modal-overlay .gender-box .icon {
           font-size: 2.5rem;
@@ -510,30 +507,40 @@ export class CoverScene extends Phaser.Scene {
         /* Mobile Adjustments */
         @media (max-width: 650px), (max-height: 450px) {
           #name-modal-overlay .name-dialog-panel {
-            width: 90%;
+            width: 90vw;
             max-width: 500px;
+            padding: 20px 15px;
             min-height: auto;
-            padding: 30px 15px;
           }
           #name-modal-overlay .name-dialog-input {
-            width: 100%;
+            width: 90%;
             max-width: 350px;
-            font-size: clamp(1rem, 4vw, 1.3rem);
-          }
-          #name-modal-overlay .name-dialog-btn {
-            width: 100%;
-            max-width: 300px;
-            font-size: clamp(1.1rem, 4vw, 1.6rem);
-            padding: 14px 20px;
+            padding: 12px 15px;
+            font-size: 1rem;
+            margin-bottom: 10px;
           }
           #name-modal-overlay .gender-container {
-            width: 100%;
+            width: 90%;
             max-width: 350px;
             gap: 10px;
+            margin-bottom: 15px;
           }
           #name-modal-overlay .gender-box {
-            padding: 12px 5px;
-            font-size: clamp(0.9rem, 4vw, 1.2rem);
+            padding: 10px 5px;
+            font-size: 0.9rem;
+          }
+          #name-modal-overlay .gender-box .icon {
+            font-size: 1.8rem;
+          }
+          #name-modal-overlay .name-dialog-btn {
+            width: 80%;
+            max-width: 250px;
+            padding: 12px 20px;
+            font-size: 1.1rem;
+          }
+          #name-modal-overlay .name-dialog-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
           }
         }
       </style>
