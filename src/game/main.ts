@@ -62,20 +62,17 @@ export default function initGame(parentContainerId: string, startScene?: string,
     LeaderboardScene
   ];
 
-  // If a start scene is requested, bring it to the front of the array
-  if (startScene) {
-    const sceneIndex = scenes.findIndex(s => s.name === startScene || s.prototype.constructor.name === startScene);
-    if (sceneIndex > 0) {
-      const sceneToStart = scenes.splice(sceneIndex, 1)[0];
-      scenes.unshift(sceneToStart);
-    }
-  }
-
+  // We no longer unshift the startScene here because it would bypass BootScene.
+  // Instead, we will pass it to the registry so BootScene can transition to it.
   const gameConfig = { ...config, parent: parentContainerId, scene: scenes };
   const game = new Phaser.Game(gameConfig);
   
   if (forceGender) {
     game.registry.set('playerGender', forceGender);
+  }
+
+  if (startScene) {
+    game.registry.set('startScene', startScene);
   }
 
   return game;

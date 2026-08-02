@@ -92,8 +92,12 @@ export class LeaderboardScene extends Phaser.Scene {
     const startY = 240;
     const rowHeight = 70;
 
+    const currentPlayerName = this.registry.get('playerName') || '';
+    const currentPlayerSchool = this.registry.get('playerSchool') || '';
+
     players.forEach((player, index) => {
       const y = startY + (index * rowHeight);
+      const isCurrentPlayer = player.name === currentPlayerName && player.school_name === currentPlayerSchool;
       
       // Warna untuk 3 besar
       let rankColor = '#94a3b8'; // Abu-abu default
@@ -104,8 +108,17 @@ export class LeaderboardScene extends Phaser.Scene {
 
       // Latar belang-belang agar mudah dibaca
       const rowBg = this.add.graphics();
-      rowBg.fillStyle(bgRowColor, index % 2 === 0 ? 0.6 : 0.3);
+      if (isCurrentPlayer) {
+        rowBg.fillStyle(0x2563eb, 0.8); // Blue highlight
+      } else {
+        rowBg.fillStyle(bgRowColor, index % 2 === 0 ? 0.6 : 0.3);
+      }
       rowBg.fillRoundedRect(width/2 - listWidth/2 + 20, y - 25, listWidth - 40, 50, 10);
+      
+      if (isCurrentPlayer) {
+        rowBg.lineStyle(3, 0x60a5fa, 1); // Bright blue border
+        rowBg.strokeRoundedRect(width/2 - listWidth/2 + 20, y - 25, listWidth - 40, 50, 10);
+      }
 
       // Icon/Medal (No number ranking)
       const medalIcon = index < 3 ? (index === 0 ? '🏆' : index === 1 ? '🥈' : '🥉') : '🏅';
@@ -118,10 +131,13 @@ export class LeaderboardScene extends Phaser.Scene {
 
       // Nama (Asal Sekolah)
       const schoolName = player.school_name ? `(${player.school_name})` : '';
-      this.add.text(width/2 - listWidth/2 + 130, y, `${player.name} ${schoolName}`, {
+      let displayString = `${player.name} ${schoolName}`;
+      if (isCurrentPlayer) displayString += ' (Kamu)';
+
+      this.add.text(width/2 - listWidth/2 + 130, y, displayString, {
         fontFamily: 'monospace',
         fontSize: '26px',
-        color: '#ffffff',
+        color: isCurrentPlayer ? '#f8fafc' : '#ffffff',
         fontStyle: 'bold'
       }).setOrigin(0, 0.5);
 

@@ -82,7 +82,7 @@ export class Case3BriefingScene extends Phaser.Scene {
     this.player.setDepth(20);
     this.player.setAlpha(0);
 
-    this.bgMusic = this.sound.add('investigasi_bgm', { loop: true, volume: 0.3 });
+    this.bgMusic = this.sound.add('investigasi_bgm', { loop: true, volume: 1.1 });
     this.bgMusic.play();
     this.typingSound = this.sound.add('keyboard_typing', { loop: true, volume: 1 });
 

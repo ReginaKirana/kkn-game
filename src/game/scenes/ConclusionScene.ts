@@ -266,6 +266,9 @@ export class ConclusionScene extends Phaser.Scene {
             }
           });
 
+          // Lock all buttons to prevent hover state resetting the green color
+          optionBtns.forEach(b => b.setData('locked', true));
+
           // Jeda sebentar sebelum pindah scene agar user bisa melihat feedback
           this.time.delayedCall(2000, () => {
             if (this.bgMusic) this.bgMusic.stop();
@@ -274,7 +277,7 @@ export class ConclusionScene extends Phaser.Scene {
 
         } else {
           // Extra volume for wrong sound as requested
-          this.sound.play('wrong_sfx', { volume: 1.5 });
+          this.sound.play('wrong_sfx', { volume: 2.0 });
           errorText.setAlpha(1);
           this.tweens.add({
             targets: errorText,
@@ -471,7 +474,7 @@ export class ConclusionScene extends Phaser.Scene {
     let isClicking = false;
 
     container.on('pointerover', () => {
-      if (isClicking) return;
+      if (isClicking || container.getData('locked')) return;
       this.input.setDefaultCursor('pointer');
       bg.clear();
       bg.fillStyle(0x3b82f6, 1);
@@ -485,7 +488,7 @@ export class ConclusionScene extends Phaser.Scene {
     });
 
     container.on('pointerout', () => {
-      if (isClicking) return;
+      if (isClicking || container.getData('locked')) return;
       this.input.setDefaultCursor('default');
       bg.clear();
       bg.fillStyle(0x1e3a8a, 1);
@@ -499,7 +502,7 @@ export class ConclusionScene extends Phaser.Scene {
     });
 
     container.on('pointerdown', () => {
-      if (isClicking) return;
+      if (isClicking || container.getData('locked')) return;
       isClicking = true;
       this.input.setDefaultCursor('default');
       container.y = y + 4;

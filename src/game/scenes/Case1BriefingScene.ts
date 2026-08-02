@@ -60,7 +60,7 @@ export class Case1BriefingScene extends Phaser.Scene {
     this.player = this.add.image(width * 0.8, height, playerAsset).setOrigin(0.5, 1);
     const playerMaxHeight = height * 0.97;
     this.playerMaxScale = playerMaxHeight / this.player.height;
-    const initialPlayerScale = gender === 'girl' ? 0.98 : 1.0;
+    const initialPlayerScale = gender === 'girl' ? 0.98 : 0.97;
     this.player.setScale(this.playerMaxScale * initialPlayerScale * 1.0);
     this.player.setFlipX(false);
     this.player.setAlpha(0);
@@ -140,7 +140,7 @@ export class Case1BriefingScene extends Phaser.Scene {
         color: 0x3b82f6, // Blue
         teacherKey: 'teacher_surprised',
         teacherScale: 1.0,
-        playerScale: { boy: 1.0, girl: 0.98 }
+        playerScale: { boy: 0.97, girl: 0.98 }
       },
       {
         speaker: playerName,
@@ -149,7 +149,7 @@ export class Case1BriefingScene extends Phaser.Scene {
         teacherKey: 'teacher_surprised',
         teacherScale: 1.0,
         playerKey: { boy: 'boy_supprised', girl: 'girl_supprised' },
-          playerScale: { boy: 1.0, girl: 0.9 }
+        playerScale: { boy: 1.0, girl: 0.9 }
       },
       {
         speaker: 'Ibu Guru',
@@ -157,7 +157,7 @@ export class Case1BriefingScene extends Phaser.Scene {
         color: 0x3b82f6,
         teacherKey: 'teacher_thinking',
         teacherScale: 1.0,
-        playerScale: { boy: 1.0, girl: 0.87 }
+        playerScale: { boy: 0.97, girl: 0.87 }
       }
     ];
 

@@ -104,7 +104,7 @@ export class Case3AnalysisScene extends Phaser.Scene {
 
     this.registry.set('c3a_dialogs', dialogs);
 
-    this.bgMusic = this.sound.add('investigasi_bgm', { loop: true, volume: 0.3 });
+    this.bgMusic = this.sound.add('investigasi_bgm', { loop: true, volume: 1.1 });
     this.bgMusic.play();
     this.typingSound = this.sound.add('keyboard_typing', { loop: true, volume: 1 });
 
@@ -452,6 +452,8 @@ export class Case3AnalysisScene extends Phaser.Scene {
       { text: "Agar air di selokan menjadi jernih", isCorrect: false }
     ];
 
+    const optionBtns: Phaser.GameObjects.Container[] = [];
+
     options.forEach((opt, index) => {
       const btnWidth = 550;
       const btnHeight = 70;
@@ -481,10 +483,12 @@ export class Case3AnalysisScene extends Phaser.Scene {
       }).setOrigin(0.5);
 
       btnContainer.add([shadow, btnBg, btnText]);
+      optionBtns.push(btnContainer);
       const hitArea = new Phaser.Geom.Rectangle(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight);
       btnContainer.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
 
       btnContainer.on('pointerover', () => {
+        if (btnContainer.getData('locked')) return;
         this.input.setDefaultCursor('pointer');
         btnBg.clear();
         btnBg.fillStyle(0x3b82f6, 1);
@@ -498,6 +502,7 @@ export class Case3AnalysisScene extends Phaser.Scene {
       });
 
       btnContainer.on('pointerout', () => {
+        if (btnContainer.getData('locked')) return;
         this.input.setDefaultCursor('default');
         btnBg.clear();
         btnBg.fillStyle(0x2563eb, 1);
@@ -511,11 +516,13 @@ export class Case3AnalysisScene extends Phaser.Scene {
       });
 
       btnContainer.on('pointerdown', () => {
+        if (btnContainer.getData('locked')) return;
         this.input.setDefaultCursor('default');
         btnContainer.y = yPos + 4;
         shadow.y = -4;
 
         if (opt.isCorrect) {
+          optionBtns.forEach(b => b.setData('locked', true));
           // Benar
           this.sound.play('correct');
           btnBg.clear();

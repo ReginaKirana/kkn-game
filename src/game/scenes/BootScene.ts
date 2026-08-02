@@ -115,7 +115,8 @@ export class BootScene extends Phaser.Scene {
       
       // Small delay before starting next scene for smooth transition
       this.time.delayedCall(300, () => {
-        this.scene.start('CoverScene');
+        const nextScene = this.registry.get('startScene') || 'CoverScene';
+        this.scene.start(nextScene);
       });
     });
 

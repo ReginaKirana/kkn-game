@@ -11,6 +11,7 @@ export class InvestigationScene extends Phaser.Scene {
   private instructionBanner!: Phaser.GameObjects.Container;
   private bannerText!: Phaser.GameObjects.Text;
   private bgMusic!: Phaser.Sound.BaseSound;
+  private typingSound!: Phaser.Sound.BaseSound;
 
   constructor() {
     super('InvestigationScene');
@@ -23,6 +24,7 @@ export class InvestigationScene extends Phaser.Scene {
     
     const { width, height } = this.cameras.main;
     this.cluesFound = 0;
+    this.typingSound = this.sound.add('keyboard_typing', { loop: true, volume: 1 });
 
     // Background Image & Title Config
     let bgKey = 'halaman_kotor_bg';
@@ -98,7 +100,7 @@ export class InvestigationScene extends Phaser.Scene {
     }
     
     // Play BGM for all cases
-    this.bgMusic = this.sound.add('investigation_bgm', { loop: true, volume: 0.9 });
+    this.bgMusic = this.sound.add('investigation_bgm', { loop: true, volume: 0.95 });
     this.bgMusic.play();
 
     // Title / Instructions (Hidden initially, shown after intro)
@@ -714,6 +716,9 @@ export class InvestigationScene extends Phaser.Scene {
 
     const startTyping = () => {
       isTyping = true;
+      if (this.typingSound && !this.typingSound.isPlaying) {
+        this.typingSound.play();
+      }
       nextDialogBtn.setAlpha(0);
       textObj.text = '';
       teacher.setTexture(dialogues[currentDialogIndex].img);
@@ -728,6 +733,9 @@ export class InvestigationScene extends Phaser.Scene {
           textObj.text += textToType[charIndex];
           charIndex++;
           if (charIndex === textToType.length) {
+            if (this.typingSound && this.typingSound.isPlaying) {
+              this.typingSound.stop();
+            }
             isTyping = false;
             nextDialogBtn.setAlpha(1);
           }
@@ -740,6 +748,9 @@ export class InvestigationScene extends Phaser.Scene {
       if (isTyping) {
         if (typeWriterEvent) typeWriterEvent.remove();
         textObj.text = dialogues[currentDialogIndex].text;
+        if (this.typingSound && this.typingSound.isPlaying) {
+          this.typingSound.stop();
+        }
         isTyping = false;
         nextDialogBtn.setAlpha(1);
       } else {

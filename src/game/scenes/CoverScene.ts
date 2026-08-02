@@ -380,10 +380,11 @@ export class CoverScene extends Phaser.Scene {
           pointer-events: auto;
         }
         #name-modal-overlay .name-dialog-panel {
-          width: min(650px, 90vw);
-          min-height: 420px;
+          width: 90%;
+          max-width: 650px;
+          min-height: 400px;
           height: auto;
-          padding: 40px 20px;
+          padding: 30px 15px;
           box-sizing: border-box;
           display: flex;
           flex-direction: column;
@@ -413,7 +414,8 @@ export class CoverScene extends Phaser.Scene {
           border: 3px solid #334155;
           background: #1e293b;
           color: #f8fafc;
-          width: min(450px, 80%);
+          width: 95%;
+          max-width: 450px;
           text-align: center;
           margin: 0 0 15px 0;
           outline: none;
@@ -431,8 +433,10 @@ export class CoverScene extends Phaser.Scene {
           box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3);
         }
         #name-modal-overlay .name-dialog-btn {
-          font-size: clamp(1.2rem, 3vw, 2rem);
-          padding: 16px 60px;
+          font-size: clamp(1.1rem, 3.5vw, 1.8rem);
+          padding: 16px 20px;
+          width: 90%;
+          max-width: 350px;
           border-radius: 40px;
           border: 4px solid #047857;
           background: #10b981;
@@ -442,7 +446,7 @@ export class CoverScene extends Phaser.Scene {
           font-weight: 900;
           box-shadow: 0 8px 0 #047857, 0 15px 20px rgba(0,0,0,0.4);
           text-transform: uppercase;
-          letter-spacing: 2px;
+          letter-spacing: 1px;
           transition: all 0.1s;
           text-shadow: 2px 2px 0px #047857;
           margin: 0;
@@ -460,19 +464,20 @@ export class CoverScene extends Phaser.Scene {
         /* Gender Selection Styles */
         #name-modal-overlay .gender-container {
           display: flex;
-          gap: 20px;
+          gap: 10px;
           margin-bottom: 25px;
-          width: min(450px, 80%);
+          width: 95%;
+          max-width: 450px;
         }
         #name-modal-overlay .gender-box {
           flex: 1;
-          padding: 15px;
+          padding: 12px 5px;
           border: 3px solid #334155;
           border-radius: 20px;
           background: #1e293b;
           color: #94a3b8;
           font-family: 'Fredoka One', sans-serif;
-          font-size: clamp(1rem, 2vw, 1.4rem);
+          font-size: clamp(0.9rem, 3vw, 1.2rem);
           text-align: center;
           cursor: pointer;
           transition: all 0.2s;

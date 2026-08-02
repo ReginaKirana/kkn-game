@@ -273,7 +273,7 @@ export class Case1TransitionScene extends Phaser.Scene {
       strokeThickness: 6
     }).setOrigin(0.5);
 
-    const score = this.add.text(0, -10, 'Eco Point +10', {
+    const score = this.add.text(0, -10, 'Eco Point +500', {
       fontFamily: 'Fredoka One, Arial, sans-serif',
       fontSize: '38px',
       color: '#4ade80',
@@ -357,11 +357,15 @@ export class Case1TransitionScene extends Phaser.Scene {
           duration: 500,
           onComplete: () => {
             bgm.stop();
+            this.registry.set('ecoPoints', (this.registry.get('ecoPoints') || 1000) + 500);
             this.scene.start('CaseSelectScene', { unlockCase2: true });
           }
         });
       } else {
-        setTimeout(() => { this.scene.start('CaseSelectScene', { unlockCase2: true }); }, 500);
+        setTimeout(() => { 
+          this.registry.set('ecoPoints', (this.registry.get('ecoPoints') || 1000) + 500);
+          this.scene.start('CaseSelectScene', { unlockCase2: true }); 
+        }, 500);
       }
     });
 

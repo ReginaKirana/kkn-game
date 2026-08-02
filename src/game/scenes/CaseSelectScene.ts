@@ -29,7 +29,7 @@ export class CaseSelectScene extends Phaser.Scene {
       case3Unlocked: isCase3Unlocked
     }));
 
-    this.bgMusic = this.sound.add('investigasi_bgm', { loop: true, volume: 1 });
+    this.bgMusic = this.sound.add('investigasi_bgm', { loop: true, volume: 1.1 });
     this.bgMusic.play();
 
     this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
