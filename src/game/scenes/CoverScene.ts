@@ -506,6 +506,36 @@ export class CoverScene extends Phaser.Scene {
           color: #f9a8d4;
           box-shadow: 0 0 15px rgba(236, 72, 153, 0.4);
         }
+
+        /* Mobile Adjustments */
+        @media (max-width: 650px), (max-height: 450px) {
+          #name-modal-overlay .name-dialog-panel {
+            width: 90%;
+            max-width: 500px;
+            min-height: auto;
+            padding: 30px 15px;
+          }
+          #name-modal-overlay .name-dialog-input {
+            width: 100%;
+            max-width: 350px;
+            font-size: clamp(1rem, 4vw, 1.3rem);
+          }
+          #name-modal-overlay .name-dialog-btn {
+            width: 100%;
+            max-width: 300px;
+            font-size: clamp(1.1rem, 4vw, 1.6rem);
+            padding: 14px 20px;
+          }
+          #name-modal-overlay .gender-container {
+            width: 100%;
+            max-width: 350px;
+            gap: 10px;
+          }
+          #name-modal-overlay .gender-box {
+            padding: 12px 5px;
+            font-size: clamp(0.9rem, 4vw, 1.2rem);
+          }
+        }
       </style>
       <div class="name-dialog-panel" id="modal-content">
         <h2 class="name-dialog-title">DATA DETEKTIF</h2>
