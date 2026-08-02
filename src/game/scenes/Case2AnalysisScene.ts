@@ -40,7 +40,7 @@ export class Case2AnalysisScene extends Phaser.Scene {
       text: "Agar dapat diolah kembali sesuai jenisnya!",
       color: 0x16a34a,
       teacherKey: 'teacher_surprised',
-      playerScale: { girl: 1.25 }
+      playerScale: { girl: 1.0 }
     },
     {
       speaker: 'Ibu Guru',
@@ -95,7 +95,7 @@ export class Case2AnalysisScene extends Phaser.Scene {
     const playerMaxHeight = height * 0.97;
     this.playerMaxScale = playerMaxHeight / this.player.height;
     // Initial scale reflects the 0.9 multiplier because the player starts dimmed (listening to teacher)
-    const initialPlayerScale = gender === 'girl' ? 0.963 : 0.855; 
+    const initialPlayerScale = gender === 'girl' ? 0.963 : 0.855;
     this.player.setScale(this.playerMaxScale * initialPlayerScale); // Starts listening
     this.player.setFlipX(false);
     this.player.setAlpha(0); // Starts transparent for fade in

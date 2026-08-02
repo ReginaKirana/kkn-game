@@ -23,6 +23,14 @@ export class CaseSelectScene extends Phaser.Scene {
     const isCase3Unlocked = data.case3Unlocked || savedState.case3Unlocked || urlParams.get('case3Unlocked') === 'true' || isUnlocking3;
     const isCase2Unlocked = data.case2Unlocked || savedState.case2Unlocked || urlParams.get('case2Unlocked') === 'true' || isUnlocking2 || isCase3Unlocked;
 
+    // Clear the data object so that these flags don't persist if the scene is restarted without new data
+    if (data) {
+      data.unlockCase2 = false;
+      data.unlockCase3 = false;
+      data.case2Unlocked = false;
+      data.case3Unlocked = false;
+    }
+
     // Save back to local storage to persist the unlocked state
     localStorage.setItem('kkn-game-unlocks', JSON.stringify({
       case2Unlocked: isCase2Unlocked,

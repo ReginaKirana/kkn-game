@@ -280,7 +280,7 @@ export class CleanUpScene extends Phaser.Scene {
       fontStyle: 'bold'
     }).setOrigin(0.5);
 
-    const fullText = "Ayo teman-teman, bantu aku membersihkan halaman!\nTarik (drag) sampah ke dalam tempat sampah kuning ya!";
+    const fullText = "Ayo teman-teman, bantu aku membersihkan halaman!\nTarik (drag) sampah ke dalam tempat sampah ya!";
     const dialogText = this.add.text(-dialogWidth / 2 + 50, -dialogHeight / 2 + 40, "", {
       fontFamily: 'monospace',
       fontSize: '32px',
