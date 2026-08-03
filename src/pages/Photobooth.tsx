@@ -16,8 +16,6 @@ export default function Photobooth() {
           video: { width: 1280, height: 720, facingMode: "user" }
         });
         
-        // Mencegah memory leak / kamera tetap menyala jika user pindah halaman 
-        // sebelum akses kamera disetujui (race condition)
         if (!isMounted) {
           mediaStream.getTracks().forEach(track => track.stop());
           return;
@@ -57,42 +55,50 @@ export default function Photobooth() {
   const drawPoliceLine = (ctx: CanvasRenderingContext2D, width: number, height: number, yPos: number, text: string) => {
     const tapeHeight = 60;
     
-    // Background yellow
-    ctx.fillStyle = '#facc15'; // yellow-400
-    ctx.fillRect(0, yPos, width, tapeHeight);
-
-    // Black stripes
-    ctx.fillStyle = '#000000';
-    const stripeWidth = 40;
-    const spacing = 80;
-    
-    ctx.save();
-    // Move to yPos to clip properly if needed, but we can just draw paths
-    ctx.beginPath();
-    ctx.rect(0, yPos, width, tapeHeight);
-    ctx.clip();
-
-    for (let x = -100; x < width + 100; x += spacing) {
-      ctx.beginPath();
-      ctx.moveTo(x, yPos);
-      ctx.lineTo(x + stripeWidth, yPos);
-      ctx.lineTo(x + stripeWidth - 20, yPos + tapeHeight);
-      ctx.lineTo(x - 20, yPos + tapeHeight);
-      ctx.fill();
+    // Create a stripe pattern
+    const patternCanvas = document.createElement('canvas');
+    patternCanvas.width = 60;
+    patternCanvas.height = 60;
+    const pctx = patternCanvas.getContext('2d');
+    if (pctx) {
+      pctx.fillStyle = '#facc15'; // yellow
+      pctx.fillRect(0, 0, 60, 60);
+      pctx.fillStyle = '#000000'; // black
+      pctx.beginPath();
+      // Draw 45 degree thick line
+      pctx.moveTo(0, 60);
+      pctx.lineTo(30, 60);
+      pctx.lineTo(60, 30);
+      pctx.lineTo(60, 0);
+      pctx.lineTo(30, 0);
+      pctx.lineTo(0, 30);
+      pctx.fill();
     }
     
-    // Text overlay on tape
-    ctx.fillStyle = '#000000';
-    ctx.font = 'bold 24px "Courier New", Courier, monospace';
+    const pattern = ctx.createPattern(patternCanvas, 'repeat-x');
+    if (pattern) {
+      ctx.fillStyle = pattern;
+      ctx.fillRect(0, yPos, width, tapeHeight);
+    }
+    
+    // Draw text badges over the tape
+    ctx.font = 'bold 20px "Courier New", Courier, monospace';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     
-    // Draw text multiple times along the tape
-    for (let i = 1; i < 5; i++) {
-      ctx.fillText(text, (width / 5) * i, yPos + tapeHeight / 2);
+    for (let i = 1; i < 4; i++) {
+      const textX = (width / 4) * i;
+      const textY = yPos + tapeHeight / 2;
+      const textWidth = ctx.measureText(text).width;
+      
+      // Black background for text
+      ctx.fillStyle = '#000';
+      ctx.fillRect(textX - textWidth/2 - 10, textY - 14, textWidth + 20, 28);
+      
+      // Yellow text
+      ctx.fillStyle = '#facc15';
+      ctx.fillText(text, textX, textY);
     }
-    
-    ctx.restore();
   };
 
   const takePhoto = () => {
@@ -122,30 +128,49 @@ export default function Photobooth() {
 
     // 2. Grunge/Stamp Text: "DETEKTIF SAMPAH"
     ctx.save();
-    ctx.translate(40, 100);
+    ctx.translate(60, 120);
     ctx.rotate(-0.1);
-    ctx.fillStyle = '#dc2626'; // red-600 for stamp
+    
     ctx.strokeStyle = '#dc2626';
-    ctx.lineWidth = 4;
-    ctx.font = 'bold 48px "Courier New", Courier, monospace';
-    ctx.textAlign = 'left';
-    ctx.fillText("DETEKTIF SAMPAH", 20, 50);
-    ctx.strokeRect(0, 0, 480, 80);
-    // inner rect for stamp effect
+    ctx.lineWidth = 6;
+    ctx.strokeRect(0, 0, 420, 80);
     ctx.lineWidth = 2;
-    ctx.strokeRect(6, 6, 468, 68);
+    ctx.strokeRect(8, 8, 404, 64);
+    
+    ctx.fillStyle = '#dc2626'; // red-600 for stamp
+    ctx.font = 'bold 42px "Courier New", Courier, monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText("DETEKTIF SAMPAH", 210, 40);
     ctx.restore();
 
     // 3. User requested text: "KKN Universitas Diponegoro Desa Cibelok 2026"
-    ctx.fillStyle = 'white';
-    ctx.strokeStyle = 'black';
-    ctx.lineWidth = 4;
-    ctx.font = 'bold 28px sans-serif';
-    ctx.textAlign = 'center';
+    // Draw black pill for text
     const bottomText = "KKN Universitas Diponegoro Desa Cibelok 2026";
-    // Draw text with stroke for visibility
-    ctx.strokeText(bottomText, width / 2, height - 80);
-    ctx.fillText(bottomText, width / 2, height - 80);
+    ctx.font = 'bold 24px sans-serif';
+    const textMetrics = ctx.measureText(bottomText);
+    const textWidth = textMetrics.width;
+    const paddingX = 30;
+    const paddingY = 15;
+    
+    const pillX = width / 2 - textWidth / 2 - paddingX;
+    const pillY = height - 120 - paddingY;
+    const pillWidth = textWidth + paddingX * 2;
+    const pillHeight = 30 + paddingY * 2;
+    
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    ctx.beginPath();
+    ctx.roundRect(pillX, pillY, pillWidth, pillHeight, pillHeight / 2);
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#facc15'; // yellow border
+    ctx.stroke();
+
+    // Draw text inside pill
+    ctx.fillStyle = '#fff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(bottomText, width / 2, pillY + pillHeight / 2);
 
     setHasPhoto(true);
   };
@@ -161,7 +186,7 @@ export default function Photobooth() {
     const dataUrl = canvas.toDataURL('image/png');
     const link = document.createElement('a');
     link.href = dataUrl;
-    link.download = 'photobooth-detektif-sampah.png';
+    link.download = 'photobooth-detektif.png';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -169,15 +194,66 @@ export default function Photobooth() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+      <style>{`
+        .photobooth-container {
+          position: relative;
+          border-radius: 16px;
+          overflow: hidden;
+          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+          background-color: #000;
+          max-width: 896px;
+          width: 100%;
+          aspect-ratio: 16/9;
+          border: 4px solid #1e293b;
+        }
+        .police-tape {
+          position: absolute;
+          left: 0;
+          height: 60px;
+          width: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: space-around;
+          font-family: monospace;
+          font-weight: bold;
+          color: #facc15;
+          font-size: 1.25rem;
+          background: repeating-linear-gradient(-45deg, #facc15, #facc15 30px, #000000 30px, #000000 60px);
+        }
+        .police-text {
+          background-color: #000;
+          padding: 4px 12px;
+        }
+        .police-text.hide-mobile {
+          display: inline;
+        }
+        @media (max-width: 640px) {
+          .photobooth-container {
+            aspect-ratio: 3/4; /* Portrait on mobile */
+          }
+          .police-tape {
+            height: 40px;
+            font-size: 0.9rem;
+            background: repeating-linear-gradient(-45deg, #facc15, #facc15 20px, #000000 20px, #000000 40px);
+          }
+          .police-text {
+            padding: 2px 8px;
+          }
+          .police-text.hide-mobile {
+            display: none; /* Hide extra text on small screens */
+          }
+        }
+      `}</style>
+      
       <div style={{ marginBottom: '24px', textAlign: 'center' }}>
         <h1 style={{ fontSize: '2.25rem', fontWeight: 'bold', color: '#1e293b', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
           <Camera size={36} color="var(--primary)" />
-          Photobooth Detektif Sampah
+          Photobooth Detektif
         </h1>
         <p style={{ color: '#475569' }}>Ambil fotomu dengan bingkai keren bertema Detektif Sampah!</p>
       </div>
 
-      <div style={{ position: 'relative', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', backgroundColor: '#000', maxWidth: '896px', width: '100%', aspectRatio: '16/9', border: '4px solid #1e293b' }}>
+      <div className="photobooth-container">
         
         {/* Video element - hidden when photo is taken */}
         <video 
@@ -191,31 +267,17 @@ export default function Photobooth() {
         {!hasPhoto && (
           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, pointerEvents: 'none' }}>
             {/* Top Police tape preview */}
-            <div style={{ position: 'absolute', top: 0, left: 0, height: '60px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-around', fontFamily: 'monospace', fontWeight: 'bold', color: '#000', fontSize: '1.25rem', background: 'repeating-linear-gradient(45deg, #facc15, #facc15 30px, #000000 30px, #000000 60px)' }}>
-              <span style={{ backgroundColor: '#facc15', padding: '0 8px', borderRadius: '4px' }}>CAUTION - DETEKTIF SAMPAH</span>
-              <span style={{ backgroundColor: '#facc15', padding: '0 8px', borderRadius: '4px' }}>CAUTION - DETEKTIF SAMPAH</span>
-              <span style={{ backgroundColor: '#facc15', padding: '0 8px', borderRadius: '4px' }}>CAUTION - DETEKTIF SAMPAH</span>
-            </div>
-            
-            {/* Stamp Preview */}
-            <div style={{ position: 'absolute', top: '100px', left: '40px', transform: 'rotate(-6deg)' }}>
-              <div style={{ border: '4px solid #dc2626', padding: '8px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{ border: '2px solid #dc2626', padding: '4px 16px', color: '#dc2626', fontFamily: 'monospace', fontWeight: 'bold', fontSize: '2.25rem', whiteSpace: 'nowrap' }}>
-                  DETEKTIF SAMPAH
-                </div>
-              </div>
-            </div>
-
-            {/* Bottom Text Preview */}
-            <div style={{ position: 'absolute', bottom: '80px', width: '100%', textAlign: 'center', color: '#fff', fontWeight: 'bold', fontSize: '1.5rem', textShadow: '0 2px 4px rgba(0,0,0,1)', padding: '0 16px' }}>
-              <span style={{ WebkitTextStroke: '1px black' }}>KKN Universitas Diponegoro Desa Cibelok 2026</span>
+            <div className="police-tape" style={{ top: 0 }}>
+              <span className="police-text hide-mobile">CAUTION - DETEKTIF SAMPAH</span>
+              <span className="police-text">CAUTION - DETEKTIF SAMPAH</span>
+              <span className="police-text hide-mobile">CAUTION - DETEKTIF SAMPAH</span>
             </div>
 
             {/* Bottom Police tape preview */}
-            <div style={{ position: 'absolute', bottom: 0, left: 0, height: '60px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-around', fontFamily: 'monospace', fontWeight: 'bold', color: '#000', fontSize: '1.25rem', background: 'repeating-linear-gradient(45deg, #facc15, #facc15 30px, #000000 30px, #000000 60px)' }}>
-              <span style={{ backgroundColor: '#facc15', padding: '0 8px', borderRadius: '4px' }}>CAUTION - DETEKTIF SAMPAH</span>
-              <span style={{ backgroundColor: '#facc15', padding: '0 8px', borderRadius: '4px' }}>CAUTION - DETEKTIF SAMPAH</span>
-              <span style={{ backgroundColor: '#facc15', padding: '0 8px', borderRadius: '4px' }}>CAUTION - DETEKTIF SAMPAH</span>
+            <div className="police-tape" style={{ bottom: 0 }}>
+              <span className="police-text hide-mobile">CAUTION - DETEKTIF SAMPAH</span>
+              <span className="police-text">CAUTION - DETEKTIF SAMPAH</span>
+              <span className="police-text hide-mobile">CAUTION - DETEKTIF SAMPAH</span>
             </div>
           </div>
         )}
@@ -228,7 +290,7 @@ export default function Photobooth() {
 
       </div>
 
-      <div style={{ marginTop: '32px', display: 'flex', gap: '16px' }}>
+      <div style={{ marginTop: '32px', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '16px' }}>
         {!hasPhoto ? (
           <button 
             onClick={takePhoto}
