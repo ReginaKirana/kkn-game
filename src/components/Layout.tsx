@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { Home, BookOpen, Leaf, Star, Info, Users } from 'lucide-react';
+import { Home, BookOpen, Leaf, Star, Info, Users, Camera } from 'lucide-react';
 
 export default function Layout() {
   const location = useLocation();
@@ -18,6 +18,9 @@ export default function Layout() {
             </Link>
             <Link to="/edukasi" className={`nav-link flex items-center gap-2 ${location.pathname === '/edukasi' ? 'active' : ''}`}>
               <BookOpen size={18} /> Belajar Yuk!
+            </Link>
+            <Link to="/photobooth" className={`nav-link flex items-center gap-2 ${location.pathname === '/photobooth' ? 'active' : ''}`}>
+              <Camera size={18} /> Photobooth
             </Link>
           </div>
         </div>
@@ -53,6 +56,9 @@ export default function Layout() {
                 </Link>
                 <Link to="/guru" style={{ color: '#64748b', textDecoration: 'none', fontWeight: '600', transition: 'color 0.2s', display: 'inline-flex', alignItems: 'center', gap: '8px' }} onMouseOver={(e) => e.currentTarget.style.color = '#16a34a'} onMouseOut={(e) => e.currentTarget.style.color = '#64748b'}>
                   <Users size={16} /> Guru & Orang Tua
+                </Link>
+                <Link to="/photobooth" style={{ color: '#64748b', textDecoration: 'none', fontWeight: '600', transition: 'color 0.2s', display: 'inline-flex', alignItems: 'center', gap: '8px' }} onMouseOver={(e) => e.currentTarget.style.color = '#16a34a'} onMouseOut={(e) => e.currentTarget.style.color = '#64748b'}>
+                  <Camera size={16} /> Photobooth
                 </Link>
                 <Link to="/tentang" style={{ color: '#64748b', textDecoration: 'none', fontWeight: '600', transition: 'color 0.2s', display: 'inline-flex', alignItems: 'center', gap: '8px' }} onMouseOver={(e) => e.currentTarget.style.color = '#16a34a'} onMouseOut={(e) => e.currentTarget.style.color = '#64748b'}>
                   <Info size={16} /> Tentang Kami
