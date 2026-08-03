@@ -4,41 +4,59 @@ import { Camera, Download, RefreshCw } from 'lucide-react';
 export default function Photobooth() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const [hasPhoto, setHasPhoto] = useState(false);
-  const [stream, setStream] = useState<MediaStream | null>(null);
 
   useEffect(() => {
+    let isMounted = true;
+
+    const startCamera = async () => {
+      try {
+        const mediaStream = await navigator.mediaDevices.getUserMedia({
+          video: { width: 1280, height: 720, facingMode: "user" }
+        });
+        
+        // Mencegah memory leak / kamera tetap menyala jika user pindah halaman 
+        // sebelum akses kamera disetujui (race condition)
+        if (!isMounted) {
+          mediaStream.getTracks().forEach(track => track.stop());
+          return;
+        }
+
+        streamRef.current = mediaStream;
+        if (videoRef.current) {
+          videoRef.current.srcObject = mediaStream;
+          videoRef.current.play();
+        }
+      } catch (err) {
+        if (isMounted) {
+          console.error("Error accessing camera:", err);
+          alert("Tidak dapat mengakses kamera. Pastikan Anda memberikan izin akses.");
+        }
+      }
+    };
+
     startCamera();
+
     return () => {
+      isMounted = false;
       stopCamera();
     };
   }, []);
 
-  const startCamera = async () => {
-    try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { width: 1280, height: 720, facingMode: "user" }
-      });
-      setStream(mediaStream);
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-        videoRef.current.play();
-      }
-    } catch (err) {
-      console.error("Error accessing camera:", err);
-      alert("Tidak dapat mengakses kamera. Pastikan Anda memberikan izin akses.");
-    }
-  };
-
   const stopCamera = () => {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
     }
   };
 
   const drawPoliceLine = (ctx: CanvasRenderingContext2D, width: number, height: number, yPos: number, text: string) => {
     const tapeHeight = 60;
-
+    
     // Background yellow
     ctx.fillStyle = '#facc15'; // yellow-400
     ctx.fillRect(0, yPos, width, tapeHeight);
@@ -47,7 +65,7 @@ export default function Photobooth() {
     ctx.fillStyle = '#000000';
     const stripeWidth = 40;
     const spacing = 80;
-
+    
     ctx.save();
     // Move to yPos to clip properly if needed, but we can just draw paths
     ctx.beginPath();
@@ -62,18 +80,18 @@ export default function Photobooth() {
       ctx.lineTo(x - 20, yPos + tapeHeight);
       ctx.fill();
     }
-
+    
     // Text overlay on tape
     ctx.fillStyle = '#000000';
     ctx.font = 'bold 24px "Courier New", Courier, monospace';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-
+    
     // Draw text multiple times along the tape
     for (let i = 1; i < 5; i++) {
       ctx.fillText(text, (width / 5) * i, yPos + tapeHeight / 2);
     }
-
+    
     ctx.restore();
   };
 
@@ -139,7 +157,7 @@ export default function Photobooth() {
   const downloadPhoto = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
+    
     const dataUrl = canvas.toDataURL('image/png');
     const link = document.createElement('a');
     link.href = dataUrl;
@@ -160,12 +178,12 @@ export default function Photobooth() {
       </div>
 
       <div style={{ position: 'relative', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', backgroundColor: '#000', maxWidth: '896px', width: '100%', aspectRatio: '16/9', border: '4px solid #1e293b' }}>
-
+        
         {/* Video element - hidden when photo is taken */}
-        <video
-          ref={videoRef}
+        <video 
+          ref={videoRef} 
           style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)', display: hasPhoto ? 'none' : 'block' }} // Mirror view for user
-          autoPlay
+          autoPlay 
           playsInline
         ></video>
 
@@ -178,7 +196,7 @@ export default function Photobooth() {
               <span style={{ backgroundColor: '#facc15', padding: '0 8px', borderRadius: '4px' }}>CAUTION - DETEKTIF SAMPAH</span>
               <span style={{ backgroundColor: '#facc15', padding: '0 8px', borderRadius: '4px' }}>CAUTION - DETEKTIF SAMPAH</span>
             </div>
-
+            
             {/* Stamp Preview */}
             <div style={{ position: 'absolute', top: '100px', left: '40px', transform: 'rotate(-6deg)' }}>
               <div style={{ border: '4px solid #dc2626', padding: '8px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -203,8 +221,8 @@ export default function Photobooth() {
         )}
 
         {/* Canvas element - hidden when photo is not yet taken */}
-        <canvas
-          ref={canvasRef}
+        <canvas 
+          ref={canvasRef} 
           style={{ width: '100%', height: '100%', objectFit: 'contain', display: hasPhoto ? 'block' : 'none' }}
         ></canvas>
 
@@ -212,7 +230,7 @@ export default function Photobooth() {
 
       <div style={{ marginTop: '32px', display: 'flex', gap: '16px' }}>
         {!hasPhoto ? (
-          <button
+          <button 
             onClick={takePhoto}
             className="btn btn-primary"
             style={{ padding: '12px 32px', borderRadius: '9999px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}
@@ -222,7 +240,7 @@ export default function Photobooth() {
           </button>
         ) : (
           <>
-            <button
+            <button 
               onClick={retake}
               className="btn btn-secondary"
               style={{ padding: '12px 24px', borderRadius: '9999px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}
@@ -230,7 +248,7 @@ export default function Photobooth() {
               <RefreshCw size={24} />
               Ulangi
             </button>
-            <button
+            <button 
               onClick={downloadPhoto}
               className="btn btn-primary"
               style={{ backgroundColor: '#2563eb', padding: '12px 24px', borderRadius: '9999px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}
