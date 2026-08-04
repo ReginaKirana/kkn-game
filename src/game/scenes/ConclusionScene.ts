@@ -204,28 +204,15 @@ export class ConclusionScene extends Phaser.Scene {
     let optionY = -modalHeight / 2 + 370;
     const optionBtns: Phaser.GameObjects.Container[] = [];
 
-    const errorText = this.add.text(modalWidth / 4, optionY + 360, '❌ Perhatikan lagi petunjuk\nyang sudah kamu temukan.', {
-      fontFamily: 'Fredoka One, Arial, sans-serif',
-      fontSize: '25px',
-      color: '#ef4444',
-      fontStyle: 'bold',
-      align: 'center',
-      stroke: '#000000',
-      strokeThickness: 3
-    }).setOrigin(0.5);
-    errorText.setAlpha(0);
-
     options.forEach((opt) => {
       const btnW = (modalWidth / 2) - 80;
-      const btn = this.createOptionButton(modalWidth / 4, optionY, opt.id, opt.text, btnW, (bg, prefixBg) => {
+      const currentY = optionY;
+      const btn = this.createOptionButton(modalWidth / 4, currentY, opt.id, opt.text, btnW, (bg, prefixBg) => {
         this.input.setDefaultCursor('default');
         this.sound.play('btn_click', { seek: 0.8 });
 
         if (opt.isCorrect) {
           this.sound.play('correct_sfx');
-          
-          this.tweens.killTweensOf(errorText);
-          errorText.setAlpha(0);
 
           // Visual Feedback: Ubah warna tombol jadi Hijau
           bg.clear();
@@ -239,7 +226,8 @@ export class ConclusionScene extends Phaser.Scene {
           prefixBg.fillRoundedRect(-btnW / 2, -55, 60, 110, { tl: 15, bl: 15, tr: 0, br: 0 });
 
           // Visual Feedback: Teks BENAR popup
-          const correctText = this.add.text(modalWidth / 4, optionY, 'BENAR!', {
+          const bottomY = -modalHeight / 2 + 745;
+          const correctText = this.add.text(modalWidth / 4, bottomY, 'BENAR!', {
             fontFamily: 'Fredoka One, Arial, sans-serif',
             fontSize: '42px',
             color: '#4ade80',
@@ -254,7 +242,7 @@ export class ConclusionScene extends Phaser.Scene {
           this.tweens.add({
             targets: correctText,
             scale: 1.2,
-            y: optionY - 10,
+            y: bottomY - 10,
             duration: 400,
             ease: 'Back.easeOut',
             onComplete: () => {
@@ -278,11 +266,21 @@ export class ConclusionScene extends Phaser.Scene {
         } else {
           // Extra volume for wrong sound as requested
           this.sound.play('wrong_sfx', { volume: 2.0 });
-          errorText.setAlpha(1);
+
+          // Visual Feedback: Ubah warna tombol jadi Merah
+          bg.clear();
+          bg.fillStyle(0xef4444, 1);
+          bg.fillRoundedRect(-btnW / 2, -55, btnW, 110, 15);
+          bg.lineStyle(4, 0xffffff, 0.8);
+          bg.strokeRoundedRect(-btnW / 2 + 2, -55 + 2, btnW - 4, 110 - 4, 13);
+
+          prefixBg.clear();
+          prefixBg.fillStyle(0xdc2626, 1);
+          prefixBg.fillRoundedRect(-btnW / 2, -55, 60, 110, { tl: 15, bl: 15, tr: 0, br: 0 });
 
           this.registry.set('ecoPoints', (this.registry.get('ecoPoints') || 0) - 100);
 
-          const epMinusText = this.add.text(modalWidth / 4, optionY, '-100 EP', {
+          const epMinusText = this.add.text(modalWidth / 4, currentY, '-100 EP', {
             fontFamily: 'Fredoka One, Arial, sans-serif',
             fontSize: '32px',
             color: '#dc2626',
@@ -308,16 +306,17 @@ export class ConclusionScene extends Phaser.Scene {
             }
           });
 
-          this.tweens.add({
-            targets: errorText,
-            x: modalWidth / 4 + 10,
-            duration: 50,
-            yoyo: true,
-            repeat: 3,
-            onComplete: () => errorText.setX(modalWidth / 4)
-          });
-          this.time.delayedCall(3000, () => {
-            this.tweens.add({ targets: errorText, alpha: 0, duration: 300 });
+          this.time.delayedCall(1500, () => {
+            // Restore visual button to default (blue)
+            bg.clear();
+            bg.fillStyle(0x3b82f6, 1);
+            bg.fillRoundedRect(-btnW / 2, -55, btnW, 110, 15);
+            bg.lineStyle(4, 0xffffff, 0.8);
+            bg.strokeRoundedRect(-btnW / 2 + 2, -55 + 2, btnW - 4, 110 - 4, 13);
+
+            prefixBg.clear();
+            prefixBg.fillStyle(0x2563eb, 1);
+            prefixBg.fillRoundedRect(-btnW / 2, -55, 60, 110, { tl: 15, bl: 15, tr: 0, br: 0 });
           });
         }
       });
@@ -325,7 +324,7 @@ export class ConclusionScene extends Phaser.Scene {
       optionY += 125;
     });
 
-    rightColumn.add([question, ...optionBtns, errorText]);
+    rightColumn.add([question, ...optionBtns]);
     rightColumn.setAlpha(0); // Hide initially
 
     modalContainer.add([shadow, paper, title, lineTop, lineVert, leftColumn, rightColumn]);
