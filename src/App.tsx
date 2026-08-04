@@ -8,6 +8,7 @@ import Teacher from './pages/Teacher';
 import About from './pages/About';
 import GameOnly from './pages/GameOnly';
 import Photobooth from './pages/Photobooth';
+import Poster from './pages/Poster';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -31,6 +32,7 @@ function App() {
           <Route path="guru" element={<Teacher />} />
           <Route path="tentang" element={<About />} />
           <Route path="photobooth" element={<Photobooth />} />
+          <Route path="poster" element={<Poster />} />
         </Route>
         {/* Dedicated route for the game, without navbar and footer */}
         <Route path="/game" element={<GameOnly />} />

@@ -279,6 +279,35 @@ export class ConclusionScene extends Phaser.Scene {
           // Extra volume for wrong sound as requested
           this.sound.play('wrong_sfx', { volume: 2.0 });
           errorText.setAlpha(1);
+
+          this.registry.set('ecoPoints', (this.registry.get('ecoPoints') || 0) - 100);
+
+          const epMinusText = this.add.text(modalWidth / 4, optionY, '-100 EP', {
+            fontFamily: 'Fredoka One, Arial, sans-serif',
+            fontSize: '32px',
+            color: '#dc2626',
+            stroke: '#000000',
+            strokeThickness: 5
+          }).setOrigin(0.5);
+          
+          rightColumn.add(epMinusText);
+
+          this.tweens.add({
+            targets: epMinusText,
+            y: '-=50',
+            duration: 500,
+            ease: 'Power2',
+            onComplete: () => {
+              this.tweens.add({
+                targets: epMinusText,
+                alpha: 0,
+                delay: 1500,
+                duration: 500,
+                onComplete: () => epMinusText.destroy()
+              });
+            }
+          });
+
           this.tweens.add({
             targets: errorText,
             x: modalWidth / 4 + 10,

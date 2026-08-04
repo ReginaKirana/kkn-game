@@ -448,8 +448,8 @@ export class Case3AnalysisScene extends Phaser.Scene {
 
     const options = [
       { text: "Agar selokan terlihat bagus", isCorrect: false },
+      { text: "Agar air di selokan menjadi jernih", isCorrect: false },
       { text: "Agar aliran air tidak terhambat", isCorrect: true },
-      { text: "Agar air di selokan menjadi jernih", isCorrect: false }
     ];
 
     const optionBtns: Phaser.GameObjects.Container[] = [];
@@ -574,6 +574,34 @@ export class Case3AnalysisScene extends Phaser.Scene {
           // Salah
           this.sound.play('wrong');
           btnBg.clear();
+          
+          this.registry.set('ecoPoints', (this.registry.get('ecoPoints') || 0) - 100);
+
+          // UI Point Animation (-100 EP)
+          const epMinusText = this.add.text(this.cameras.main.width / 2, this.cameras.main.height / 2 - 100 + yPos, '-100 EP', {
+            fontFamily: 'Fredoka One, Arial, sans-serif',
+            fontSize: '32px',
+            color: '#dc2626', // Red
+            stroke: '#000000',
+            strokeThickness: 5
+          }).setOrigin(0.5).setDepth(100);
+
+          this.tweens.add({
+            targets: epMinusText,
+            y: '-=50',
+            duration: 500,
+            ease: 'Power2',
+            onComplete: () => {
+              this.tweens.add({
+                targets: epMinusText,
+                alpha: 0,
+                delay: 1500,
+                duration: 500,
+                onComplete: () => epMinusText.destroy()
+              });
+            }
+          });
+
           btnBg.fillStyle(0xdc2626, 1); // Red
           btnBg.fillRoundedRect(-btnWidth / 2, -btnHeight / 2, btnWidth, btnHeight, 15);
           btnBg.lineStyle(4, 0xffffff, 0.3);
