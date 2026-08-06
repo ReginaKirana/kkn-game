@@ -16,7 +16,7 @@ export default function Home() {
       try {
         const { data, error } = await supabase
           .from('leaderboard')
-          .select('name, school_name, score')
+          .select('name, school_name, score, created_at')
           .order('score', { ascending: false });
 
         if (error) throw error;
@@ -29,6 +29,32 @@ export default function Home() {
     }
     fetchLeaderboard();
   }, []);
+
+  const groupedMap = new Map<string, { label: string, timestamp: number, players: any[] }>();
+  
+  leaderboardData.forEach(player => {
+    let label = 'Data Lama';
+    let timestamp = 0;
+    
+    if (player.created_at) {
+      const date = new Date(player.created_at);
+      timestamp = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+      const today = new Date();
+      if (date.toDateString() === today.toDateString()) {
+        label = 'Hari Ini';
+      } else {
+        const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        label = `${date.getDate()} ${months[date.getMonth()]}`;
+      }
+    }
+    
+    if (!groupedMap.has(label)) {
+      groupedMap.set(label, { label, timestamp, players: [] });
+    }
+    groupedMap.get(label)!.players.push(player);
+  });
+
+  const sortedGroups = Array.from(groupedMap.values()).sort((a, b) => b.timestamp - a.timestamp);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '64px', paddingBottom: '64px' }}>
@@ -177,35 +203,47 @@ export default function Home() {
               <div style={{ display: 'flex', justifyContent: 'center', padding: '20px' }}>
                 <Loader2 className="animate-spin" size={32} color="#16a34a" />
               </div>
-            ) : leaderboardData.length > 0 ? (
-              leaderboardData.map((player, idx) => {
-                let color = '#64748b';
-                let bg = '#f1f5f9';
-                if (idx === 0) { color = '#f59e0b'; bg = '#fef3c7'; }
-                else if (idx === 1) { color = '#4b5563'; bg = '#f3f4f6'; }
-                else if (idx === 2) { color = '#b45309'; bg = '#ffedd5'; }
-
-                const school = player.school_name ? `(${player.school_name})` : '';
-
-                return (
-                  <div
-                    key={idx}
-                    style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 'clamp(12px, 3vw, 16px) clamp(16px, 4vw, 24px)', backgroundColor: '#f8fafc', borderRadius: '16px', border: '1px solid #e2e8f0', transition: 'transform 0.2s ease, box-shadow 0.2s ease', gap: '8px' }}
-                    onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)'; }}
-                    onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
-                      <div style={{ minWidth: '36px', height: '36px', borderRadius: '50%', backgroundColor: bg, color: color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1.1rem' }}>
-                        {idx + 1}
-                      </div>
-                      <div style={{ fontWeight: 'bold', color: '#334155', fontSize: '1.05rem', wordBreak: 'break-word', lineHeight: '1.3' }}>
-                        {player.name} <br/> <span style={{ fontSize: '0.9rem', color: '#64748b', fontWeight: '600' }}>{school}</span>
-                      </div>
-                    </div>
-                    <div style={{ fontWeight: '900', color: '#16a34a', fontSize: '1.15rem', whiteSpace: 'nowrap' }}>{player.score.toLocaleString('id-ID')}</div>
+            ) : sortedGroups.length > 0 ? (
+              sortedGroups.map((group) => (
+                <div key={group.label} style={{ marginBottom: '16px' }}>
+                  <div style={{ textAlign: 'center', margin: '24px 0 16px 0', position: 'relative' }}>
+                    <div style={{ position: 'absolute', top: '50%', left: '10%', right: '10%', borderTop: '2px dashed #cbd5e1', zIndex: 1 }}></div>
+                    <span style={{ position: 'relative', zIndex: 2, backgroundColor: '#ffffff', padding: '0 16px', color: '#64748b', fontWeight: 'bold', fontSize: '0.95rem' }}>
+                      {group.label}
+                    </span>
                   </div>
-                );
-              })
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {group.players.map((player, idx) => {
+                      let color = '#64748b';
+                      let bg = '#f1f5f9';
+                      if (idx === 0) { color = '#f59e0b'; bg = '#fef3c7'; }
+                      else if (idx === 1) { color = '#4b5563'; bg = '#f3f4f6'; }
+                      else if (idx === 2) { color = '#b45309'; bg = '#ffedd5'; }
+
+                      const school = player.school_name ? `(${player.school_name})` : '';
+
+                      return (
+                        <div
+                          key={idx}
+                          style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 'clamp(12px, 3vw, 16px) clamp(16px, 4vw, 24px)', backgroundColor: '#f8fafc', borderRadius: '16px', border: '1px solid #e2e8f0', transition: 'transform 0.2s ease, box-shadow 0.2s ease', gap: '8px' }}
+                          onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)'; }}
+                          onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
+                            <div style={{ minWidth: '36px', height: '36px', borderRadius: '50%', backgroundColor: bg, color: color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1.1rem' }}>
+                              {idx + 1}
+                            </div>
+                            <div style={{ fontWeight: 'bold', color: '#334155', fontSize: '1.05rem', wordBreak: 'break-word', lineHeight: '1.3' }}>
+                              {player.name} <br/> <span style={{ fontSize: '0.9rem', color: '#64748b', fontWeight: '600' }}>{school}</span>
+                            </div>
+                          </div>
+                          <div style={{ fontWeight: '900', color: '#16a34a', fontSize: '1.15rem', whiteSpace: 'nowrap' }}>{player.score.toLocaleString('id-ID')}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))
             ) : (
               <div style={{ textAlign: 'center', color: '#ef4444', padding: '20px', fontWeight: 'bold' }}>
                 Belum ada data detektif.
