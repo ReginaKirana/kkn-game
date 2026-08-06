@@ -230,23 +230,11 @@ export class Case2BriefingScene extends Phaser.Scene {
     const clickArea = this.add.zone(0, 0, width, height).setOrigin(0).setInteractive();
     const handleNextDialog = () => {
       if (this.isClicking) return;
+      if (this.isTyping) return;
       this.sound.play('btn_click', { seek: 0.8 });
-      if (this.isTyping) {
-        if (this.typeWriterEvent) this.typeWriterEvent.destroy();
-        this.textObj.text = dialogues[this.currentDialogIndex].text;
-        this.isTyping = false;
-        if (this.typingSound) this.typingSound.stop();
-        if (this.currentDialogIndex === dialogues.length - 1) {
-            this.nextBtnContainer.setVisible(true);
-            this.lanjutText.setVisible(false);
-        } else {
-            this.lanjutText.setAlpha(1);
-        }
-      } else {
-        if (this.currentDialogIndex < dialogues.length - 1) {
-          this.currentDialogIndex++;
-          this.startTyping(dialogues, dialogWidth, dialogHeight, nameBg, nameText);
-        }
+      if (this.currentDialogIndex < dialogues.length - 1) {
+        this.currentDialogIndex++;
+        this.startTyping(dialogues, dialogWidth, dialogHeight, nameBg, nameText);
       }
     };
     

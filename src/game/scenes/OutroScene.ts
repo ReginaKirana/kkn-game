@@ -81,7 +81,15 @@ export class OutroScene extends Phaser.Scene {
     
     // Sistem Skor: Menggunakan Eco Points yang dikumpulkan selama permainan
     // Default 1000 jika bermain dari pertengahan tanpa melalui awal
-    const score = this.registry.get('ecoPoints') || 1000;
+    let baseScore = this.registry.get('ecoPoints') || 1000;
+    
+    // Ide Baru: Tambahan poin ketelitian berdasarkan waktu (semakin lama semakin tinggi)
+    // Dibatasi maksimal 10 menit (600 detik) untuk mencegah AFK eksploitasi
+    const timeBonus = Math.min(timeSeconds, 600);
+    const finalScore = baseScore + timeBonus;
+    
+    // Update registry agar UI layar akhir menampilkan skor yang sudah ditambah bonus
+    this.registry.set('ecoPoints', finalScore);
 
     try {
       const { error } = await supabase
@@ -90,7 +98,7 @@ export class OutroScene extends Phaser.Scene {
           { 
             name: playerName, 
             school_name: schoolName, // Tambahan kolom baru untuk database
-            score: score, 
+            score: finalScore, 
             time_seconds: timeSeconds 
           }
         ]);
@@ -98,7 +106,7 @@ export class OutroScene extends Phaser.Scene {
       if (error) {
         console.error('Error saving to leaderboard:', error);
       } else {
-        console.log(`Success saving to leaderboard: ${playerName} (${schoolName}), Score: ${score}, Time: ${timeSeconds}s`);
+        console.log(`Success saving to leaderboard: ${playerName} (${schoolName}), Score: ${finalScore}, Time: ${timeSeconds}s`);
       }
     } catch (err) {
       console.error('Failed to submit score to Supabase', err);
@@ -261,24 +269,13 @@ export class OutroScene extends Phaser.Scene {
   }
 
   private handleDialogClick() {
-    if (this.isTyping) {
-      if (this.typeWriterEvent) this.typeWriterEvent.remove();
-      this.textObj.text = this.currentTextContent;
-      this.isTyping = false;
-      if (this.typingSound) this.typingSound.stop();
-      this.nextBtn.setAlpha(1);
-      if (this.currentDialogIndex === this.dialogs.length - 1) {
-        this.nextBtn.setText('Selesai ➔');
-      } else {
-        this.nextBtn.setText('Lanjut ➔');
-      }
+    if (this.isTyping) return;
+
+    this.currentDialogIndex++;
+    if (this.currentDialogIndex < this.dialogs.length) {
+      this.startTyping();
     } else {
-      this.currentDialogIndex++;
-      if (this.currentDialogIndex < this.dialogs.length) {
-        this.startTyping();
-      } else {
-        this.showFinalBadge();
-      }
+      this.showFinalBadge();
     }
   }
 

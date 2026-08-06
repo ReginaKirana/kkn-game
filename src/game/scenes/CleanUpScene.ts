@@ -5,12 +5,14 @@ export class CleanUpScene extends Phaser.Scene {
   private caseId!: string;
   private trashItemsRemaining: number = 0;
   private bannerContainer!: Phaser.GameObjects.Container;
+  private isGameActive: boolean = false;
 
   constructor() {
     super('CleanUpScene');
   }
 
   create(data: { caseId: string }) {
+    this.isGameActive = false;
     this.caseId = data.caseId || 'kasus_halaman';
     const { width, height } = this.cameras.main;
 
@@ -154,28 +156,33 @@ export class CleanUpScene extends Phaser.Scene {
       this.input.setDraggable(trash);
 
       trash.on('pointerover', () => {
+        if (!this.isGameActive) return;
         if (!trash.getData('isDragging')) {
           this.input.setDefaultCursor('pointer');
           this.tweens.add({ targets: trash, scale: trash.getData('baseScale') * 1.15, duration: 100 });
         }
       });
       trash.on('pointerout', () => {
+        if (!this.isGameActive) return;
         if (!trash.getData('isDragging')) {
           this.input.setDefaultCursor('default');
           this.tweens.add({ targets: trash, scale: trash.getData('baseScale'), duration: 100 });
         }
       });
       trash.on('drag', (pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
+        if (!this.isGameActive) return;
         trash.x = dragX;
         trash.y = dragY;
         this.input.setDefaultCursor('grabbing');
       });
       trash.on('dragstart', () => {
+        if (!this.isGameActive) return;
         trash.setData('isDragging', true);
         trash.setDepth(10);
         this.tweens.add({ targets: trash, scale: trash.getData('baseScale') * 1.3, duration: 100 });
       });
       trash.on('dragend', () => {
+        if (!this.isGameActive) return;
         trash.setData('isDragging', false);
         this.input.setDefaultCursor('default');
         this.tweens.add({ targets: trash, scale: trash.getData('baseScale'), duration: 100 });
@@ -352,12 +359,13 @@ export class CleanUpScene extends Phaser.Scene {
           alpha: 0,
           duration: 400,
           onComplete: () => {
-            player.destroy();
-            dialogContainer.destroy();
-            cursor.destroy();
             overlay.destroy();
+            dialogContainer.destroy();
+            player.destroy();
+            cursor.destroy();
             bin.setDepth(0);
             targetTrash.setDepth(0);
+            this.isGameActive = true;
           }
         });
       });

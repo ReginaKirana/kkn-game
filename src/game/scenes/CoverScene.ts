@@ -547,7 +547,7 @@ export class CoverScene extends Phaser.Scene {
       <div class="name-dialog-panel" id="modal-content">
         <h2 class="name-dialog-title">DATA DETEKTIF</h2>
         <input type="text" id="playerName" class="name-dialog-input" placeholder="Nama Panggilanmu..." autocomplete="off" />
-        <input type="text" id="schoolName" class="name-dialog-input" style="margin-bottom: 15px;" placeholder="Asal Sekolah" autocomplete="off" />
+        <input type="text" id="schoolName" class="name-dialog-input" style="margin-bottom: 15px;" placeholder="Asal (Daerah)" autocomplete="off" />
         
         <div class="gender-container" id="genderSelect">
           <div class="gender-box selected" data-gender="boy">

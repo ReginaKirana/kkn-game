@@ -17,8 +17,7 @@ export default function Home() {
         const { data, error } = await supabase
           .from('leaderboard')
           .select('name, school_name, score')
-          .order('score', { ascending: false })
-          .limit(5); // Ambil Top 5
+          .order('score', { ascending: false });
 
         if (error) throw error;
         setLeaderboardData(data || []);
@@ -47,6 +46,10 @@ export default function Home() {
         #game-container:fullscreen { border: none !important; border-radius: 0 !important; background-color: #000 !important; }
         #game-container:-webkit-full-screen iframe { width: 100% !important; height: 100% !important; max-width: 177.78vh !important; max-height: 56.25vw !important; border-radius: 0 !important; }
         #game-container:fullscreen iframe { width: 100% !important; height: 100% !important; max-width: 177.78vh !important; max-height: 56.25vw !important; border-radius: 0 !important; }
+        .leaderboard-scroll::-webkit-scrollbar { width: 6px; }
+        .leaderboard-scroll::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
+        .leaderboard-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+        .leaderboard-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
       `}</style>
 
       {/* Hero Text */}
@@ -169,7 +172,7 @@ export default function Home() {
             <p style={{ color: 'var(--text-muted)', margin: 0 }}>Siapa detektif sampah terbaik minggu ini?</p>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div className="leaderboard-scroll" style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: '400px', overflowY: 'auto', paddingRight: '8px' }}>
             {isLoading ? (
               <div style={{ display: 'flex', justifyContent: 'center', padding: '20px' }}>
                 <Loader2 className="animate-spin" size={32} color="#16a34a" />

@@ -7,6 +7,7 @@ import { Case3TrashConfig } from '../config/Case3TrashConfig';
 export class Case3CleanUpScene extends Phaser.Scene {
   private totalTrash: number = 0;
   private trashCleaned: number = 0;
+  private isGameActive: boolean = false;
 
   private bg!: Phaser.GameObjects.Image;
   private bannerContainer!: Phaser.GameObjects.Container;
@@ -19,6 +20,7 @@ export class Case3CleanUpScene extends Phaser.Scene {
 
   create() {
     const { width, height } = this.cameras.main;
+    this.isGameActive = false;
     this.trashCleaned = 0;
 
     // Background
@@ -101,14 +103,17 @@ export class Case3CleanUpScene extends Phaser.Scene {
       img.setInteractive({ useHandCursor: true });
 
       img.on('pointerover', () => {
+        if (!this.isGameActive) return;
         this.tweens.add({ targets: img, scale: img.scale * 1.15, duration: 150, ease: 'Back.easeOut' });
       });
 
       img.on('pointerout', () => {
+        if (!this.isGameActive) return;
         this.tweens.add({ targets: img, scale: maxDim / Math.max(img.width, img.height), duration: 150, ease: 'Power2' });
       });
 
       img.on('pointerdown', () => {
+        if (!this.isGameActive) return;
         img.disableInteractive();
         this.sound.play('masuk_sampah');
 
@@ -371,6 +376,7 @@ export class Case3CleanUpScene extends Phaser.Scene {
             cursor.destroy();
             overlay.destroy();
             targetTrash.setDepth(originalDepth); // return to normal
+            this.isGameActive = true;
           }
         });
       });

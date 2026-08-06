@@ -234,16 +234,8 @@ export class Case2AnalysisScene extends Phaser.Scene {
 
     const handleNext = () => {
       this.input.setDefaultCursor('default');
+      if (this.isTyping) return;
       this.sound.play('btn_click', { seek: 0.8 });
-      if (this.isTyping) {
-        if (this.typeWriterEvent) this.typeWriterEvent.destroy();
-        this.textObj.text = this.dialogs[this.currentDialogIndex].text;
-        this.isTyping = false;
-        if (this.typingSound) this.typingSound.stop();
-        if (this.dialogs[this.currentDialogIndex].showOptions) {
-          this.showOptions();
-        }
-      } else {
         if (!this.dialogs[this.currentDialogIndex].showOptions) {
           if (this.dialogs[this.currentDialogIndex].isEnd) {
             if (this.isClicking) return;
@@ -311,7 +303,6 @@ export class Case2AnalysisScene extends Phaser.Scene {
             this.startTyping(this.dialogs, dialogWidth, dialogHeight, nameBg, nameText);
           }
         }
-      }
     };
 
     this.lanjutText.on('pointerdown', handleNext);

@@ -205,44 +205,30 @@ export class Case1BriefingScene extends Phaser.Scene {
     this.investigasiBtn.setAlpha(0);
 
     this.nextBtn.on('pointerdown', () => {
+      if (this.isTyping) return;
       this.sound.play('btn_click', { seek: 0.8 });
-      if (this.isTyping) {
-        if (this.typeWriterEvent) this.typeWriterEvent.remove();
-        this.textObj.text = dialogues[this.currentDialogIndex].text;
-        this.isTyping = false;
-        if (this.typingSound) this.typingSound.stop();
-        this.nextBtn.setAlpha(1); // Pastikan tombol muncul
-      } else {
-        if (this.currentDialogIndex < dialogues.length - 1) {
-          this.currentDialogIndex++;
-          this.startTyping(dialogues, dialogWidth, dialogHeight, nameBg, nameText);
-          if (this.currentDialogIndex === dialogues.length - 1) {
-            this.nextBtn.setVisible(false);
-            this.investigasiBtn.setVisible(true);
-            this.investigasiBtn.setAlpha(1);
-          }
+      if (this.currentDialogIndex < dialogues.length - 1) {
+        this.currentDialogIndex++;
+        this.startTyping(dialogues, dialogWidth, dialogHeight, nameBg, nameText);
+        if (this.currentDialogIndex === dialogues.length - 1) {
+          this.nextBtn.setVisible(false);
+          this.investigasiBtn.setVisible(true);
+          this.investigasiBtn.setAlpha(1);
         }
       }
     });
 
     this.investigasiBtn.on('pointerdown', () => {
+      if (this.isTyping) return;
       this.sound.play('btn_click', { seek: 0.8 });
-      if (this.isTyping) {
-        if (this.typeWriterEvent) this.typeWriterEvent.remove();
-        this.textObj.text = dialogues[this.currentDialogIndex].text;
-        this.isTyping = false;
-        if (this.typingSound) this.typingSound.stop();
-        this.investigasiBtn.setAlpha(1);
-      } else {
-        if (this.currentDialogIndex === dialogues.length - 1) {
-          if (this.isClicking) return;
-          this.isClicking = true;
-          this.input.setDefaultCursor('default');
-          this.cameras.main.fadeOut(500, 0, 0, 0);
-          setTimeout(() => {
-            this.scene.start('InvestigationScene', { caseId: 'kasus_halaman' });
-          }, 150);
-        }
+      if (this.currentDialogIndex === dialogues.length - 1) {
+        if (this.isClicking) return;
+        this.isClicking = true;
+        this.input.setDefaultCursor('default');
+        this.cameras.main.fadeOut(500, 0, 0, 0);
+        setTimeout(() => {
+          this.scene.start('InvestigationScene', { caseId: 'kasus_halaman' });
+        }, 150);
       }
     });
 

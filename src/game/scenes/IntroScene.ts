@@ -266,16 +266,14 @@ export class IntroScene extends Phaser.Scene {
     });
 
     const handleNextDialog = () => {
-      if (this.isTyping) {
-        this.finishTyping();
-      } else {
-        if (this.currentDialogIndex < this.dialogues.length - 1) {
-          this.sound.play('btn_click', { seek: 0.8, volume: 0.3 });
-          this.currentDialogIndex++;
-          this.showDialog();
-          if (this.currentDialogIndex === this.dialogues.length - 1) {
-            this.input.setDefaultCursor('default');
-          }
+      if (this.isTyping) return;
+      
+      if (this.currentDialogIndex < this.dialogues.length - 1) {
+        this.sound.play('btn_click', { seek: 0.8, volume: 0.3 });
+        this.currentDialogIndex++;
+        this.showDialog();
+        if (this.currentDialogIndex === this.dialogues.length - 1) {
+          this.input.setDefaultCursor('default');
         }
       }
     };

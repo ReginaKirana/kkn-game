@@ -303,18 +303,8 @@ export class Case3TransitionScene extends Phaser.Scene {
   }
 
   private handleDialogClick() {
-    if (this.isTyping) {
-      if (this.typeWriterEvent) this.typeWriterEvent.remove();
-      this.textObj.text = this.currentTextContent;
-      this.isTyping = false;
-      if (this.typingSound) this.typingSound.stop();
-      this.nextBtn.setAlpha(1);
-      if (this.currentDialogIndex === this.dialogs.length - 1) {
-        this.nextBtn.setText('Selesai ➔');
-      } else {
-        this.nextBtn.setText('Lanjut ➔');
-      }
-    } else {
+    if (this.isTyping) return;
+
       this.currentDialogIndex++;
       if (this.currentDialogIndex < this.dialogs.length) {
         this.startTyping();
@@ -330,7 +320,6 @@ export class Case3TransitionScene extends Phaser.Scene {
           }
         });
       }
-    }
   }
 
   private showFinalResult(width: number, height: number) {

@@ -243,20 +243,9 @@ export class Case3AnalysisScene extends Phaser.Scene {
 
     const handleNext = () => {
       this.input.setDefaultCursor('default');
-      this.sound.play('btn_click', { seek: 0.8 });
       const dialogs = this.registry.get('c3a_dialogs');
-      if (this.isTyping) {
-        if (this.typeWriterEvent) this.typeWriterEvent.remove();
-        this.textObj.text = dialogs[this.currentDialogIndex].text;
-        this.isTyping = false;
-        if (this.typingSound) this.typingSound.stop();
-        if (dialogs[this.currentDialogIndex].showOptions) {
-          this.showOptions();
-        } else {
-          this.tweens.add({ targets: this.lanjutText, alpha: 1, duration: 100 });
-          this.lanjutText.setInteractive();
-        }
-      } else {
+      if (this.isTyping) return;
+      this.sound.play('btn_click', { seek: 0.8 });
         if (!dialogs[this.currentDialogIndex].showOptions) {
           if (dialogs[this.currentDialogIndex].isEnd) {
             if (this.isClicking) return;
@@ -323,7 +312,6 @@ export class Case3AnalysisScene extends Phaser.Scene {
             this.startTyping(dialogs, dialogWidth, dialogHeight, nameBg, nameText);
           }
         }
-      }
     };
 
     this.lanjutText.on('pointerdown', handleNext);
