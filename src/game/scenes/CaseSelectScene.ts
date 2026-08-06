@@ -259,11 +259,17 @@ export class CaseSelectScene extends Phaser.Scene {
 
         this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
           if (this.bgMusic) this.bgMusic.stop();
+          
+          const currentScore = this.registry.get('ecoPoints') || 0;
+          
           if (caseId === 'kasus_sampah') {
+            if (currentScore < 2200) this.registry.set('ecoPoints', 2200);
             this.scene.start('Case2BriefingScene');
           } else if (caseId === 'kasus_selokan') {
+            if (currentScore < 3600) this.registry.set('ecoPoints', 3600);
             this.scene.start('Case3BriefingScene');
           } else if (caseId === 'kasus_halaman') {
+            if (currentScore < 1000) this.registry.set('ecoPoints', 1000);
             this.scene.start('Case1BriefingScene');
           } else {
             this.scene.start('InvestigationScene', { caseId: caseId });
