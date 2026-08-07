@@ -179,11 +179,40 @@ export default function Photobooth() {
     setHasPhoto(false);
   };
 
-  const downloadPhoto = () => {
+  const downloadPhoto = async () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     
     const dataUrl = canvas.toDataURL('image/png');
+
+    // Try Web Share API first (best for iOS/iPad)
+    if (navigator.share) {
+      try {
+        const arr = dataUrl.split(',');
+        const mimeMatch = arr[0].match(/:(.*?);/);
+        const mime = mimeMatch ? mimeMatch[1] : 'image/png';
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n);
+        }
+        const file = new File([u8arr], 'photobooth-detektif.png', { type: mime });
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: 'Photobooth Detektif',
+          });
+          return; // Share successful, exit
+        }
+      } catch (err) {
+        console.error('Error sharing via Web Share API:', err);
+        // Fall back to normal download on error
+      }
+    }
+
+    // Fallback for browsers that don't support Web Share API or if it fails
     const link = document.createElement('a');
     link.href = dataUrl;
     link.download = 'photobooth-detektif.png';
